@@ -1,0 +1,4 @@
+quizzes/migrations 
+studylab/__init__.py
+studylab/settings.py
+*.pyc
