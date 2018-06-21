@@ -1,7 +1,10 @@
 .DS_Store
 media
 db.sqlite3
-settings_local.py
+
+studylab/settings.py
+migrations/
+
 *.sublime-project
 *.sublime-workspace
 
