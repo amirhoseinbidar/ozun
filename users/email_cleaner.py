@@ -11,4 +11,4 @@ def run_cleaner():
     for record in records:
         if record.remove_date < now:
             record.delete()
-    threading.Timer(1800.0, run_cleaner).start()
+    threading.Timer(600.0, run_cleaner).start()
