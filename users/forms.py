@@ -1,19 +1,13 @@
 from django import forms
+from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.models import User
 
-class loginForm(forms.Form):
-    username = forms.CharField(min_length=4, max_length=20)
-    password = forms.CharField(widget=forms.PasswordInput , min_length=8 )
 
-class registerForm(forms.Form):
-    username = forms.CharField(min_length=4,max_length=20)
-    
-    password = forms.CharField(
-        min_length=8 ,widget= forms.PasswordInput )
-    
-    re_password = forms.CharField(
-        min_length=8 ,widget= forms.PasswordInput 
-        , label='please enter password again')
-    
-    email = forms.EmailField()
-
-    
+class registerForm(UserCreationForm):
+    email = forms.EmailField(max_length=254, help_text='Required. Inform a valid email address.')
+    password1 = forms.CharField(max_length=254 ,
+        widget= forms.PasswordInput , label = 'password')
+    class Meta:
+        model = User
+        fields = ('username', 'email', 'password1', 'password2', )
+       

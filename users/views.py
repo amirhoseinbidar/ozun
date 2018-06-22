@@ -6,9 +6,22 @@ from django.forms import forms
 from django.http import HttpResponse, Http404 , HttpResponseRedirect
 from users import forms
 from django.contrib import auth
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User 
+from django.contrib.sites.shortcuts import get_current_site
+from django.utils.encoding import force_bytes, force_text
+from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
+from django.template.loader import render_to_string
+from token import account_activation_token 
+from forms import registerForm
+from django.core.mail import EmailMessage
+from django.contrib.auth import login, authenticate
+from users.models import email_auth
+
+
+
 # Create your views here.
 
+#method spliter  splite betwine diffrent  request methods
 def method_splitter(request, GET=None, POST=None):
     if request.method == 'GET' and GET is not None:
         return GET(request)
@@ -17,73 +30,66 @@ def method_splitter(request, GET=None, POST=None):
     else:
         raise Http404
 
-def login_GET(request):
-    login_form =  forms.loginForm()
-    return render(request,'login_form.html',{'form':login_form})
-
-def login_POST(request):
-    login_form = forms.loginForm(request.POST)
-    username = request.POST.get('username','')
-    password = request.POST.get('password','')
-    user = auth.authenticate(username=username,password=password)
-    if login_form.is_valid and user is not None and user.is_active:   
-        auth.login(request,user)
-        #should make a profile manager and send user to his 
-        #profile from here       
-        return HttpResponse('you are login now ')
-    else:
-        return render(request,'login_form.html',{'form': login_form , 'errors':True})
-
-
-def logout_GET(request):
-    if request.user.is_authenticated():
-        auth.logout(request)
-        return HttpResponseRedirect('/accounts/logout')
-    else:
-        return HttpResponse('you should login or register first')
-
+#this function run in first request to register url 
 def register_GET(request):
-    registerForm = forms.registerForm()
-    return render(request,'register.html',{'form':registerForm})
+    form = registerForm()
+    return render(request,'register.html',{'form':form})
 
 def register_POST(request):
-    errors = []
-    registerForm = forms.registerForm(request.POST)
-    username = request.POST.get('username','')
-    password1 = request.POST.get('password','')
-    password2 = request.POST.get('re_password','')
-    email = request.POST.get('email','')
-    
-    username_check = User.objects.filter(username = username)
-    email_check = User.objects.filter(email = email)
-    
-    flag = True
-    
-    if not registerForm.is_valid:
-        errors.extend(registerForm.errors)
-        flag = False
-    if not password1 == password2:
-        errors.append('passwords dont mach together')
-        flag = False
-    if username_check.exists():
-        print('username is exist')
-        errors.append('this user name is exist')
-        flag = False
-    if email_check.exists():
-        print('email is exist')
-        errors.append('this email address is exist')
-        flag = False
-
-    if flag:
-
-        print ('i am here')
-        print('views line:58 inside if')     
-        user = User.objects.create_user(
-        username= username , email = email,password=password1
-        )
+    form = registerForm(request.POST)
+    if form.is_valid():
+        user = form.save(commit=False)
+        user.is_active = False
         user.save()
-        return login_POST(request)
-   
+        email_auth().create_record(user)
+
+        current_site = get_current_site(request)
+        mail_subject = 'Activate your account.'
+        message = render_to_string('acc_active_email.html', {
+            'user': user,
+            'domain': current_site.domain,
+            'uid':urlsafe_base64_encode(force_bytes(user.pk)),
+            'token': account_activation_token.make_token(user),
+        })
+
+        to_email = form.cleaned_data.get('email')
+        email = EmailMessage(
+                    mail_subject, message, to=[to_email]
+        )
+        email.send()
+        return HttpResponseRedirect('/accounts/register/successfully')
+    else: 
+        print(form.error_messages) 
+        return render(request,'register.html',{'form': form})
+
+    #should make a random string 
+    #then send it to the email_auth table with his/her username,password and email and add_date and remove_date
+    #and send random string to his email  
+    #(done in register_form)
+    ###############
+    #and when he is opening /accounts/email_auth/RANDOM_STRING 
+    #then send his name as a user in users database
+    #(done in active)
+    ###############
+    #TODO:make a function every 10 minute check email_auth table 
+    #if remove_date of a recorde passed remove this recorde
+
+
+def activate(request, uidb64, token):
+    try:
+        uid = urlsafe_base64_decode(uidb64)
+        user = User.objects.get(pk=uid)
+    except Exception  , e :
+        print(e)
+        user = None
     
-    return render(request,'register.html',
-    {'form': registerForm,'errors':errors})
+    if user is not None and account_activation_token.check_token(user, token):
+        user.is_active = True
+        user.save()
+        login(request,user)
+
+        return HttpResponseRedirect('/accounts/register/successfully')
+    else:
+        return HttpResponse('Activation link is invalid!')
+
+    
