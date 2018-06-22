@@ -5,7 +5,7 @@ from django.template.loader import render_to_string
 from django.core.mail import EmailMessage
 from users.utils.token import account_activation_token
 from studylab.settings import DEBUG
-from users.models import Email_auth ,Profile
+#from users.models import Email_auth ,Profile
 
 def sendAuthEmail(request,user,to_email):
     current_site = get_current_site(request)
@@ -23,7 +23,7 @@ def sendAuthEmail(request,user,to_email):
                 mail_subject, message, to=[to_email]
     )
     
-    Email_auth().create_record(user = user)
+    #Email_auth().create_record(user = user)
 
     if DEBUG:
         context['mail'] = '\n{} \n {} \n to : {}\n'.format(

@@ -6,99 +6,60 @@ from users.models import Profile , FeedBack
 from rest_framework.authtoken.models import Token
 from course.models import StudyMedia , StudyPost , StudyPostBase
 from core.models import LessonTree ,allowed_types , GRADE , LESSON  , Location
-from rest_framework.exceptions import NotFound , NotAcceptable
+from rest_framework.exceptions import NotFound , NotAcceptable , ParseError
 from django.core.exceptions import ObjectDoesNotExist , ValidationError
+from rest_auth.serializers import UserDetailsSerializer
 from studylab.settings import TIME_ZONE
+from django.forms import ModelForm
 
-class UserSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = User
-    
-        fields = ('username','password','email')
-        extra_kwargs = {
-            'password': {'write_only': True , 'required' : False}, 
-            'email':{'required':True},
-            'password':{'required':True}
-            }
-    
-    def create(self,validated_data):
-        user = User(
-            username = validated_data['username'],
-            email = validated_data['email']
-        )
-        user.set_password(validated_data['password'])
-        user.save()
-        Token.objects.create(user=user)
-        return user
-
-
-class ProfileUserSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = User
-        fields = ('id','username','email','first_name','last_name','is_staff')
-        extra_kwargs = {
-            'username' : {'read_only':True},
-            'email':{'read_only':True},
-            'is_staff': {'read_only':True},
-        }
-
-class ProfileSerializer(serializers.ModelSerializer): #i shuld make a custom field for this
-    set_location  = serializers.CharField(max_length = 200,required = False)
-    set_grade = serializers.CharField(max_length = 200,required = False)
-    set_interest_lesson = serializers.CharField(max_length = 200,required = False)
-    location  = serializers.SerializerMethodField()
-    grade = serializers.SerializerMethodField()
-    interest_lesson = serializers.SerializerMethodField()
-
-    def get_location(self,obj):
-        if obj.location:
-            return obj.location.path
- 
-    def get_interest_lesson(self,obj):
-        data = None
-        if obj.interest_lesson:
-            data = obj.interest_lesson.turn_to_path()
-        return data
-
-    def get_grade(self,obj):
-        data = None
-        if obj.grade:
-            data = obj.grade.turn_to_path()
-        return data
-        
-    
+class ProfileForm(ModelForm):
     class Meta:
         model = Profile
-
         fields = '__all__'
 
-        extra_kwargs ={
-            'score' : {'read_only':True},
-            'set_grade' : {'write_only' : True},
-            'set_location': {'write_only' : True},
-            'set_interest_lesson': {'write_only' : True},
-        }
-    
+
+
+class UserSerializer(UserDetailsSerializer):
+    location = serializers.CharField(source = 'profile.location.path',required = False)
+    grade = serializers.CharField(source = 'profile.grade.full_path',required = False)
+    interest_lesson = serializers.CharField(source = 'profile.interest_lesson.full_path',required = False)
+    score = serializers.IntegerField(source = 'profile.score',read_only = True,required = False)
+    bio = serializers.CharField(source = 'profile.bio',required = False)
+    image = serializers.ImageField(source = 'profile.image' ,required = False)
+    brith_day = serializers.DateField(source = 'profile.brith_day' , required = False)
+
+    class Meta(UserDetailsSerializer.Meta):
+        fields = UserDetailsSerializer.Meta.fields + (
+            'location', 'grade' , 'interest_lesson' , 
+            'score' , 'bio' , 'image' , 'brith_day' ,
+        )
 
     def update(self,instance,validated_data):
-        grade = validated_data.pop('set_grade',None)
-        interest_lesson = validated_data.pop('set_interest_lesson',None)
-        location = validated_data.pop('set_location',None)
+        profile_data = validated_data.pop('profile' , {})
+
+        grade = profile_data.pop('grade',{}).pop('full_path' ,None)
+        interest_lesson = profile_data.pop(
+                'interest_lesson',{}).pop('full_path' ,None)
+        location =  profile_data.pop('location',{}).pop('path' ,None)
         
+        instance = super(UserSerializer, self).update(instance, validated_data)
+        profile = instance.profile
+        profile_data['user'] = instance.pk
+
         if grade:
             try:
-                validated_data['grade'] = LessonTree.find_by_path(grade)
-                allowed_types(GRADE , validated_data['grade'],'grade')
+                grade = LessonTree.find_by_path(grade)
+                allowed_types(GRADE , grade,'grade')
+                profile_data['grade'] = grade.pk 
             except ObjectDoesNotExist :
                 raise NotFound('this grade is not exist')
             except ValidationError as e:
                 raise NotAcceptable(e.message)
         if interest_lesson:
             try:
-                validated_data['interest_lesson'] = LessonTree.find_by_path(
-                    interest_lesson)
-                allowed_types(LESSON , validated_data['interest_lesson'] 
-                    , 'interest_lesson')
+                interest_lesson = LessonTree.find_by_path(interest_lesson)
+                allowed_types(LESSON ,  interest_lesson , 'interest_lesson')
+                profile_data['interest_lesson'] =  interest_lesson.pk
             except ObjectDoesNotExist:
                 raise NotFound('this grade is not exist')
             except ValidationError as e:
@@ -106,14 +67,20 @@ class ProfileSerializer(serializers.ModelSerializer): #i shuld make a custom fie
 
         if location:
             try:
-                validated_data['location'] = Location.objects.get(path = location)
+                profile_data['location'] = Location.objects.get(path = location).pk
             except ObjectDoesNotExist:
                 raise NotFound('this location is not exist')
 
-        Profile.objects.filter(pk = instance.pk).update(**validated_data)
-        instance.refresh_from_db()
-        
-        return instance
+        if 'image' in profile_data:
+            form = ProfileForm( profile_data ,
+                {'image': profile_data['image']} , instance = profile ) 
+        else:
+            form = ProfileForm(profile_data , instance=profile)
+        if form.is_valid():
+            form.save()
+        else :
+            raise ParseError(form.errors)
+        return instance    
 
 class StudyMediaSerializer(serializers.ModelSerializer):
     class Meta:
@@ -152,7 +119,7 @@ class QuizSerializer(serializers.ModelSerializer):
     def get_lesson(self,obj):#TODO:CODE_DUPLICATE with line 56
         data = None
         if obj.lesson:
-            data = obj.lesson.turn_to_path()
+            data = obj.lesson.full_path
         return data
     
     class Meta:

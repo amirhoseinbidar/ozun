@@ -180,4 +180,3 @@ class ExamStatistic(models.Model):
                 positive_score = pos_score , total_score = total_score )
         es.save()
         return es
-        

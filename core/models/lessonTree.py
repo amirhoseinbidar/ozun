@@ -181,13 +181,13 @@ class LessonTree(MP_Node):
             index += 1
         return object
     
-
-    def turn_to_path(self):
+    @property
+    def full_path(self):
         """ Turn a lesson location to a path """
         path_str = ''
         parent = self.get_parent()
         try:
-            path_str += parent.turn_to_path()
+            path_str += parent.full_path
         except AttributeError:
             return self.content.name
 

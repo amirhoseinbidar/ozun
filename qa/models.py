@@ -7,6 +7,14 @@ from django.conf import settings
 from django.db.models import Count
 from users.models import FeedBack
 from django.contrib.contenttypes.fields import GenericRelation
+from markdownx.models import MarkdownxField  
+
+from slugify import slugify
+
+from taggit.managers import TaggableManager
+from markdownx.models import MarkdownxField
+from markdownx.utils import markdownify
+
 
 class QuestionQuerySet(models.query.QuerySet):
     """Personalized queryset created to improve model usability"""
@@ -48,11 +56,11 @@ class Question(models.Model):
     timestamp = models.DateTimeField(auto_now_add=True)
     slug = models.SlugField(max_length=80, null=True, blank=True)
     status = models.CharField(max_length=1, choices=STATUS, default=OPEN)
-    #content = MarkdownxField()
+    content = MarkdownxField()
     has_answer = models.BooleanField(default=False)
     total_votes = models.IntegerField(default=0)
     votes = GenericRelation(FeedBack)
-    #tags = TaggableManager()
+    tags = TaggableManager()
     objects = QuestionQuerySet.as_manager()
 
     class Meta:
@@ -61,9 +69,9 @@ class Question(models.Model):
         verbose_name_plural = _("Questions")
 
     def save(self, *args, **kwargs):
-        #if not self.slug:
-        #    self.slug = slugify("{}-{}".format(self.title,self.id),
-        #                        to_lower=True, max_length=80)
+        if not self.slug:
+            self.slug = slugify("{}-{}".format(self.title,self.id),
+                                to_lower=True, max_length=80)
 
         super().save(*args, **kwargs)
 
@@ -96,7 +104,7 @@ class Question(models.Model):
         return Answer.objects.get(question=self, is_answer=True)
 
     def get_markdown(self):
-    #    return markdownify(self.content)
+        return markdownify(self.content)
         pass
 
 
@@ -105,7 +113,7 @@ class Answer(models.Model):
     to its respective question."""
     question = models.ForeignKey(Question, on_delete=models.CASCADE)
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    #content = MarkdownxField()
+    content = MarkdownxField()
     uuid_id = models.UUIDField(
         primary_key=True, default=uuid.uuid4, editable=False)
     total_votes = models.IntegerField(default=0)

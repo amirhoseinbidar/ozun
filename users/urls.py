@@ -13,13 +13,13 @@ app_name = 'users'
     #url(r'^logout/$', logout, {'template_name': 'logout_form.html'}),
     
 urlpatterns = [
-    url(r'^signup/$',views.SignUp.as_view(), name = 'sign_up'),
-    url(r'^signup/successfully$',
-        TemplateView.as_view(template_name='successfully_registration.html') 
-        , name = 'sign_up_succ'),
-    url(r'^activate/(?P<uidb64>[\d\w_\-]{1,5})/(?P<token>[\d\w]{1,13}-[\d\w]{1,30})/$',
-        activate,
-        name='activate'),
+    #url(r'^signup/$',views.SignUp.as_view(), name = 'sign_up'),
+    #url(r'^signup/successfully$',
+    #    TemplateView.as_view(template_name='successfully_registration.html') 
+    #    , name = 'sign_up_succ'),
+    #url(r'^activate/(?P<uidb64>[\d\w_\-]{1,5})/(?P<token>[\d\w]{1,13}-[\d\w]{1,30})/$',
+    #    activate,
+    #    name='activate'),
     url(r'^profile/$', views.ProfileView.as_view(), name='profile_view_own'),
     url(r'^profile/edit/$', views.ProfileEdit.as_view(),name = 'profile_edit'),
     url(r'^profile/(?P<pk>\d+)/$', views.ProfileView.as_view() , name = 'profile_view'),

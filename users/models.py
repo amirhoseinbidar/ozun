@@ -8,25 +8,19 @@ from core.models.temporaryKey import BaseTemporaryKey
 from core.models import LESSON , GRADE , allowed_types , LessonTree ,Location 
 from django.urls import reverse
 from datetime import datetime
+from allauth.socialaccount import default_app_config
+from django.dispatch import receiver
+from allauth.account.signals import email_confirmed
+from allauth.account.models import EmailAddress
 
 
-class Email_auth(BaseTemporaryKey):
-    
-    user = models.OneToOneField(User,on_delete=models.CASCADE)
-    FORWARD_TIME = 1800 #00:30:00 
-
-    def create_record(self,user,forward_time = 0,*args,**kwargs):
-        self = super(Email_auth,self).create_record(forward_time)
-        self.user = user
-        return self.save(*args,**kwargs)
-
-    def close_action(self):
-        self.user.delete()
-        self.delete()
-        
-    def __str__(self):
-        return self.user.__str__()
-    
+@receiver(email_confirmed)
+def createProfile(request,email_address,**kwargs):
+    if not Profile.objects.filter(user = email_address.user).exists():
+        Profile.objects.create(
+            user = email_address.user ,
+            image = 'users/diffalte_images/(1).jpg'
+        )
 
 class Profile(models.Model):
     
@@ -48,14 +42,23 @@ class Profile(models.Model):
         if not self.score:
             self.score = 0
         
-        return super(Profile,self).save(*args,**kwargs)
+        super(Profile,self).save(*args,**kwargs)
     
     def get_absolute_url(self):
         return reverse('profile_detail', kwargs={'pk': self.pk})
     
     def get_user_age(self):
         if self.brith_day:
-            deffrence = datetime.today() - self.brith_day
+            try:
+                brith_day= datetime(
+                    year = self.brith_day.year,
+                    month = self.brith_day.month,
+                    day = self.brith_day.day,
+                    )
+            except AttributeError:
+                brith_day = None
+                
+            deffrence = datetime.today() - brith_day
             age_year = deffrence.days // (365.25)
             age_month = (deffrence.days- age_year *365.25)//(365.25/12)
         

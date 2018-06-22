@@ -25,30 +25,51 @@ SECRET_KEY = 'qn4*+bl3$6u6ahyaof%w3lu3+x*-+ql#2lq#g)tmzi!!kta34v'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [ "localhost", "127.0.0.1" ]
 
 
 # Application definition
 
-INSTALLED_APPS = [
+DJANGO_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
+    'django.contrib.sites',
     'django.contrib.staticfiles',
-    'django_cleanup',
+]
+
+EXTRA_APPS = [    
     'rest_framework',
     'rest_framework.authtoken',
+    'django_cleanup',
+    'treebeard',
+    'taggit' , 
+    'rest_auth' ,
     
+    
+    'allauth',
+    'allauth.account',
+    'rest_auth.registration',
+    'allauth.socialaccount',
+    'allauth.socialaccount.providers.github',
+    'allauth.socialaccount.providers.google',
+    'allauth.socialaccount.providers.linkedin',
+    'allauth.socialaccount.providers.twitter',
+    'allauth.socialaccount.providers.facebook',
+]
+
+LOCAL_APPS = [
     'core',
     'quizzes',
     'users',
     'restAPI',
     'course', 
-    'treebeard',
     'qa',
 ]
+
+INSTALLED_APPS = DJANGO_APPS + EXTRA_APPS + LOCAL_APPS 
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -74,10 +95,20 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                
+                # `allauth` needs this from django
+                'django.template.context_processors.request',
             ],
         },
     },
 ]
+
+AUTHENTICATION_BACKENDS = (
+        # Needed to login by username in Django admin, regardless of `allauth`
+        'django.contrib.auth.backends.ModelBackend',
+        # `allauth` specific authentication methods, such as login by e-mail
+        'allauth.account.auth_backends.AuthenticationBackend',
+)
 
 WSGI_APPLICATION = 'studylab.wsgi.application'
 
@@ -154,21 +185,21 @@ STATIC_ROOT = os.path.join(BASE_DIR,'static')
 
 STATIC_URL = '/static/'
 
-#Media Files 
+##### Media Files ##### 
 
 MEDIA_ROOT = os.path.join(PROJECT_DIR, 'media')
 MEDIA_URL = '/media/'
 
 
-#Email
+##### Email setting #####
  
-EMAIL_USE_TLS = True
-EMAIL_HOST = 'smtp.gmail.com'
-EMAIL_HOST_USER = 'amirhoseinbk00@gmail.com'
-EMAIL_HOST_PASSWORD = 'amir1380' #TODO: this is not secure should encypte
-EMAIL_PORT = 587
+#EMAIL_USE_TLS = True
+#EMAIL_HOST = 'smtp.gmail.com'
+#EMAIL_HOST_USER = 'amirhoseinbk00@gmail.com'
+#EMAIL_HOST_PASSWORD = 'amir1380' #TODO: this is not secure should encypte
+#EMAIL_PORT = 587
 
-#Rest framework authentication
+##### Rest framework authentication setting #####
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
@@ -178,6 +209,19 @@ REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': (
         'rest_framework.permissions.IsAuthenticated',
     ),
+}
+
+##### allauth setting #####
+ACCOUNT_EMAIL_VERIFICATION = "mandatory"
+ACCOUNT_EMAIL_REQUIRED = True
+ACCOUNT_USERNAME_MIN_LENGTH = 6
+ACCOUNT_AUTHENTICATION_METHOD = 'username'
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
+##### allauth rest setting #####
+SITE_ID = 1
+REST_AUTH_SERIALIZERS = {
+    'USER_DETAILS_SERIALIZER': 'restAPI.serializers.UserSerializer'
 }
 
 

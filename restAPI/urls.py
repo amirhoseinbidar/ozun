@@ -1,16 +1,26 @@
 from django.conf.urls import url,include
 from rest_framework.authtoken.views import obtain_auth_token 
+from rest_auth.registration.views import (
+    SocialAccountListView, SocialAccountDisconnectView
+    )
 from . import views
 
 
 app_name = 'api'
 urlpatterns = [
-    url(r'^signup/$',views.UserCreate.as_view(),name ='create_user'),
-    url(r"^login/$", obtain_auth_token, name="login"),
-    
-    url(r'^users/profile/$', views.ProfileUpdate.as_view() ,name = 'profile_update'),
-    url(r'^users/profile/(?P<pk>\d)/$',views.ProfileView.as_view(),name = 'profile_view'),
-    
+    url(r'^rest-auth/', include('rest_auth.urls')),
+    url(r'^rest-auth/registration/', include('rest_auth.registration.urls')),
+    url(
+        r'^socialaccounts/$',
+        SocialAccountListView.as_view(),
+        name='social_account_list'
+    ),
+    url(
+        r'^socialaccounts/(?P<pk>\d+)/disconnect/$',
+        SocialAccountDisconnectView.as_view(),
+        name='social_account_disconnect'
+    ),
+     
     url(r'^quiz/(?P<quiz_pk>\d)/feed-back/$' , views.QuizFeedBack.as_view(), name = 'quiz_feed_back'),
     url(r"^quiz/(?P<action>[\w-]{1,20})/$",views.QuizSearchList.as_view() , name = 'search_quiz'),
     url(r'^quiz/(?P<action>[\w-]{1,20})/(?P<from>\d{1,10})/(?P<to>\d{1,10})/$'

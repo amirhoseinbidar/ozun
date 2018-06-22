@@ -13,5 +13,5 @@ class StudyPostList(generics.ListAPIView):
     def get(self,request,*args,**kwargs):
         response = super(StudyPostList, self).get(request,*args,**kwargs)
         response.data['lesson'] = LessonTree.objects.get(
-                pk = response.data['lesson']).turn_to_path()
+                pk = response.data['lesson']).full_path
         return response 
