@@ -1,0 +1,47 @@
+register part:
+
+    ✔ should make a random string @done (6/25/2018, 4:30:28 AM)
+       then send it to the email_auth table with his/her username,password and email and add_date and remove_date
+       and send random string to his email  
+       (done in register_form)
+
+     ✔ and when he is opening /accounts/email_auth/RANDOM_STRING @done (6/25/2018, 4:31:30 AM)
+        then send his name as a user in users database
+        (done in active)
+
+    ✔ make a function every 10 minute check email_auth table @done (6/25/2018, 4:32:01 AM)
+        if remove_date of a recorde passed  , remove this recorde
+        (done in email_cleaner)
+
+profile part :
+    user can go to profile in two way
+    first : log in 
+    secound : active token 
+
+    ✔ active token is just for first log in (register) @done (6/25/2018, 5:00:37 AM)
+
+    ✔ in log in when user pass authenticate  we send it to /accounts/profile/ which @done (6/25/2018, 5:01:13 AM)
+    is a controller and send user to his own profile by his user name 
+    done in profile_controller
+   
+    ✔ some one profile url is like this  /accounts/profile/USERNAME @done (6/25/2018, 5:01:34 AM)
+    ☐ if user did not login and open profile url we send it to login form
+    done in profile 
+
+    should make two decorators:  
+        ☐ one for check db and make sure user in exist
+        ☐ onother for check entry user and make sure entry user is for this profile 
+    
+    ☐ complete profile enter
+
+    ☐ complete profile_edit
+
+    ☐ make a users profile db
+
+    ☐ make a users profile db controller which send data from db to views
+
+    ☐ complete profile part
+    
+
+
+

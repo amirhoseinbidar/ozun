@@ -42,7 +42,7 @@ class quizze(models.Model):
     
     exponential_answer= models.FilePathField(
         allow_folders=True,
-        path='/home/abk/bigEpsilon/studylab/exponential answers' ,
+        path='/home/abk/bigEpsilon/studylab/informtions/exponential answers' ,
         )
 
     source = models.ForeignKey(source)
@@ -52,7 +52,7 @@ class quizze(models.Model):
     class Meta:
         db_table = "quizzes"
     def __unicode__(self):
-        return u'{0}'.format(self.text)
+        return u'{0}'.format(self.pk)
 
 
 

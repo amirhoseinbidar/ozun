@@ -4,86 +4,131 @@ from __future__ import unicode_literals
 from django.shortcuts import render
 from django.forms import forms
 from django.http import HttpResponse, Http404 , HttpResponseRedirect
-from users import forms
 from django.contrib import auth
-from django.contrib.auth.models import User
-# Create your views here.
+from django.contrib.auth.models import User 
+from django.contrib.sites.shortcuts import get_current_site
+from django.utils.encoding import force_bytes, force_text
+from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
+from django.template.loader import render_to_string
+from utils import account_activation_token , registerForm ,profileForm , check_user_exists_decorator, check_user_is_own
+from django.core.mail import EmailMessage
+from django.contrib.auth import login, authenticate
+from users.models import Email_auth , Profile
+from django.core.exceptions import ValidationError
 
-def method_splitter(request, GET=None, POST=None):
+
+
+#method spliter  splite betwine diffrent  request methods
+def method_splitter(request, GET=None, POST=None , **kwargs):
     if request.method == 'GET' and GET is not None:
-        return GET(request)
+        return GET(request,**kwargs)
     elif request.method == 'POST' and POST is not None:
-        return POST(request)
+        return POST(request,**kwargs)
     else:
         raise Http404
 
-def login_GET(request):
-    login_form =  forms.loginForm()
-    return render(request,'login_form.html',{'form':login_form})
-
-def login_POST(request):
-    login_form = forms.loginForm(request.POST)
-    username = request.POST.get('username','')
-    password = request.POST.get('password','')
-    user = auth.authenticate(username=username,password=password)
-    if login_form.is_valid and user is not None and user.is_active:   
-        auth.login(request,user)
-        #should make a profile manager and send user to his 
-        #profile from here       
-        return HttpResponse('you are login now ')
-    else:
-        return render(request,'login_form.html',{'form': login_form , 'errors':True})
-
-
-def logout_GET(request):
-    if request.user.is_authenticated():
-        auth.logout(request)
-        return HttpResponseRedirect('/accounts/logout')
-    else:
-        return HttpResponse('you should login or register first')
-
+#this function run in first request to register url 
 def register_GET(request):
-    registerForm = forms.registerForm()
-    return render(request,'register.html',{'form':registerForm})
+    form = registerForm()
+    return render(request,'register.html',{'form':form})
 
 def register_POST(request):
-    errors = []
-    registerForm = forms.registerForm(request.POST)
-    username = request.POST.get('username','')
-    password1 = request.POST.get('password','')
-    password2 = request.POST.get('re_password','')
-    email = request.POST.get('email','')
-    
-    username_check = User.objects.filter(username = username)
-    email_check = User.objects.filter(email = email)
-    
-    flag = True
-    
-    if not registerForm.is_valid:
-        errors.extend(registerForm.errors)
-        flag = False
-    if not password1 == password2:
-        errors.append('passwords dont mach together')
-        flag = False
-    if username_check.exists():
-        print('username is exist')
-        errors.append('this user name is exist')
-        flag = False
-    if email_check.exists():
-        print('email is exist')
-        errors.append('this email address is exist')
-        flag = False
-
-    if flag:
-
-        print ('i am here')
-        print('views line:58 inside if')     
-        user = User.objects.create_user(
-        username= username , email = email,password=password1
-        )
+    form = registerForm(request.POST)
+    if form.is_valid():
+        user = form.save(commit=False)
+        user.is_active = False
         user.save()
-        return login_POST(request)
-   
+       
+
+        current_site = get_current_site(request)
+        mail_subject = 'Activate your account.'
+        message = render_to_string('acc_active_email.html', {
+            'user': user,
+            'domain': current_site.domain,
+            'uid':urlsafe_base64_encode(force_bytes(user.pk)),
+            'token': account_activation_token.make_token(user),
+        })
+
+        to_email = form.cleaned_data.get('email')
+        email = EmailMessage(
+                    mail_subject, message, to=[to_email]
+        )
+        email.send()
+        return HttpResponseRedirect('/accounts/register/successfully')
+    else: 
+        print(form.error_messages) 
+        return render(request,'register.html',{'form': form})
+
+
+
+def activate(request, uidb64, token):
+    try:
+        uid = urlsafe_base64_decode(uidb64)
+        user = User.objects.get(pk=uid)
+    except Exception  , e :
+        print(e)
+        user = None
     
-    return render(request,'register.html',
-    {'form': registerForm,'errors':errors})
+    if user is not None and account_activation_token.check_token(user, token):
+        user.is_active = True
+        user.save()
+        Profile(user =user).save()
+        Email_auth.objects.filter(user = user).delete()
+        login(request,user)
+
+        return HttpResponseRedirect('/accounts/profile')
+    else:
+        return HttpResponse('Activation link is invalid!')
+
+
+def profile_controller(request):
+    if request.user.is_authenticated():
+        return HttpResponseRedirect('/accounts/profile/%s/' %(request.user.username))
+    else:
+        return HttpResponseRedirect('/accounts/login/')
+
+@check_user_exists_decorator
+def profile(request,username): 
+    if check_user_is_own(request,username) :
+        from datetime import date
+        import time
+        
+
+        
+        person = Profile.objects.get(user__username = username)
+       
+        try :
+            deffrence = date.today() - person.brith_day
+        except:
+            deffrence = 0
+
+        age_year = deffrence.days // (365.25)
+        age_month = (deffrence.days- age_year *365.25)//(365.25/12)
+        print(age_year,age_month)
+
+        context = {
+            'bio' : person.bio,
+            'image': person.image,
+            'name' : person.user.get_full_name(),
+            'location': person.location,
+            'age_year': age_year,
+            'age_month': age_month,
+        }
+        
+        return HttpResponse('hello this is your profile  , bio: %s'%(person.bio))         
+    else:
+        return HttpResponse('hello this is %s profile' % (username))
+
+
+@check_user_exists_decorator
+def profile_edit_GET(request,username): 
+    if check_user_is_own(request, username):
+        form  = profileForm()
+        return render(request,'edit_profile.html',{'form':form})  
+    else:
+        return HttpResponseRedirect('accounts/%s/' %(username))
+
+
+def profile_edit_POST(request,username):
+    pass 
+

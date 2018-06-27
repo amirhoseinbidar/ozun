@@ -37,7 +37,9 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django_cleanup',
     'quizzes',
+    'users',
 ]
 
 MIDDLEWARE = [
@@ -130,3 +132,27 @@ EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_HOST_USER = 'amirhoseinbk00@gmail.com'
 EMAIL_HOST_PASSWORD = 'amir1380' #TODO: this is not secure should encypte
 EMAIL_PORT = 587
+
+LOGIN_REDIRECT_URL = 'profile_controller'
+LOGIN_URL = 'profile_controller'
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'file': {
+            'level': 'DEBUG',
+            'class': 'logging.FileHandler',
+            'filename': '/home/abk/bigEpsilon/studylab/debug.log',
+        },
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['file'],
+            'level': 'DEBUG',
+            'propagate': True,
+        },
+    },
+}
+
+MEDIA_ROOT = os.path.join(BASE_DIR, 'informations')
