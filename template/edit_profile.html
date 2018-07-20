@@ -5,11 +5,14 @@
 </head>
 
 <body>
+    <img src='{{ image }}' height="300px" width="500px">
     <form method="post" enctype="multipart/form-data">
         {% csrf_token %} {{ form.as_p }}
-        <button type="submit">Upload</button>
-    </form>
-
+        <button type="submit">Update</button>
+    </form> 
+    {% if edited %}
+        profile were edit 
+    {% endif %}
 </body>
 
 </html>

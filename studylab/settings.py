@@ -38,8 +38,9 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django_cleanup',
-    'quizzes',
+    
     'users',
+    'quizzes',
 ]
 
 MIDDLEWARE = [
@@ -60,6 +61,7 @@ TEMPLATES = [
         'DIRS': ['/home/abk/bigEpsilon/studylab/template',],
         'APP_DIRS': True,
         'OPTIONS': {
+            'debug': True,
             'context_processors': [
                 'django.template.context_processors.debug',
                 'django.template.context_processors.request',
@@ -76,7 +78,7 @@ WSGI_APPLICATION = 'studylab.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/1.11/ref/settings/#databases
 
-DATABASES = {
+DATABASES = {#TODO: this is not secure should encypte
    'default': {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': "studylab",
@@ -84,7 +86,8 @@ DATABASES = {
         'PASSWORD': "111111",
         'HOST': "localhost",
         'default-character-set': 'utf8mb4',
-    }
+    },
+   
 }
 
 
@@ -136,23 +139,24 @@ EMAIL_PORT = 587
 LOGIN_REDIRECT_URL = 'profile_controller'
 LOGIN_URL = 'profile_controller'
 
-LOGGING = {
-    'version': 1,
-    'disable_existing_loggers': False,
-    'handlers': {
-        'file': {
-            'level': 'DEBUG',
-            'class': 'logging.FileHandler',
-            'filename': '/home/abk/bigEpsilon/studylab/debug.log',
-        },
-    },
-    'loggers': {
-        'django': {
-            'handlers': ['file'],
-            'level': 'DEBUG',
-            'propagate': True,
-        },
-    },
-}
+#LOGGING = {
+#    'version': 1,
+#    'disable_existing_loggers': False,
+#    'handlers': {
+#        'file': {
+#            'level': 'DEBUG',
+#            'class': 'logging.FileHandler',
+#            'filename': '/home/abk/bigEpsilon/studylab/debug.log',
+#        },
+#    },
+#    'loggers': {
+#        'django': {
+#            'handlers': ['file'],
+#            'level': 'DEBUG',
+#            'propagate': True,
+#        },
+#    },
+#}
 
 MEDIA_ROOT = os.path.join(BASE_DIR, 'informations')
+MEDIA_URL = '/informations/'

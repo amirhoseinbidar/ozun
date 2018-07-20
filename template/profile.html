@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+{% block body%}
+
+<p>
+    <img src="{{ image }}" width="500px" height="300px">
+    {{ name  }}
+</p>
+
+<p>
+    {% if bio %}
+        {{ bio }}
+    {% endif %}
+</p>
+
+{% if location %}
+<p>
+    location : {{ location }}
+</p>
+{% endif %}
+
+{% if age_year %}
+<p>
+    age : {{ age_year }} year and {{ age_month }} month
+</p>
+{% endif %}
+{% if is_user_own %}
+<a href="edit/">edit profile</a>
+{% endif %}
+{% if quiz_select_form %}
+<form method="GET" action='/quizzes/ask/'>
+    {% csrf_token %} 
+    {{ quiz_select_form.as_p }}
+    
+    <button type="submit">Start</button>
+</form>
+{% endif %}
+
+{% endblock %}

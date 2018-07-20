@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+{% block body%}
+<form method="POST" action='/quizzes/show_answer'>
+    {% csrf_token %} 
+    {% for form in forms %}
+        
+        {{ form.quiz|safe}}
+        <br>-----------------------<br>
+        <p><ul id="id_answer_{{form.pk}}">
+        {% for choice in form.answers%}
+            <li><label for="id_answer_{{form.pk}}_{{choice.number}}"><input type="radio" name="answer_{{form.pk}}" value="pk={{form.pk}}**number={{choice.number}}" required id="id_answer_{{form.pk}}_{{choice.number}}" />
+                {{choice.answer | safe}}
+            </label>
+            </li>
+        {% endfor%}
+        <br>-----------------------<br>
+        </p></ul>
+
+
+    {% endfor %}
+    <button type="submit">Update</button>
+</form>
+{% endblock %}
