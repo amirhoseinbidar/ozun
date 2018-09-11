@@ -12,13 +12,12 @@ from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.template.loader import render_to_string
 from users.utils.checks import check_user_exists_decorator ,check_user_is_own
 from users.utils.forms import registerForm ,  profileEditForm
-from users.utils.token import TokenGenerator
+from users.utils.token import TokenGenerator ,account_activation_token
 from django.core.mail import EmailMessage
 from django.contrib.auth import login, authenticate
 from users.models import Email_auth, Profile  , Country_city
 from django.core.exceptions import ValidationError
 from quizzes.forms import quiz_select_form
-
 
 #this function run in first request to register url 
 def register_GET(request):
@@ -58,15 +57,16 @@ def activate(request, uidb64, token):
     try:
         uid = urlsafe_base64_decode(uidb64)
         user = User.objects.get(pk=uid)
-    except Exception  , e :
-        print(e)
+        #when record timeout in Email auth end we clear user and email auth so
+        # if user cleared this function raise error  
+    except :
         user = None
     
-    if user is not None and account_activation_token.check_token(user, token):
+    if user is not None and account_activation_token.check_token(user, token) :
         user.is_active = True
         user.save()
         Profile(user =user).save()
-        Email_auth.objects.filter(user = user).delete()
+        Email_auth.objects.get(user = user).delete()
         login(request,user)
 
         return HttpResponseRedirect('/accounts/profile')
@@ -85,6 +85,8 @@ def profile_controller(request):# after register  or login  page redirect to thi
 def profile(request,pk,attr): 
     person = Profile.objects.get(user__pk = pk)
     from datetime import date
+    from django.utils.crypto import get_random_string
+
     try :
         deffrence = date.today() - person.brith_day
         age_year = deffrence.days // (365.25)
@@ -92,6 +94,7 @@ def profile(request,pk,attr):
     except:
         age_year = 0
         age_month = 0    
+    
     context = {
         'domain': get_current_site(request).domain,
         'bio' : person.bio,
@@ -102,9 +105,10 @@ def profile(request,pk,attr):
         'age_month': int(age_month),
         'username' : person.user.username,
     }
+    
 
     if check_user_is_own(request, attr,pk):
-        context['quiz_select_form']= quiz_select_form()
+        context['quiz_select_form']= quiz_select_form( {'token' : get_random_string(length=30)} )
         context['is_user_own']=  True
         return render(request,'profile.html',context)         
     else:
@@ -116,10 +120,10 @@ def profile(request,pk,attr):
 def profile_edit_GET(request,pk,attr):
     if check_user_is_own(request,attr,pk):    
         person = Profile.objects.get(user__pk =pk)
-        
+
         if person.location:
-            provinc = person.location.province.pk
-            county =  person.location.province.pk
+            provinc = person.location.county.province.pk
+            county =  person.location.county.pk
             city = person.location.pk
         else:
             provinc = county = city = -1

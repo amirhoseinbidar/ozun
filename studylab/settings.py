@@ -127,8 +127,24 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.11/howto/static-files/
 
-STATIC_URL = '/static/'
 
+PROJECT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+BASE_DIR =os.path.dirname(PROJECT_DIR)
+STATICFILES_FINDER = [
+    'django.contrib.staticfiles.finders.FileSystemFinder',
+    'django.contrib.staticfiles.finders.appDirectoriesFinder',
+]
+STATICFILES_DIRS = [
+    os.path.join(PROJECT_DIR,'static'),
+]
+STATIC_ROOT = os.path.join(BASE_DIR,'static')
+
+STATIC_URL = '/static/'
+#Media Files 
+MEDIA_ROOT = os.path.join(PROJECT_DIR, 'informations')
+MEDIA_URL = '/informations/'
+
+#Email 
 
 EMAIL_USE_TLS = True
 EMAIL_HOST = 'smtp.gmail.com'
@@ -136,9 +152,11 @@ EMAIL_HOST_USER = 'amirhoseinbk00@gmail.com'
 EMAIL_HOST_PASSWORD = 'amir1380' #TODO: this is not secure should encypte
 EMAIL_PORT = 587
 
-LOGIN_REDIRECT_URL = 'profile_controller'
-LOGIN_URL = 'profile_controller'
+#Loging NOTE:it make a big log file use just for deep and heavy problems 
 
+#LOGIN_REDIRECT_URL = 'profile_controller'
+#LOGIN_URL = 'profile_controller'
+#
 #LOGGING = {
 #    'version': 1,
 #    'disable_existing_loggers': False,
@@ -158,5 +176,4 @@ LOGIN_URL = 'profile_controller'
 #    },
 #}
 
-MEDIA_ROOT = os.path.join(BASE_DIR, 'informations')
-MEDIA_URL = '/informations/'
+

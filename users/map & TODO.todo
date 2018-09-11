@@ -9,7 +9,7 @@ register part:
         then send his name as a user in users database
         (done in active)
 
-    ✔ make a function every 10 minute check email_auth table @done (6/25/2018, 4:32:01 AM)
+    ✔ make a function every 5 minute check email_auth table @done (6/25/2018, 4:32:01 AM)
         if remove_date of a recorde passed  , remove this recorde
         (done in email_cleaner)
 
@@ -40,13 +40,13 @@ profile part :
         there is two solution :
             ✔ first : make a table and connect  to user in Users Table by foriegn key @done (7/9/2018, 12:58:59 PM)
             
-            ☐ secound: make tabels which thaier is same with user actually table name perform foriegn key rule
+            ✘ secound: make tabels which thaier is same with user actually table name perform foriegn key rule @cancelled (7/24/2018, 3:55:05 AM)
             
             note:
                 first is easy build but i think profermance get low
-                secound is hard i should make ORMs myself (however maybe there is a framework or something else)
-                
-                realy TODO: search about these solution and ask about these 
+
+                ✘ secound is hard i should make ORMs myself (however maybe there is a framework or something else) @cancelled (7/24/2018, 3:55:25 AM)
+                (build table when db is using can make crash) 
     
     forms:
         make a form for select locations 
@@ -61,20 +61,45 @@ profile part :
     ✔ complete profile part @done (7/10/2018, 10:12:03 AM)
 
 quizzes part :
-    add some quiestion to data base should add handset and write quiestions by latex
+    ☐ add some quiestion to data base should add handset and write quiestions by latex*
     
-    make a quiestion selector witch select some quiestion by orders
+    ✔ make a quiestion selector witch select some quiestion by orders @done (7/20/2018, 5:56:35 AM)
     
-    show theme in a page and other data
+    ✔ show theme in a page and other data @done (7/24/2018, 3:38:55 AM)
     
-    collect user's posted data and store theme to user_info table 
+    ☐ collect user's posted data and store theme to user_info table
     
-    show the correct answares and some advise
+    ✔ show the correct answares and some advise @done (7/24/2018, 3:39:30 AM)
 
+    ✔ make some futher : when user get out of quiz page he can come back and start again while his time @done (8/12/2018, 5:27:18 AM)
+        does not out  
+        but there this some problem :
+            users answered quizzes lost when he get out (just his quizzes load again not thair answer)
+            I should store every quiz answer when user answer or change answer by ajax and jquery 
+    
+    about temprary_key in quizzes part :
+        tempray_key in quizzes part  is just like a cash which store a active test information and 
+        determain this test build for which one of users exactly and test time out
+        we use of this informations for close test its time out and rebuild the quiz page 
+        for when user suddenly close page or ...  and authenticate and ...
+        when removeDate of key outed or our work with its key done its active life get end 
+        and a fucntion (temprary_key_cleaner) stor its data in user info (for later use in charts and advise and ...)
+        and clear the key 
+chalenge part:
+    still optional  
+    
 quizzes add controller :
     a program or a part of our website(or both) whith writers can send thair quizzes 
     to database this is can be admin part or we can do in other part      
 
 
 
-
+QUIZZES_MODEL_RULES:
+    1:
+        QUIZZES_MODEL: correct_answers should be one of the quiz_answers
+    2:
+        QUIZZES_MODEL: grade should be in the lesson.grade
+    3:
+        QUIZZES_MODEL: topics must be members of lesson
+    4:
+        

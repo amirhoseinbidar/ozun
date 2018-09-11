@@ -11,6 +11,5 @@ admin.site.register(models.Profile)
 admin.site.register(models.Country_province)
 admin.site.register(models.Country_county)
 admin.site.register(models.Country_city)
-admin.site.register(models.UsersInfo)
-
+admin.site.register(models.QuizzesInfo)
 

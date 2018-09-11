@@ -27,7 +27,7 @@
 <a href="edit/">edit profile</a>
 {% endif %}
 {% if quiz_select_form %}
-<form method="GET" action='/quizzes/ask/'>
+<form method="POST" action='/quizzes/ask/'>
     {% csrf_token %} 
     {{ quiz_select_form.as_p }}
     

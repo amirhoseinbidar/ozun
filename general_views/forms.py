@@ -6,7 +6,7 @@ def find_datas(models, common_name, first_blank):
 
         common_name : which attrebute (it use for all models ).
 
-        first_blank : make a ['-1', ''] record in first of list .
+        first_blank : make a ['-1', '--------'] record in first of list .
     """ 
 
     info = []
@@ -14,7 +14,7 @@ def find_datas(models, common_name, first_blank):
         array = []
 
         if first_blank:
-            array.append(['-1', ''])
+            array.append(['-1', '--------'])
 
         info.append(array)
 

@@ -1,141 +1,198 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-from django.shortcuts import render
-from quizzes.models import Quizze
+from django.shortcuts import render , redirect 
+from quizzes.models import Quizzes,Quizzes_status,Answers
 from django.contrib.auth.decorators import login_required
-from django.http import Http404
+from django.http import Http404 , JsonResponse
 from general_views.view import method_splitter
-from random import randint
 from django import forms
-from quizzes.forms import  quiz_answers_form
-from django.core.exceptions import ValidationError
+from django.core.exceptions import ValidationError , ObjectDoesNotExist
+from datetime import datetime
+from quizzes_utils import (
+    make_ask_form , setTimeByLevel ,calculate_time ,choice_without_repead,
+    str_to_dict ,Score  ,make_answer_form )
+from users.models import QuizzesInfo 
+from json import dumps , loads
+from django.utils import timezone
+from copy import deepcopy
+from studylab.settings import TIME_ZONE
 
-def choice_without_repead(Queries,step=1):
-    if not Queries or len(Queries) < step: 
-        print('test')
-        raise ValidationError('Queries must not empty or less then step')
+
+def quizzes_ask(request,token,grade,lesson, chapter=None,topic=None,source=None,level=None):
+    try:
+        key = QuizzesInfo.objects.get(key= token) #just one key should be
+    except ObjectDoesNotExist:
+        key = None
     
-    data =[]
-    List = []  
-    for record in Queries:
-        List.append(record)    
-    for _ in range(0,step):                         
-        buf = randint(0,len(List)-1)
-        data.append(List[buf])
-        List.pop(buf) 
+    if key: # is exist
+        if key.is_active:
+            if key.isOutOfDate():
+                key.disable()
+                return redirect('/accounts/profile')
+            if key.user != request.user: # just a little authenticate test
+                return redirect('/accounts/profile')
     
-    return data
+            Forms = make_ask_form(key.quizzes_status.all())
 
-def str_to_dict(string,split_by):
-    if not string:
-        return Http404()
-    string = string.replace(' ','')
-    kwargs = {}
-
-    for value in string.split(split_by):
-        value = value.split('=')
-        kwargs['{0}'.format(value[0])] = value[1]
-    return kwargs
-
-def make_ask_form(quizzes):    
-    Forms =[]
+        else:
+            return redirect('/accounts/profile')
     
-    for quiz in quizzes:
-        values = {}
-        values['quiz'] = quiz.text
-        list=quiz.answer.split('$$')# all answers store in a one string but every quistion seperate by this charecters
-        answers_list =[]
-        values['pk'] = quiz.pk
-        i = 0
-        for record in list:
-            answer = {} 
-            answer['answer']=record
-            answer['number'] = i  
-            answers_list.append(answer)
-            i += 1
-        values['answers'] = answers_list
-        Forms.append(values)
-    return Forms
-
-
-def quizzes_ask(request,grade,lesson, chapter=None,topic=None,source=None,level=None):
-      
-    data = { 'topic__grade__pk':grade , 'topic__lesson__pk':lesson, }
-    if chapter and chapter != '-1':
-        data['topic__session__pk']=chapter
-    if topic and topic != '-1':
-        data['topic__pk']=topic
-    if source and source != '-1':
-        data['source__pk']=source
-    if level and level != '-1':
-        data['level__pk']=level
-
-    quizzes = choice_without_repead( Quizze.objects.filter(**data),5)
-    Forms = make_ask_form(quizzes)
-    return render(request,'quizzes/quizzes_show.html',{'forms':Forms})
-
-
-
-
-
-
-def quizzes_selector_POST(request):
-    pass
-
-
-def quizzes_ask_controller(request):
-    data = {'request' : request}
-    if ('grade' in request.GET and 'lesson' in request.GET 
-        and request.GET['grade'] != '-1'and request.GET['lesson'] != '-1') :
-        data['grade'] = request.GET['grade']
-        data['lesson'] = request.GET['lesson']
     else:
-        raise Http404() # GET request should have grade and lesson  argomant at least 
+        data = { 'grade__pk':grade ,
+             'lesson__pk':lesson, }
+        if chapter and chapter != '-1':
+            data['topic__chapter__pk']=chapter
+        if topic and topic != '-1':
+            data['topic__pk']=topic
+        if source and source != '-1':
+            data['source__pk']=source
+        if level and level != '-1':
+            data['level']=level
+        try :
+            quizzes = choice_without_repead( Quizzes.objects.filter(**data),4)
+        except ValidationError ,e:
+            if e.code == 'empty query':
+                return JsonResponse({'error':'you send uncorrect data or there is not any quiz for your request'})
+                
+            if e.code == 'overflow step':
+                return JsonResponse({'error':'apologize , quizzes is not enough for servies'})
+            else :
+                return JsonResponse({'error':e.message })
+        
+        quizzes_status = Quizzes_status.saveFromQuizzesSet(quizzes)
+        Forms = make_ask_form( quizzes_status )
+        timeout = calculate_time(quizzes)
+        
+        key_value = {'user_pk' : request.user.pk , 'quizzes' : [] }
+        for quiz in quizzes:
+            key_value['quizzes'].append({'quiz_pk': quiz.pk ,'answer_number': -1 })
+       
+        key =  QuizzesInfo().create_record(key = token, user = request.user ,
+                    quizzes_status = quizzes_status , forward_time=timeout)
+        
+        #quizzes is just quizzes they dont have user answers this method of quizzes_status make
+        #quizzes_status with user_answer = None  from a set of quizzes
+    
+    return render(request,'quizzes/ask.xhtml',{'forms':Forms,'token': token , 'timeout':key.close_date ,'tome_zone':TIME_ZONE  })
 
-    if 'chapter' in request.GET:
-        data['chapter'] = request.GET['chapter']
-    if 'topic' in request.GET:
-        data['topic'] = request.GET['topic']
-    if 'source' in request.GET:
-        data['source'] = request.GET['source']
-    if 'level' in request.GET:
-        data['level'] = request.GET['level']
+@login_required
+def quizzes_ask_controller(request):
+    data = {'request' : request} 
+    
+    
+    if 'token' in request.POST:
+        data['token'] = request.POST['token']
+    else:
+       return redirect('/accounts/profile')
+        
+    if 'lesson' in request.POST and 'grade' in request.POST: # lesson and grade should be together 
+        data['lesson'] = request.POST['lesson']
+        data['grade'] = request.POST['grade']
+
+    if 'chapter' in request.POST:# this requests is optional user can dont use this options
+        data['chapter'] = request.POST['chapter']
+    if 'topic' in request.POST:
+        data['topic'] = request.POST['topic']
+    if 'source' in request.POST:
+        data['source'] = request.POST['source']
+    if 'level' in request.POST:
+        data['level'] = request.POST['level']
+    
+    return quizzes_ask(**data)
+    
+
+# data send to this method like it  
+# request['answer_""quiz_status_pk"" '] ={quiz_status_pk:## ,answer_pk:##} , request['answer_""quiz_status_pk"" '] ={quiz_status_pk:## , answer_pk:##} ,...
+@login_required
+def quizzes_showAnswers_controller(request):
+    if not request.POST or not 'token' in request.POST:
+        return redirect('/accounts/profile')
+    try:
+        key = QuizzesInfo.objects.get(key= request.POST['token'])
+    except ObjectDoesNotExist:
+        key = None
+
+    if not key or not key.is_active :
+        return redirect('/accounts/profile')
+    key.disable()
+    
+    quizList = []
+    quizDict = deepcopy(request.POST)
+    quizDict.pop('csrfmiddlewaretoken' , None)
+    quizDict.pop('token' , None)
+    
+    for k in quizDict:
+        try:
+            data = loads(quizDict[k]) #data send in json format in template we regulate it  
+        except: #any exception so something wrong and some one want send uncorrect data 
+            return JsonResponse({'error': 'uncorrect data'})
+        quizList.append(data) 
     
     try:
-        return quizzes_ask(**data)
-    except Exception, e:
-        raise ValidationError(e.message)
+        __quizList = Quizzes_status.saveFromDictList(quizList) 
+    except :
+         return JsonResponse({'error': 'unallowed data'})
+    
+    context = make_answer_form(__quizList)
 
-def quizzes_showAnswers_controller(request):
-    if not request.POST:
-        raise Http404()
-    quizzes = []
-    for name in request.POST:
-        value = {}
-        kwargs = str_to_dict(request.POST[name],'**')
-        #make a dictionary with pk and number
-        # number : specify that answer user choiced
-        # pk  : specify that question user answered
-        
-        quiz = Quizze.objects.get(pk = kwargs['pk'])
-        value['quiz'] = quiz.text
-        answers = quiz.answer.split('$$')
-        
-        value['person_answer'] = answers[int(kwargs['number'])] 
-        value['currect_answer'] = answers[quiz.currect_answer-1]
-        value['is_answer_currect'] = int(kwargs('number')) == (quiz.currect_answer-1)
-        value['advise'] = None #optional 
-        value['exponential_answer'] = quiz.exponential_answer
-        value['level'] =quiz.level
-        value['grade'] = quiz.topic.grade.name
-        value['lesson'] = quiz.topic.lesson.name
-        value['chapter'] = quiz.topic.chapter.name
-        value['topic'] = quiz.topic.name
-        value['others'] = None # optional for other data like charts and helps
+    return render(request,'quizzes/answer.xhtml',context) 
+   
+def showAnswerByUserInfo():
+    pass
 
-         
+@login_required
+def UpdateQuizzesInfo(request):
+    try:
+        key = QuizzesInfo.objects.get(key= request.POST['token'])
+        if key.isOutOfDate():
+            key.disable()
+            raise ObjectDoesNotExist()
+    except ObjectDoesNotExist:
+        key = None
+    if not key :  
+        return JsonResponse({'error': 'uncorrect token'})      
+    
+    try :#data should be number it protect our code from other data type problems
+         data = loads(request.POST['data']) 
+    except :
+        return JsonResponse({'error': 'uncorrect data'})
+    
+    
+    if key.user.pk != request.user.pk:
+        return JsonResponse({'error': 'you are not allowing change data'})
+    try:
+        quiz = key.quizzes_status.get(pk = data['quiz_status_pk'])
+    except ObjectDoesNotExist:
+        quiz = None
+
+    if quiz:#if there was a quiz with same pk , turn its user_answer to new answer 
+        if quiz.user_answer:
+            prev_pk = quiz.user_answer.pk
+            quiz.user_answer.pk = data['answer_pk']
+            quiz.save()
+            key.save()
+            return JsonResponse({
+                'message':'quiz {0} from user {1} status : answer from id {2} turn to id {3}'.format(
+                    quiz.quiz.pk , key.user.pk , prev_pk , quiz.user_answer.pk   
+                )})
         
+        quiz.user_answer = Answers.objects.get(pk = data['answer_pk'])
+        quiz.save()
+        key.save()
+        return JsonResponse({
+            'message':'answer {} record for user {} as the answer of quiz {} '.format(
+                quiz.user_answer.pk , key.user.pk , quiz.quiz.pk
+
+            )
+        })
+
+            
+
+    
+    #if not so something wrong becouse we cashed all allow quizzes  
+    return JsonResponse({'error':'unallowed data'})
+
     
 
     

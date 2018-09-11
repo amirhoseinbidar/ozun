@@ -71,7 +71,6 @@ class profileEditForm(forms.ModelForm):
     last_name = forms.CharField(max_length=254,required=False)
     years = [i + 1 for i in range(1950, 2018)]
     brith_day = forms.DateField(widget=forms.SelectDateWidget(years=years),required=False)
-    test= forms.ChoiceField(widget = forms.RadioSelect , choices = [['1','<i>hello</i>'],['2','<strong>two</strong>']])
 
     class Meta:
         model = Profile

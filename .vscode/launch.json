@@ -1,0 +1,62 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        
+        {
+            "name": "Attach (Remote Debug)",
+            "type": "python",
+            "request": "attach",
+            "localRoot": "${workspaceFolder}",
+            "remoteRoot": "${workspaceFolder}",
+            "port": 3000,
+            "secret": "my_secret",
+            "host": "localhost"
+        },
+        {
+            "name": "Python Experimental: Attach",
+            "type": "pythonExperimental",
+            "request": "attach",
+            "port": 3000,
+            "host": "localhost"
+            
+        },
+
+        {
+            "name": "Python Experimental: Django",
+            "type": "pythonExperimental",
+            "request": "launch",
+            "program": "${workspaceFolder}/manage.py",
+            "console": "integratedTerminal",
+            "args": [
+                "runserver",
+                "--noreload",
+                "--nothreading"
+            ],
+            "django": true,
+            "Attach to subprocess automatically while debugging" : true
+        
+        },
+        {
+            "name": "Python Experimental: Flask",
+            "type": "pythonExperimental",
+            "request": "launch",
+            "module": "flask",
+            "env": {
+                "FLASK_APP": "app.py"
+            },
+            "args": [
+                "run",
+                "--no-debugger",
+                "--no-reload"
+            ],
+            "jinja": true
+        },
+        {
+            "name": "Python Experimental: Current File (External Terminal)",
+            "type": "pythonExperimental",
+            "request": "launch",
+            "program": "${file}",
+            "console": "externalTerminal"
+        }
+    ]
+}

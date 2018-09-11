@@ -3,46 +3,46 @@ from __future__ import unicode_literals
 
 from django import forms
 from general_views.forms import find_datas
-from quizzes.models import Grade, Lesson, Chapter, Topic, Source, Level
+from quizzes.models import Grade, Lesson, Chapter, Topic, Source , levels_choice
 
+#class quiz_answers_form(forms.Form):
+#    def __init__(self, answer_list, ID , *args ,**kwargs):
+#        super(self.__class__, self).__init__(*args,**kwargs)
+#        self.fields['answer_{0}'.format(ID)] = forms.ChoiceField(
+#            widget=forms.RadioSelect, choices=answer_list,label='')
 
-class quiz_answers_form(forms.Form):
-    def __init__(self, answer_list, ID , *args ,**kwargs):
-        super(self.__class__, self).__init__(*args,**kwargs)
-        self.fields['answer_{0}'.format(ID)] = forms.ChoiceField(
-            widget=forms.RadioSelect, choices=answer_list,label='')
-            #TODO: data must be unclean but it clean automaticlly i should turn off it  
-
-
-class quiz_select_form(forms.Form):
+class quiz_select_form(forms.Form):#TODO:use of value_list instead of find_datas 
     models = [
         Grade.objects.all(),
         Lesson.objects.all(),
+    ]
+    firstBlankModels =  [
         Chapter.objects.all(),
         Topic.objects.all(),
         Source.objects.all(),
-        Level.objects.all(),
     ]
-    data = find_datas(models, 'name', True)
+    datafistBlank = find_datas(firstBlankModels, 'name', True)
+    data = find_datas(models,'name',False)
 
     grade = forms.ChoiceField(
         widget=forms.Select, choices=data[0], label='grade')
     lesson = forms.ChoiceField(
         widget=forms.Select, choices=data[1], label='lesson')
     chapter = forms.TypedMultipleChoiceField(
-        choices=data[2], label='chapter', required=False)
+        choices=datafistBlank[0], label='chapter', required=False)
 
     topic = forms.MultipleChoiceField(
         widget=forms.SelectMultiple,
-        choices=data[3],
+        choices=datafistBlank[1],
         label='topic',
         required=False)
 
     source = forms.MultipleChoiceField(
         widget=forms.SelectMultiple,
-        choices=data[4],
+        choices= datafistBlank[2],
         label='source',
         required=False)
 
     level = forms.ChoiceField(
-        widget=forms.Select, choices=data[5], label='level', required=False)
+        widget=forms.Select, choices= (('-1','------'),)+levels_choice , label='level', required=False)
+    token = forms.CharField(widget = forms.HiddenInput )

@@ -3,7 +3,7 @@ from general_views.view import method_splitter
 from users import views
 from django.views.generic import TemplateView
 from django.contrib.auth.views import login, logout
-from utils import run_cleaner
+from users.utils.temporary_keys_cleaner import cleaner
 
 urlpatterns = [
     url(r'^login/$',
@@ -26,10 +26,11 @@ urlpatterns = [
         'attr': 'pk'
     }),
     url(r'^profile/(?P<pk>\d{1,150})/$',
-        views.profile, {'attr':'pk'}),  # TODO: dot ' . ' is not secure
+        views.profile, {'attr':'pk'}), 
 ]
 
-#run_cleaner() 
-# these dont permit migration and makemigraions 
+#
+#cleaner()
+# this dont permit migration and makemigraions 
 # commands run correctly (for threading ) so clear hashtag when
 # you want upload servies

@@ -1,0 +1,32 @@
+{% extends 'quizzes/base.xhtml' %}
+{% block script %}
+    <script src="/static/scripts/quizzes/ajax_utilities.js"></script>
+{% endblock %}
+{% block body%}
+
+<div id='timer'>
+    {{timeout}}
+</div>
+<form method="POST" action='/quizzes/show_answer/'>
+    {% csrf_token %} 
+    {% for form in forms %}
+        
+        {{ form.quiz|safe}}
+        
+        <p><ul id="id_answer_{{form.pk}}">
+        {% for choice in form.answers%}
+            <li><label for="id_answer_{{form.pk}}_{{choice.number}}">
+                <input type="radio" name="answer_{{form.pk}}" value='{ "quiz_status_pk":{{form.pk}} , "answer_pk":{{choice.answer_pk}} }' required id="id_answer_{{form.pk}}_{{choice.number}}" class="radio_quiz" {%if choice.checked%} checked  {%endif%} />
+                {{choice.answer | safe}}
+            </label>
+            </li>
+        {% endfor%}
+        
+        </p></ul>
+
+
+    {% endfor %}
+    <input type="hidden" name='token' value='{{token}}' id='id_temporary_token'>
+    <button type="submit">Update</button>
+</form>
+{% endblock %}

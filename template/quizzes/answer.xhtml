@@ -1,0 +1,30 @@
+{% extends 'quizzes/base.xhtml' %}
+{% block body%}
+    <a href='/accounts/profile'><input type="button" value="profile"/></a>
+    <p>
+        جمع کل : {{ total_score }}
+        جمع نمرات مثبت :{{positive_score}}
+        جمع نمرات منفی :{{negative_score}}
+    </p>
+    {% for choice in quizzes%}
+    <p>
+        {{choice.quiz | safe }}
+
+        جواب شما :{{choice.person_answer | safe}}
+
+        جواب درست :{{choice.correct_answer | safe}}
+
+        {% if is_answer_correct%}
+            افرین جواب شما درست است 
+        {% else %}
+            جواب شما غلط هست دفعه بعد بیشتر سعی کنید 
+        {% endif%} 
+        <br />
+        سطح سوال : {{ choice.level }}  
+        <br />
+        امتیاز : {{ choice.score}}
+        <br />
+    </p>
+    <br /><br />
+    {% endfor %}
+{% endblock %}
