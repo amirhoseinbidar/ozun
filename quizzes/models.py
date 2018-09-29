@@ -6,8 +6,8 @@ from studylab.settings import BASE_DIR
 from django.core.exceptions import ValidationError
 import os
 from django.dispatch import receiver
-from django.db.models.signals  import m2m_changed , post_save , pre_save , pre_delete , post_delete
-from studylab.generic import cache_list,Cache
+from django.db.models.signals  import m2m_changed 
+from django.contrib.auth.models import User
 
 class membershipException(ValidationError):
     def __init__(self ,*args , **kwargs):
@@ -23,6 +23,12 @@ class unequalityException(ValidationError):
         super(unequalityException,self).__init__(*args,**kwargs)
 
 
+def checkDublicate(klass,_self,attr):
+    q = klass.objects.filter(**{attr : getattr(_self,attr)})
+    if q.exists() and _self.pk != q[0].pk :# should not a name duplicate
+            raise duplicateException('this {} is alredy exist'.format(attr))
+
+
 
 class Source(models.Model):
     name = models.CharField(max_length=50)
@@ -32,51 +38,62 @@ class Source(models.Model):
         return u'{0}'.format(self.name)
 
 
-
 class Grade(models.Model): #I can use of inheritance and hirechery model it take less code but little confusing   
     name = models.CharField(max_length= 30)
-    def save(self):
-        if self.__class__.objects.filter(name = self.name).exists():# should not a name duplicate
-            raise duplicateException('this name is alredy exist')
-        
+    def save(self , *args,**kwargs):
+        checkDublicate(self.__class__ , self, 'name')
+        super(self.__class__, self).save(*args,**kwargs)
     class Meta:
         db_table = "grades"
     def __unicode__(self):
         return u'{0}'.format(self.name)
 
-class Lesson(Grade):
-    grades = models.ManyToManyField(Grade) 
+class Lesson(models.Model):
+    grades = models.ManyToManyField(Grade)
+    name = models.CharField(max_length = 100)
     #diffrent grade can have same lesson we use of m2m instead add it for every one 
+    def save(self , *args,**kwargs):
+        checkDublicate(self.__class__ , self, 'name')
+        super(self.__class__, self).save(*args,**kwargs)
 
     class Meta:
         db_table = "lessons"
     def __unicode__(self):
         return u'{0}'.format(self.name)
 
-class Chapter(Lesson):
+class Chapter(models.Model):
     lesson = models.ForeignKey(Lesson)
     #diffrent grades can have same chapter 
-   
-    def save(self):
-        if self.grades.filter(pk__in = self.lesson.grades.value_list('pk') ).count()!= self.grades.all().count():
-             raise membershipException(message = 'all of Chapter.grade must be members of Chapter.lesson.grade')
+    grades = models.ManyToManyField(Grade)
+    name = models.CharField(max_length = 100)
 
+    def save(self):
+        checkDublicate(self.__class__ , self, 'name')
         return super(self.__class__, self).save()
+    
     class Meta:
         db_table = "chapter"
     def __unicode__(self):
         return u'{0}'.format(self.name )
 
-class Topic(Chapter):#TODO:from db lesson isnot a foreignKey correct it 
-    chapter = models.ForeignKey(Chapter)
+
+
+
+
+class Topic(models.Model):#TODO:from db lesson isnot a foreignKey correct it 
+    lesson = models.ForeignKey(Lesson)
+     
+    chapter = models.ForeignKey(Chapter)#diffrent grades can have same chapter
+    
+    grades = models.ManyToManyField(Grade)
+    name = models.CharField(max_length = 100)
+    
     
     def save(self,*args,**kwargs):
+        checkDublicate(self.__class__ , self, 'name')
+
         if self.chapter.lesson.pk != self.lesson.pk:
             raise unequalityException('Topic.lesson and chapter.lesson must be same')
-
-        if self.grades.filter(pk__in = self.chapter.grades.value_list('pk')).count() != self.grades.all().count():
-            raise membershipException(message = 'all of Topic.grades must be members of Topic.chapter.grades')
-       
         
 
         return super(self.__class__, self).save()
@@ -129,16 +146,20 @@ class Quizzes(models.Model):
     lesson = models.ForeignKey(Lesson)#RULE 2:grade should be in the lesson.grade
     topics = models.ManyToManyField(Topic, blank = True)#RULE 3:topics must be members of lesson
     timeOut = models.DateTimeField(blank = True,null = True)
-    
+    added_by = models.ForeignKey(User,null = True , blank = True , on_delete = models.SET_NULL)
         
     def isAnswerFieldValid(self):
-        return self.quiz_answers.filter(pk = self.correct_answer.pk).exsist()
+        return self.quiz_answers.filter(pk = self.correct_answer.pk).exists() 
 
     def isTopicsFieldValid(self):
         return self.topics.filter(lesson__pk = self.lesson.pk).count() == self.topics.count()
-        # is all of the topics from determined lesson 
-          
-            
+        # is all of the topics from determined lesson  
+    
+    def save(self,*args,**kwargs):
+        if not self.lesson.filter(grades__pk = self.grade.pk).exists():
+            raise membershipException('grade should be member of lesson.grades')
+        super(Quizzes,self).save(*args,**kwargs)
+
     def get_all_topics(self):#TODO : i should repair it
         data = {}
         data['grades'] = grade_list = []
@@ -157,44 +178,39 @@ class Quizzes(models.Model):
         return u'{0}'.format(self.pk)
 
 
-
-
-@receiver(m2m_changed,sender = Quizzes.topics.through )
+@receiver(m2m_changed,sender = Topic.grades.through)
+@receiver(m2m_changed,sender = Chapter.grades.through)
+@receiver(m2m_changed,sender = Quizzes.topics.through)
 @receiver(m2m_changed,sender = Quizzes.quiz_answers.through )
 def Quizzes_m2m_control(**kwargs): # for perform RULE 1 and 3
     action = kwargs.pop('action', None)
     instance = kwargs.pop('instance' , None)
     sender = kwargs.pop('sender' , None)
     
+
     
-    if action == 'pre_add' or action == 'pre_remove':#cache previous data 
-        cache = Cache()
-        cache.quiz_answers = instance.quiz_answers.all()
-        cache.topics = instance.topics.all()
-        string = ''
-        if sender is Quizzes.topics.through:
-            string = 'topics'
-        if sender is Quizzes.quiz_answers.through:
-            string = 'quiz_answer'
-        
-        cache_list.add_record(string , instance.pk , cache)
-   
-    
-    if (action == 'post_add' or action == 'post_remove') and (cache_list.find(id = instance.pk)):
+    if (action == 'post_add' or action == 'post_remove'):#NOTE: in signal methods if you raise a exception all data back to previous 
         
         if sender is Quizzes.topics.through:
-            if not instance.isTopicsFieldValid(): # if is not correct come back to previous data and raise exception
-                instance.topics = cache_list.find(flag='topics',id= instance.pk).topics
-                instance.save()
+            if not instance.isTopicsFieldValid(): 
                 raise membershipException('topics must be members of lesson')
         
-        if sender is Quizzes.quiz_answers.through:
+        elif sender is Quizzes.quiz_answers.through:
             if not instance.isAnswerFieldValid():
-                instance.quiz_answers = cache_list.find(flag = 'quiz_answer',id = instance.pk).quiz_answers
-                instance.save()
                 raise membershipException('correct_answers should be one of the quiz_answers')
+        
+        elif sender is Chapter.grades.through:
+            lesson_grades = instance.lesson.grades.all()
+            print lesson_grades
+            if instance.grades.filter(pk__in = lesson_grades ).count() != instance.grades.all().count():
+                raise membershipException(message = 'all of Chapter.grade must be members of Chapter.lesson.grade')
+        
+        elif sender is Topic.grades.through:
+            chaptre_grades = instance.chapter.grades.all()
+            if instance.grades.filter(pk__in = chaptre_grades ).count() != instance.grades.all().count():
+                raise membershipException(message = 'all of Topic.grades must be members of Topic.chapter.grades')
        
-        cache_list.delete(id= instance.pk)
+        
     
    
 
@@ -216,7 +232,10 @@ class Quizzes_status(models.Model):#RULE: user_answer  must be one of the quiz a
             return super(self.__class__, self).save(*args,**kwargs)
     
         raise membershipException(message =  'user_answer should be one of the quiz.quiz_answers')
-    
+    class Meta:
+        verbose_name_plural = 'Quizzes statuses'
+
+
     @staticmethod
     def saveFromQuizzesSet(quizzes):
         data = []

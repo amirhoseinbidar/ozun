@@ -19,9 +19,10 @@ from django.contrib.staticfiles.urls import static
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 from studylab import settings
 from django.views.generic import TemplateView
-
+from quizzes.admin import quizzesAdminSite
 urlpatterns = [
-    url(r'^admin/', admin.site.urls),
+    url(r'^users-admin/', admin.site.urls),
+    url(r'^quizzes-admin/',quizzesAdminSite.urls),
     url(r'^accounts/', include('users.urls')),  
     url(r'^quizzes/',include('quizzes.urls')),
 ]
