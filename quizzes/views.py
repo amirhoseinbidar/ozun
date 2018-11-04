@@ -2,17 +2,17 @@
 from __future__ import unicode_literals
 
 from django.shortcuts import render , redirect 
-from quizzes.models import Quizzes,Quizzes_status,Answers
+from quizzes.models import Quiz,Quiz_status,Answer
 from django.contrib.auth.decorators import login_required
 from django.http import Http404 , JsonResponse
-from general_views.view import method_splitter
+from generics.view import method_splitter
 from django import forms
 from django.core.exceptions import ValidationError , ObjectDoesNotExist
 from datetime import datetime
 from quizzes_utils import (
-    make_ask_form , setTimeByLevel ,calculate_time ,choice_without_repead,
+    make_ask_form , getTimeByLevel ,calculate_time ,choice_without_repead,
     str_to_dict ,Score  ,make_answer_form )
-from users.models import QuizzesInfo 
+from quizzes.models import QuizzesInfo 
 from json import dumps , loads
 from django.utils import timezone
 from copy import deepcopy

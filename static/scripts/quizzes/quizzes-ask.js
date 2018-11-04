@@ -1,6 +1,5 @@
 $(document).ready(function(){
-    $('.radio_quiz').on('click',function(event){
-        
+    $('.radio_quiz').on('click',function(event){ 
         send_quiz_data($('#id_temporary_token').val(), event.target)
     });
 

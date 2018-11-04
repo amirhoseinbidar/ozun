@@ -80,3 +80,89 @@ class Quiz:
             data.append( {'pk' : quiz.quiz.pk ,'answer_number' : quiz.answer_number} )
         return data
     
+
+
+# Create your models here.
+class Grade(models.Model):   
+    name = models.CharField(max_length= 30)
+    # reverse ForeignKey 
+    # same lesson can have diffrent grade  
+ 
+    added_by = models.ForeignKey(User,null = True , blank = True , on_delete = models.SET_NULL)
+    def save(self , *args,**kwargs):
+        checkDublicate(self.__class__ , self, name = self.name)
+        super(self.__class__, self).save(*args,**kwargs)
+
+    def __unicode__(self):
+        return u'{0}'.format(self.name)
+
+class Lesson(models.Model):
+    chapter = models.ForeignKey('Chapter')
+    
+    name = models.CharField(max_length = 100)
+    added_by = models.ForeignKey(User,null = True , blank = True , on_delete = models.SET_NULL)
+   
+    def save(self , *args,**kwargs):
+        checkDublicate(self.__class__ , self, name = self.name)
+        super(self.__class__, self).save(*args,**kwargs)
+
+    def __unicode__(self):
+        return u'{0}'.format(self.name)
+
+class Chapter(models.Model):
+    #diffrent lesson can have same chapter
+    grades = models.ManyToManyField(Grade)
+
+    name = models.CharField(max_length = 100)
+    added_by = models.ForeignKey(User,null = True , blank = True , on_delete = models.SET_NULL)
+    def save(self):
+        checkDublicate(self.__class__ , self, name = self.name)
+        return super(self.__class__, self).save()
+    
+    def __unicode__(self):
+        return u'{0}'.format(self.name )
+
+
+class Topic(models.Model):
+    #but diffrent chapter can not have same chapter 
+    grades = models.ManyToManyField(Grade)
+    lessons = models.ManyToManyField(Lesson)
+    chapter = models.ForeignKey(Chapter)
+
+    name = models.CharField(max_length = 100)
+    added_by = models.ForeignKey(User,null = True , blank = True , on_delete = models.SET_NULL)    
+    
+    def save(self,*args,**kwargs):
+        checkDublicate(self.__class__ , self, name = self.name)
+
+        if self.chapter.lesson.pk != self.lesson.pk:
+            raise unequalityException('Topic.lesson and chapter.lesson must be same')
+        
+
+        return super(self.__class__, self).save()
+    
+    def __unicode__(self):
+        return u'{0}'.format(self.name )
+
+
+#@receiver(m2m_changed,sender = Topic.grades.through)
+#@receiver(m2m_changed,sender = Chapter.grades.through)
+#def Quizzes_m2m_control(**kwargs): # for perform RULE 1 and 3
+#    action = kwargs.pop('action', None)
+#    instance = kwargs.pop('instance' , None)
+#    sender = kwargs.pop('sender' , None)
+#    
+#    #NOTE: in signal methods if you raise a exception all data back to previous state     
+#    if (action == 'post_add' or action == 'post_remove'):
+#        
+#        if sender is Chapter.grades.through:
+#            lesson_grades = instance.lesson.grades.all()
+#            print lesson_grades
+#            if instance.grades.filter(pk__in = lesson_grades ).count() != instance.grades.all().count():
+#                raise membershipException(message = 'all of Chapter.grade must be members of Chapter.lesson.grade')
+#        
+#        elif sender is Topic.grades.through:
+#            chaptre_grades = instance.chapter.grades.all()
+#            if instance.grades.filter(pk__in = chaptre_grades ).count() != instance.grades.all().count():
+#                raise membershipException(message = 'all of Topic.grades must be members of Topic.chapter.grades')
+     

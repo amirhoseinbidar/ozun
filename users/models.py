@@ -6,69 +6,10 @@ from django.contrib.auth.models import User
 from django.utils import timezone
 from django.dispatch import receiver
 from django.db.models.signals  import post_save
-from quizzes.models import Grade , Lesson
 from django.core.exceptions import ValidationError
-from quizzes.models import Quizzes ,Quizzes_status
-
-
-class BaseTemporaryKey(models.Model):
-    add_date = models.DateTimeField(auto_now_add=True)
-    close_date = models.DateTimeField()
-    FORWARD_TIME = 600 # by second # 00:10:00
-
-    def create_record(self ,forward_time = 0,*args,**kwargs):
-        if forward_time == 0:
-            forward_time =self.FORWARD_TIME
-        time = timezone.now()
-        self.close_date = time + timezone.timedelta(0,forward_time)
-        
-        return self
-    class Meta:
-        abstract = True
-
-class BaseQuizzesInfo(models.Model):
-    user = models.ForeignKey(User)
-    quizzes_status = models.ManyToManyField(Quizzes_status,blank = True)
-
-    class Meta:
-        abstract = True
-    def __unicode__(self):
-        return u"{0}".format(self.user)
-    
-
-class QuizzesInfo(BaseTemporaryKey , BaseQuizzesInfo):
-    key = models.CharField(max_length = 100 , blank = True)
-    is_active = models.BooleanField() 
-    
-    def create_record(self,user,quizzes_status,key, forward_time = 0,is_active = True,*args,**kwargs ): 
-        if self.__class__.objects.filter(key = key).exists():# should not a key duplicate
-            raise ValidationError('this key is alredy exist')
-        
-        super(self.__class__,self).create_record(forward_time,*args,**kwargs)
-        self.key = key
-        self.is_active = is_active
-        self.user = user
-        self.save()
-        self.quizzes_status = quizzes_status
-        self.save()
-        return self
-
-    def isOutOfDate(self):
-        print timezone.now() 
-        print self.close_date
-        if timezone.now() >= self.close_date:
-            return True   
-        return False 
-    def disable(self):
-        self.is_active = False
-        self.key = ''
-        self.save()
-    
-    def __unicode__(self):
-        if timezone.now() > self.close_date :
-            return u'key {0} is out of date'.format(self.key)
-        return u'key: {0} ;;; {1} later will delete'.format(self.key,self.close_date - timezone.now() )
-
+from django.contrib.contenttypes.fields import ContentType , GenericForeignKey
+from core.models.temporaryKey import BaseTemporaryKey
+from core.models.lessonTree import LESSON , GRADE , allowed_types , LessonTree
     
 
 
@@ -76,9 +17,13 @@ class QuizzesInfo(BaseTemporaryKey , BaseQuizzesInfo):
 class Email_auth(BaseTemporaryKey):
     user = models.OneToOneField(User)
     FOEWARD_TIME = 1800 #00:30:00 
-  
+    def cleaner_action(self):
+        self.user.delete()
+        self.delete()
+        
     def __unicode__(self):
-        return u'username: {0} ;;; add date: {1} ;;; remove date: {2}'.format(self.user.username,self.add_date, self.remove_date)
+        return u'username: {0} ;;; add date: {1} ;;; remove date: {2}'.format(
+            self.user.username,self.add_date, self.remove_date)
     class Meta:
         db_table = "email_auth"
  
@@ -118,16 +63,39 @@ class Profile(models.Model):
     bio = models.TextField(blank=True)
     image = models.ImageField(blank = True,upload_to='users/images')
     brith_day = models.DateField(null = True , blank = True)
-    grade = models.ForeignKey(Grade,null = True , blank = True )
-    interest_lesson = models.ManyToManyField(Lesson , blank = True)
+    grade = models.ForeignKey(LessonTree,null = True , blank = True , related_name='grade')
+    interest_lesson = models.ForeignKey(LessonTree , blank = True , related_name='interest_lesson')
     score = models.IntegerField(blank = True)
     
+    @allowed_types(GRADE , grade)
+    @allowed_types(LESSON , interest_lesson)
+    def save(self ,**kwargs):
+        return super(Profile,self).save(**kwargs)
+
+
     class Meta:
         db_table = "profile"
     def __unicode__(self):
         return u'{0}'.format(self.user.username)
 
 
+class FeedBack(models.Model):
+    FAVORITE = 'F'
+    LIKE = 'L'
+    UP_VOTE = 'U'
+    DOWN_VOTE = 'D'
+    FEEDBACK_TYPES = (
+        (FAVORITE, 'Favorite'),
+        (LIKE, 'Like'),
+        (UP_VOTE, 'Up Vote'),
+        (DOWN_VOTE, 'Down Vote'),
+    )
 
+    user = models.ForeignKey(User)
+    feedback_type = models.CharField(max_length=1, choices=FEEDBACK_TYPES)
+    timestamp = models.DateTimeField(auto_now_add=True)
 
-    
+    # Below the mandatory fields for generic relation
+    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
+    object_id = models.PositiveIntegerField()
+    content_object = GenericForeignKey()

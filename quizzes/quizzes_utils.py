@@ -3,15 +3,16 @@ from __future__ import unicode_literals
 from random import randint
 from copy import deepcopy  
 from json import dumps , loads
-from quizzes.models import Quizzes,Quizzes_status
+
 from django.core.exceptions import ValidationError
 from django.utils.translation import ugettext_lazy as _
-from users.models import QuizzesInfo
+
 from datetime import datetime
 from django.db.models.query import QuerySet
 
-
-
+if __name__ =="__main__":
+    from quizzes.models import Quiz,Quiz_status
+    from quizzes.models import QuizzesInfo
 
 def choice_without_repead(Queries,step=1):
     if not Queries:
@@ -57,28 +58,41 @@ def Score(quiz):
     
     raise Exception() # if level is no one of them so somthing is wrong 
 
-def setTimeByLevel(level):  
-    if level == 'VE':
-        return 60 #00:01:00
-    elif level == 'E':
-        return 90 #00:01:30
-    elif level == 'M':
-        return 150 #00:02:30
-    elif level == 'H':
-        return 300 #00:05:00
-    elif level == 'VH':
-        return 600 #00:10:00
+from datetime import time
+from django.utils.timezone import get_current_timezone 
+
+def creatTime(*args,**kwargs):
+    tzinfo = kwargs.pop('tzinfo',None)
+    if not tzinfo:
+        tzinfo = get_current_timezone()
+    return time(tzinfo = tzinfo ,*args,**kwargs)
+
+def getTimeByLevel(level):  
+    if level == Quiz.VERY_EASY:
+        return creatTime(0,1,0)
+    elif level == Quiz.EASY:
+        return creatTime(0,1,30) 
+    elif level == Quiz.MEDIUM:
+        return creatTime(0,2,30) 
+    elif level == Quiz.HARD:
+        return creatTime(0,5,0)
+    elif level == Quiz.VERY_HARD:
+        return creatTime(0,10,0)
     
-    raise Exception()
+    raise ValidationError('unvalid level')
+
+
+
+
 
 def make_ask_form(quizzes):    
     ''' 
-        quizzes must be a query set of Quizzes_status
+        quizzes must be a query set of Quiz_status
     '''
     if not isinstance(quizzes , QuerySet):
         raise ValidationError('quizzes must be a query set of Quizzes_status')
     for quiz in quizzes:
-        if not isinstance(quiz , Quizzes_status):
+        if not isinstance(quiz , Quiz_status):
             raise ValidationError('quizzes must be a query set of Quizzes_status')
     
     Forms = []
@@ -138,7 +152,7 @@ def calculate_time(quizzes):
         if quiz.timeOut:
             time += quiz.timeOut.second
         else:
-            time += setTimeByLevel(quiz.level)
+            time += getTimeByLevel(quiz.level)
     return time
 
 def calculate_score(quizList):

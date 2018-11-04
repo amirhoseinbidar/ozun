@@ -11,6 +11,8 @@ from quizzes.models import Grade, Lesson, Chapter, Topic, Source , levels_choice
 #        self.fields['answer_{0}'.format(ID)] = forms.ChoiceField(
 #            widget=forms.RadioSelect, choices=answer_list,label='')
 
+
+
 class quiz_select_form(forms.Form):#TODO:use of value_list instead of find_datas 
     models = [
         Grade.objects.all(),

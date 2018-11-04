@@ -20,12 +20,15 @@ from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 from studylab import settings
 from django.views.generic import TemplateView
 from quizzes.admin import quizzesAdminSite
+
 urlpatterns = [
-    url(r'^users-admin/', admin.site.urls),
-    url(r'^quizzes-admin/',quizzesAdminSite.urls),
-    url(r'^accounts/', include('users.urls')),  
+    url(r'^admin/users/', admin.site.urls),
+    url(r'^admin/quizzes/',quizzesAdminSite.urls),
+#   url(r'^accounts/', include('users.urls')),  
     url(r'^quizzes/',include('quizzes.urls')),
+    url(r'^api/',include('restAPI.urls')),
 ]
+
 urlpatterns += staticfiles_urlpatterns()
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 

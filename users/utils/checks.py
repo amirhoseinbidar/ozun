@@ -43,6 +43,10 @@ def check_user_is_own(request , attr , to):
         print True
         return True 
 
+
+    
+
+
 # our algorith clear out of date quizzes immediately 
 # or at worst with 1 minute delay it is possible that it clear quiz and its data through 
 # process and make problem it happen when the time of process start and 

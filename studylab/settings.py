@@ -38,9 +38,15 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django_cleanup',
-    
-    'users',
+    'rest_framework',
+    'rest_framework.authtoken',
+    'core',
     'quizzes',
+    'users',
+    'restAPI',
+    'course', 
+    
+    
 ]
 
 MIDDLEWARE = [
@@ -58,7 +64,7 @@ ROOT_URLCONF = 'studylab.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': ['/home/abk/bigEpsilon/studylab/template',],
+        'DIRS': [BASE_DIR+'/template',],
         'APP_DIRS': True,
         'OPTIONS': {
             'debug': True,
@@ -140,17 +146,33 @@ STATICFILES_DIRS = [
 STATIC_ROOT = os.path.join(BASE_DIR,'static')
 
 STATIC_URL = '/static/'
+
 #Media Files 
+
 MEDIA_ROOT = os.path.join(PROJECT_DIR, 'informations')
 MEDIA_URL = '/informations/'
 
-#Email 
 
+#Email
+ 
 EMAIL_USE_TLS = True
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_HOST_USER = 'amirhoseinbk00@gmail.com'
 EMAIL_HOST_PASSWORD = 'amir1380' #TODO: this is not secure should encypte
 EMAIL_PORT = 587
+
+#Rest framework authentication
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework.authentication.TokenAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
+    ),
+    'DEFAULT_PERMISSION_CLASSES': (
+        'rest_framework.permissions.IsAuthenticated',
+    ),
+}
+
 
 #Loging NOTE:it make a big log file use just for deep and heavy problems 
 
@@ -175,5 +197,7 @@ EMAIL_PORT = 587
 #        },
 #    },
 #}
+
+
 
 

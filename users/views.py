@@ -3,21 +3,14 @@ from __future__ import unicode_literals
 
 from django.shortcuts import render
 from django import forms
-from django.http import HttpResponse, Http404 , HttpResponseRedirect
-from django.contrib import auth
-from django.contrib.auth.models import User 
+from django.http import  HttpResponseRedirect
 from django.contrib.sites.shortcuts import get_current_site
-from django.utils.encoding import force_bytes, force_text
-from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
-from django.template.loader import render_to_string
 from users.utils.checks import check_user_exists_decorator ,check_user_is_own
 from users.utils.forms import registerForm ,  profileEditForm
-from users.utils.token import TokenGenerator ,account_activation_token
-from django.core.mail import EmailMessage
-from django.contrib.auth import login, authenticate
-from users.models import Email_auth, Profile  , Country_city
-from django.core.exceptions import ValidationError
+from django.contrib.auth import login
+from users.models import  Profile  , Country_city
 from quizzes.forms import quiz_select_form
+from .utils.emailAuth import sendAuthEmail
 
 #this function run in first request to register url 
 def register_GET(request):
@@ -30,48 +23,13 @@ def register_POST(request):
         user = form.save(commit=False)
         user.is_active = False
         user.save()
-       
+        
+        sendAuthEmail(request,user,form.cleaned_data.get('email'))
 
-        current_site = get_current_site(request)
-        mail_subject = 'Activate your account.'
-        message = render_to_string('acc_active_email.html', {
-            'user': user,
-            'domain': current_site.domain,
-            'uid':urlsafe_base64_encode(force_bytes(user.pk)),
-            'token': account_activation_token.make_token(user),
-        })
-
-        to_email = form.cleaned_data.get('email')
-        email = EmailMessage(
-                    mail_subject, message, to=[to_email]
-        )
-        email.send()
         return HttpResponseRedirect('/accounts/register/successfully')
     else: 
-        print(form.error_messages) 
         return render(request,'register.html',{'form': form})
 
-
-
-def activate(request, uidb64, token):
-    try:
-        uid = urlsafe_base64_decode(uidb64)
-        user = User.objects.get(pk=uid)
-        #when record timeout in Email auth end we clear user and email auth so
-        # if user cleared this function raise error  
-    except :
-        user = None
-    
-    if user is not None and account_activation_token.check_token(user, token) :
-        user.is_active = True
-        user.save()
-        Profile(user =user).save()
-        Email_auth.objects.get(user = user).delete()
-        login(request,user)
-
-        return HttpResponseRedirect('/accounts/profile')
-    else:
-        return HttpResponse('Activation link is invalid!')
 
 
 def profile_controller(request):# after register  or login  page redirect to this function (specified in sitting)
