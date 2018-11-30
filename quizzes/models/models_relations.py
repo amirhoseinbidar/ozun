@@ -74,8 +74,6 @@ class Exam(BaseTemporaryKey):
                     continue
                 break 
         
-       
-        
         if Exam.objects.filter(user = user , is_active = True).exists():
             raise duplicateException('a active exam alredy exist first close it')
 

@@ -188,22 +188,29 @@ class StartExam(generics.ListAPIView):
         return response
 
 class UpdateExam(generics.UpdateAPIView):
-    def post(self,request):
+    serializer_class = ExamSerializer
+    exam = None
+    def put(self,request,*args,**kwargs):
         try:
-            exam_id = request.data.get('exam_id')
-        except:
-            pass
+            self.exam = Exam.objects.get(user = self.user , is_active = True)
+        except ObjectDoesNotExist:
+            return Response('you have not any open Exam' , status.HTTP_404_NOT_FOUND)
+        return super(UpdateExam,self).put(request,pk = self.exam.pk 
+            , *args,**kwargs)
 
 class FinishExam(UpdateExam):#just like update exam but after update close exam 
-    pass
+    def put(self,request,*args,**kwargs):
+        response = super(FinishExam,self).put(*args,**kwargs)
+        self.exam.disable()
+        return response
 
-class ExamInfo(generics.views.APIView):
+class ExamInfo(generics.ListAPIView):
     serializer_class = ExamSerializer
     def get_queryset(self):
         pk = self.kwargs.get('pk')
         if pk == 'active':
             return Exam.objects.get(is_active = True)
-        if isinstance(pk,int):
+        if pk.isdigit():
             exam = Exam.objects.get(pk =pk)
             if exam.user.pk == self.request.pk:
                 return exam
