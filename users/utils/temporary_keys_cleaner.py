@@ -1,6 +1,6 @@
 import threading
-from users.models import Email_auth , QuizzesInfo 
-from quizzes.models import Quiz
+from users.models import Email_auth 
+from quizzes.models import Quiz,Exam
 from django.contrib.auth.models import User
 from django.utils import timezone
 from json import dumps ,loads
@@ -18,7 +18,7 @@ class cleaner():
     def run_cleaner(self):   
         now = timezone.now()
         email_auth = Email_auth.objects.filter(close_date__lte = now) # get all of records that remove date is little or equal then now 
-        quizzes_cache = QuizzesInfo.objects.filter(close_date__lte = now,is_active = True) # same
+        quizzes_cache = Exam.objects.filter(close_date__lte = now,is_active = True) # same
         
         self.idleMood = False
         if not email_auth.exists() and not quizzes_cache.exists() : #if still is not any thing
@@ -31,7 +31,7 @@ class cleaner():
             key.cleaner_action()
 
         if self.idleMood:
-            threading.Timer(60.0, self.run_cleaner).start() # every 1 minute
+            threading.Timer(300.0, self.run_cleaner).start() # every 5 minute
         else:
             now = timezone.now()
             delay1 = timezone.timedelta(0,0)
@@ -39,7 +39,7 @@ class cleaner():
 
             if quizzes_cache.exists():
                 # return the littelest close_date and calculate delay time from now 
-                delay1 = QuizzesInfo.objects.order_by('close_date')[0].close_date - now
+                delay1 = Exam.objects.order_by('close_date')[0].close_date - now
             if email_auth.exists():
                 delay2 = Email_auth.objects.order_by('close_date')[0].close_date - now 
             
@@ -48,4 +48,3 @@ class cleaner():
                 min_delay = delay1
 
             threading.Timer(min_delay.seconds, self.run_cleaner).start()   
-

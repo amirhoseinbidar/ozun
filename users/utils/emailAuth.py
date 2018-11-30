@@ -4,25 +4,24 @@ from django.utils.encoding import force_bytes, force_text
 from django.template.loader import render_to_string
 from django.core.mail import EmailMessage
 from users.utils.token import account_activation_token
-from rest_framework.renderers import engines
 from studylab.settings import DEBUG
 
 def sendAuthEmail(request,user,to_email):
     current_site = get_current_site(request)
     mail_subject = 'Activate your account.'
-
+  
     message = render_to_string('acc_active_email.html', {
         'user': user,
         'domain': current_site.domain,
-        'uid':urlsafe_base64_encode(force_bytes(user.pk)),
+        'uid':urlsafe_base64_encode(force_bytes(user.pk)).decode(),
         'token': account_activation_token.make_token(user),
-    },request=request)
+    })
     
     email = EmailMessage(
                 mail_subject, message, to=[to_email]
     )
     if DEBUG:
-        print '\n{} \n {} \n to : {}\n'.format(mail_subject,message,to_email)
+        print('\n{} \n {} \n to : {}\n'.format(mail_subject,message,to_email))
         return
 
     email.send()
@@ -32,6 +31,7 @@ from users.models import Email_auth, Profile
 from django.contrib.auth import login
 from django.http import HttpResponse , HttpResponseRedirect
 def activate(request, uidb64, token):
+    
     try:
         uid = urlsafe_base64_decode(uidb64)
         user = User.objects.get(pk=uid)

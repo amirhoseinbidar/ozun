@@ -40,12 +40,13 @@ INSTALLED_APPS = [
     'django_cleanup',
     'rest_framework',
     'rest_framework.authtoken',
+    
     'core',
     'quizzes',
     'users',
     'restAPI',
     'course', 
-    
+    'treebeard',
     
 ]
 
@@ -149,8 +150,8 @@ STATIC_URL = '/static/'
 
 #Media Files 
 
-MEDIA_ROOT = os.path.join(PROJECT_DIR, 'informations')
-MEDIA_URL = '/informations/'
+MEDIA_ROOT = os.path.join(PROJECT_DIR, 'media')
+MEDIA_URL = '/media/'
 
 
 #Email

@@ -24,7 +24,7 @@ from quizzes.admin import quizzesAdminSite
 urlpatterns = [
     url(r'^admin/users/', admin.site.urls),
     url(r'^admin/quizzes/',quizzesAdminSite.urls),
-#   url(r'^accounts/', include('users.urls')),  
+    url(r'^accounts/', include('users.urls')),  
     url(r'^quizzes/',include('quizzes.urls')),
     url(r'^api/',include('restAPI.urls')),
 ]

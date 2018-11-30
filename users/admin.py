@@ -27,4 +27,4 @@ admin.site.register(models.Profile,profileAdmin)
 admin.site.register(models.Country_province)
 admin.site.register(models.Country_county)
 admin.site.register(models.Country_city)
-
+admin.site.register(models.FeedBack)

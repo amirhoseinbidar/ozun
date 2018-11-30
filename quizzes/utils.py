@@ -10,9 +10,6 @@ from django.utils.translation import ugettext_lazy as _
 from datetime import datetime
 from django.db.models.query import QuerySet
 
-if __name__ =="__main__":
-    from quizzes.models import Quiz,Quiz_status
-    from quizzes.models import QuizzesInfo
 
 def choice_without_repead(Queries,step=1):
     if not Queries:
@@ -61,23 +58,20 @@ def Score(quiz):
 from datetime import time
 from django.utils.timezone import get_current_timezone 
 
-def creatTime(*args,**kwargs):
-    tzinfo = kwargs.pop('tzinfo',None)
-    if not tzinfo:
-        tzinfo = get_current_timezone()
-    return time(tzinfo = tzinfo ,*args,**kwargs)
 
-def getTimeByLevel(level):  
+def getTimeByLevel(level):
+    from quizzes.models import Quiz
+
     if level == Quiz.VERY_EASY:
-        return creatTime(0,1,0)
+        return time(0,1,0)
     elif level == Quiz.EASY:
-        return creatTime(0,1,30) 
+        return time(0,1,30) 
     elif level == Quiz.MEDIUM:
-        return creatTime(0,2,30) 
+        return time(0,2,30) 
     elif level == Quiz.HARD:
-        return creatTime(0,5,0)
+        return time(0,5,0)
     elif level == Quiz.VERY_HARD:
-        return creatTime(0,10,0)
+        return time(0,10,0)
     
     raise ValidationError('unvalid level')
 
@@ -147,12 +141,13 @@ def make_answer_form(quizList):
     return context
 
 def calculate_time(quizzes):
+    ''' return '''
     time = 0 
     for quiz in quizzes:
-        if quiz.timeOut:
-            time += quiz.timeOut.second
+        if  quiz.time_for_out:
+            time += quiz.time_for_out.second
         else:
-            time += getTimeByLevel(quiz.level)
+            time += getTimeByLevel(quiz.level).second
     return time
 
 def calculate_score(quizList):
@@ -165,6 +160,11 @@ def calculate_score(quizList):
         else :
             positive_score += score
     return {'positive_score' : positive_score , 'negative_score' : negative_score}
+
+
+
+
+
 
 def getAllQuizTests(user_pk):
     data = {'active_tests':[] , 'inactive_tests':[]}

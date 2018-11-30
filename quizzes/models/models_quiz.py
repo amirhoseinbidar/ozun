@@ -13,10 +13,11 @@ from django.contrib.contenttypes.fields import GenericRelation
 from core.checks import checkDublicate
 from django.dispatch import receiver
 from django.db.models.signals import post_save
-from quizzes.quizzes_utils import getTimeByLevel
+from quizzes.utils import getTimeByLevel
 from users.models import FeedBack
 from core.models.lessonTree import(allowed_types ,LESSON 
-    , GRADE ,TOPIC ,LessonTree)
+    , GRADE ,TOPIC ,CHAPTER ,LessonTree)
+from course.models import StudyPostBase
 
 class Source(models.Model):
     name = models.CharField(max_length=50)
@@ -24,19 +25,10 @@ class Source(models.Model):
     def __unicode__(self):
         return u'{0}'.format(self.name)
 
-class Exponential_answer(models.Model):
-    text = models.TextField(blank = True)
-    image = models.ImageField(blank = True,null = True,upload_to='exponential_answers/images')
-    video = models.FileField(blank = True,null = True,upload_to='exponential_answers/videos')
-    extra = models.FileField(blank = True,null = True,upload_to='exponential_answers/extras')
-    #mybe something else will add 
-    def __unicode__(self):
-        return u'{0}'.format(self.pk)
-
 class Answer(models.Model):
     text = models.TextField()
     is_correct_answer = models.BooleanField()
-    quiz = models.ForeignKey('Quiz')
+    quiz = models.ForeignKey('Quiz', on_delete=models.CASCADE)
     def __unicode__(self):
         return u'answer id: {0}'.format(self.pk)
     def save(self,*args,**kwargs):
@@ -65,14 +57,18 @@ class Quiz(models.Model):
     votes = GenericRelation(FeedBack)
     total_votes = models.IntegerField(default=0)
     models.ImageField()
-    image = models.ImageField(blank = True,null = True, upload_to = 'quizzes/images')
-    exponential_answer= models.ForeignKey(to = Exponential_answer,blank= True,null = True )
-    source = models.ForeignKey(Source)
+    image = models.ImageField(blank = True,null = True,
+         upload_to = 'quizzes/images')
+    exponential_answer=GenericRelation(StudyPostBase,blank = True , null = True)
+    source = models.ForeignKey(Source ,null = True,
+        blank=True, on_delete=models.SET_NULL)
     level = models.CharField(max_length = 2,choices =LEVEL_TYPE )
-    lesson = models.ForeignKey(LessonTree) 
+    lesson = models.ForeignKey(LessonTree,null = True,
+        blank = True , on_delete=models.SET_NULL) 
 
-    time_for_out = models.TimeField()
-    added_by = models.ForeignKey(User,null = True , blank = True , on_delete = models.SET_NULL)
+    time_for_out = models.TimeField(blank = True , null = True)
+    added_by = models.ForeignKey(User,null = True , blank = True 
+        , on_delete = models.SET_NULL)
     timestamp = models.DateTimeField(auto_now_add=True)
     
     def count_votes(self):
@@ -90,16 +86,12 @@ class Quiz(models.Model):
         return Quiz.objects.orderby('-total_votes')[_from:to] 
 
     
-
-    def isTopicsFieldValid(self):
-        return self.topics.filter(lesson__pk = self.lesson.pk).count() == self.topics.count()
-        # is all of the topics from determined lesson  
     
-    @allowed_types([ LESSON , GRADE ,TOPIC ],lesson)
-    def save(self,*args,**kwargs):
+    def save(self,*args,**kwargs): 
+        allowed_types([LESSON ,CHAPTER ,TOPIC ],self.lesson ,'lesson' )
+       
         if not self.time_for_out:
             self.time_for_out = getTimeByLevel(self.level)
-        
         super(Quiz,self).save(*args,**kwargs)
         
         
@@ -110,7 +102,6 @@ class Quiz(models.Model):
     class Meta:
         ordering = ['-timestamp']
 
-receiver(post_save , sender= Quiz)
+@receiver(post_save , sender= Quiz)
 def voteUpdate(instance,created,**kwargs):
-    if created:
-        instance.count_votes()
+    instance.count_votes()

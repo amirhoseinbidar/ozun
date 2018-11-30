@@ -1,23 +1,25 @@
 from django.conf.urls import url
-from general_views.view import method_splitter
+from generics.view import method_splitter
 from . import views
 from .utils.emailAuth import activate
 from django.views.generic import TemplateView
-from django.contrib.auth.views import login, logout
+#from django.contrib.auth.views import  logout
 from users.utils.temporary_keys_cleaner import cleaner
 
+app_name = 'users'
+
 urlpatterns = [
-    url(r'^login/$',
-        login, {'template_name': 'login_form.html'},
-        name='register'),
-    url(r'^logout/$', logout, {'template_name': 'logout_form.html'}),
+    #url(r'^login/$',
+    #    login, {'template_name': 'login_form.html'},
+    #    name='register'),
+    #url(r'^logout/$', logout, {'template_name': 'logout_form.html'}),
     url(r'^register/$', method_splitter, {
         'GET': views.register_GET,
         'POST': views.register_POST,
     }),
     url(r'^register/successfully$',
         TemplateView.as_view(template_name='successfully_registration.html')),
-    url(r'^activate/(?P<uidb64>[0-9A-Za-z_\-]+)/(?P<token>[0-9A-Za-z]{1,13}-[0-9A-Za-z]{1,20})/$',
+    url(r'^activate/(?P<uidb64>[\d\w_\-]{1,5})/(?P<token>[\d\w]{1,13}-[\d\w]{1,30})/$',
         activate,
         name='activate'),
     url(r'^profile/$', views.profile_controller, name='profile_controller'),

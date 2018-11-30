@@ -34,13 +34,10 @@ def check_user_is_own(request , attr , to):
     '''attr: by which attrebute you want authenticate 
         to : with what'''
     if not request.user.is_authenticated():# is user logined
-        print False,1
         return False
     elif getattr(request.user,attr) != long(to) :# is opened page for this user 
-        print False,2
         return False
     else:
-        print True
         return True 
 
 

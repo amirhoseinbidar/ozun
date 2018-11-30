@@ -17,7 +17,7 @@ class TreeContent(models.Model):
         (CHAPTER , 'chapter' ),
         (TOPIC , 'topic')
     )
-    
+
     name = models.CharField(max_length = 100) 
     type = models.CharField(choices = CONTENT_TYPE , max_length = 1)
 
@@ -35,13 +35,14 @@ class TreeContent(models.Model):
         raise ValidationError('number out of range')
     @staticmethod
     def getNumberByType(Type):
+
         if Type == TreeContent.GRADE:
             return 1
         elif  Type == TreeContent.LESSON:
             return 2
         elif Type == TreeContent.CHAPTER:
             return 3
-        elif  type == TreeContent.TOPIC:
+        elif  Type == TreeContent.TOPIC:
             return 4
         
         raise ValidationError('uncorrect type')
@@ -54,34 +55,114 @@ class TreeContent(models.Model):
 
         return super(TreeContent,self).save(*args,**kwargs)
 
+    def __str__(self):
+        types = dict(self.CONTENT_TYPE)
+        return u'name : %s , type:  %s' %(self.name , types[self.type])
+
 class LessonTree(MP_Node):
-     
-    content = models.ForeignKey(TreeContent) 
+    content = models.ForeignKey(TreeContent,on_delete=models.CASCADE) 
         
-    node_order_by = [content]
-   
-   
-    def save(self,**kwargs):
+    node_order_by = ['content']
+    
+    def add_sibling(self,*args,**kwargs):
+        newsibling = kwargs.get('content',None) 
+        self.check_depth(self,newsibling)    
+        self.check_dublicate(self,newsibling) 
+        
+        return super(LessonTree ,self).add_sibling(*args,**kwargs)
 
-        if self.depth >= 5 :
+    def add_child(self,*args,**kwargs):
+        newchild = kwargs.get('content',None)
+        self.check_depth(self , newchild ,True )    
+        self.check_dublicate(self , newchild , func = 'get_children')
+       
+        return super(LessonTree ,self).add_child(*args,**kwargs)
+
+
+    def move(self, *args,**kwargs):
+        pos = kwargs.get('pos',None)
+        if pos == 'sorted-sibling':
+            self.check_dublicate(args[0] ,self)
+            self.check_depth(args[0].get_parent(),self , cheack_as_child= True)
+
+        elif pos == 'sorted-child':
+            self.check_dublicate(args[0] , self , 'get_children')# is in args[0] child any dublicate with self
+            self.check_depth(args[0],self,cheack_as_child=True)# is self can be child of args[0]
+        
+        super(LessonTree ,self).move(*args,**kwargs)
+
+    def check_depth(self,object=None,by=None , cheack_as_child = False):
+        if not object:
+            object = self 
+        if isinstance(object , LessonTree):
+            objType = object.content.type 
+        else:
+            objType = object.type
+        if isinstance(by ,LessonTree):
+            byType = by.content.type
+        else:
+            byType = by.type
+        
+        getNumber = TreeContent.getNumberByType
+
+        if getattr(object,'depth',1) >= 5 and getattr(by,'depth',1) >= 5 :   
             raise ValidationError('can not make a root higher level then TOPIC')
-        if TreeContent.getNumberByType(self.content.type) != self.depth:
+        
+        if not by :
+            if getNumber(objType) != object.depth:
+                raise ValidationError('content is in unallowed depth')
+            return
+        
+        if  ( (not cheack_as_child and getNumber(objType) != getNumber(byType) ) or
+              (cheack_as_child and (getNumber(objType)+1) != getNumber(byType) ) ):
             raise ValidationError('cant add this content to this depth')
-              
-        return super(LessonTree ,self).save()
 
-def allowed_types(_type , field):
-    def wrapper(func):
-        def _decorator(**kwargs):
-            self = kwargs.get('self')
+    def check_dublicate(self,object=None , by= None,func = 'get_siblings'):
+        if not object:
+            object = self
+        if not by:
+            by = object
+        
+        if isinstance(by , TreeContent):
+            check_buf =  getattr(object,func)().filter(content__name = by.name ,
+                 content__type = by.type).exists()
+        else :
+            check_buf = getattr(object,func)().filter(
+                    content = by.content).exclude(pk = by.pk).exists()
+        if check_buf :
+            raise ValidationError('cant add a instance as child to a branch more then once')
 
-            if not isinstance(_type , (list,tuple)):
-                _type = [_type,]
-            
-            if not getattr(self , field).content.type in _type :
-                raise ValidationError('unallowed type of content')
-        return func
-    return wrapper
+    @staticmethod
+    def find_by_path(path_str):
+        pathes = path_str.split('/')
+        object = LessonTree.get_root_nodes()
+        index = 0
+        for name in pathes:
+            if index == len(pathes)-1:
+                object = object.get(content__name = name)
+                break
+            object = object.get(content__name = name).get_children()
+            index += 1
+        return object
+        
+
+#NOTE: I still dont need this function
+#   def treeContent_auto_create(**kwargs):
+
+
+    def __str__(self):
+        return u'%s' %(self.content.name)
+
+def allowed_types(_type , field ,field_name):
+    if not isinstance(_type , (list,tuple)):
+        _type = [_type,]
+    
+    if field and not field.content.type in _type :
+        types = dict(TreeContent.CONTENT_TYPE)
+        error_text = 'unallowed type of content for field %s allowed types are %s' %(field_name , types[_type])    
+        raise ValidationError(error_text)
+        
+       
         
 
 LESSON = TreeContent.LESSON
