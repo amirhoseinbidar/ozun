@@ -144,7 +144,16 @@ class LessonTree(MP_Node):
             object = object.get(content__name = name).get_children()
             index += 1
         return object
-        
+    def turn_to_path(self):
+        path_str = ''
+        parent = self.get_parent()
+        try:
+            path_str += parent.turn_to_path()
+        except AttributeError:
+            return self.content.name
+
+        path_str += '/'+self.content.name
+        return path_str
 
 #NOTE: I still dont need this function
 #   def treeContent_auto_create(**kwargs):

@@ -8,7 +8,7 @@ from users.utils.emailAuth import sendAuthEmail
 from .serializers import UserSerializer , User
 from rest_framework import status
 from .serializers import (QuizSerializer , Quiz , ProfileSerializer
-    , Profile ,ExamSerializer  )
+    , Profile ,ExamSerializer , StudyPostSerializer  )
 from django.http import Http404 
 from django.core.exceptions import ObjectDoesNotExist , ValidationError
 from users.models import FeedBack
@@ -16,8 +16,8 @@ from quizzes.models import Exam,Source
 from quizzes import utils
 from django.db.models import Sum
 from studylab.settings import TIME_ZONE
-from core.models import LessonTree
 from core.utils import find_in_dict
+from course.models import LessonTree
 
 class UserCreate(generics.CreateAPIView):
     authentication_classes = ()
@@ -69,9 +69,7 @@ class QuizSearchList(generics.ListAPIView): # need test
         From = kwargs.get('From')
         To = kwargs.get('To')
         return Quiz.objects.all()[From:To]
-    
-    #NOTE:it should send quizzes by given path I think TreeBeard have some tools
-    # and second is its url give every thing this is unsafe
+  
     @staticmethod
     def pathHandler(LessonPath):
         branch = LessonTree.find_by_path(LessonPath)
@@ -151,7 +149,7 @@ class StartExam(generics.ListAPIView):
         
         try:
             data = self.request_orderer()
-        except ValidationError,e: #NOTE: it is deffrent in py3
+        except ValidationError as e: #NOTE: it is deffrent in py3
             return Response(data = e.message , status=status.HTTP_400_BAD_REQUEST)
         number = data.pop('number')
         
@@ -217,3 +215,14 @@ class ExamInfo(generics.ListAPIView):
             raise ValidationError('you cant access to this exam , this is not for you ')
         
         raise ValidationError('uncorrect argomants')
+
+class StudyPostList(generics.ListAPIView):
+    serializer_class = StudyPostSerializer
+    def get_queryset(self):
+        return QuizSearchList.pathHandler(
+                self.kwargs.get('LessonPath'))
+    def get(self,request,*args,**kwargs):
+        response = super(StudyPostList, self).get(request,*args,**kwargs)
+        response.data['lesson'] = LessonTree.objects.get(
+                pk = response.data['lesson']).turn_to_path()
+        return response 

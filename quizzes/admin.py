@@ -23,7 +23,7 @@ class quizAdminRules(admin.ModelAdmin):
 
 class quizzesAdmin(quizAdminRules):
     
-    readonly_fields = ['added_by']
+    readonly_fields = ['added_by','total_votes']
     #def address(self,obj):
     #    base = '{}/{}'.format(obj.grade.name , obj.lesson.name)
     #    data = ''
@@ -58,20 +58,27 @@ class quizzesAdmin(quizAdminRules):
                     answer = Answer.objects.get(info['pk'])
                     answer.text = txt
                     answer.save()
-					
+    def add_view(self,request, form_url='', extra_context=None):
+        extra_context = extra_context or {}
+        extra_context['is_quiz_admin'] = True
+        return super(quizzesAdmin,self).add_view(
+            request,form_url,extra_context
+        )
+
     def change_view(self, request, object_id, form_url='', extra_context=None):
-        
+            
         extra_context = extra_context or {}
         #extra_context['answersJson'] = self.answersJson( Quiz.objects.get(id = object_id) )
-        extra_context['is_quizzesAdmin']= True
-        
+        extra_context['is_quiz_admin']= True
         return super(quizzesAdmin, self).change_view(
             request, object_id, form_url, extra_context=extra_context,
         )
+
     def save_model(self, request, obj, form, change):
         model = super(self.__class__,self).save_model(request,obj,form,change)
+        
 		
-    list_display = ('level','timestamp')
+    list_display = ('level','timestamp','total_votes')
 
 class topicAdmin(quizAdminRules):
     filter_horizontal = ('grades',)

@@ -26,7 +26,7 @@ class Source(models.Model):
         return u'{0}'.format(self.name)
 
 class Answer(models.Model):
-    text = models.TextField()
+    post = GenericRelation( StudyPostBase )
     is_correct_answer = models.BooleanField()
     quiz = models.ForeignKey('Quiz', on_delete=models.CASCADE)
     def __unicode__(self):
@@ -56,10 +56,12 @@ class Quiz(models.Model):
     text = models.TextField()
     votes = GenericRelation(FeedBack)
     total_votes = models.IntegerField(default=0)
-    models.ImageField()
+    
     image = models.ImageField(blank = True,null = True,
          upload_to = 'quizzes/images')
+    
     exponential_answer=GenericRelation(StudyPostBase,blank = True , null = True)
+    
     source = models.ForeignKey(Source ,null = True,
         blank=True, on_delete=models.SET_NULL)
     level = models.CharField(max_length = 2,choices =LEVEL_TYPE )

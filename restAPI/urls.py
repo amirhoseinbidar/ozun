@@ -17,7 +17,8 @@ urlpatterns = [
     url(r'^exam/start/(?P<LessonPath>[\w/]{1,100})$' , views.StartExam , name='start_exam' ),
     url(r'^exam/update/$',views.UpdateExam.as_view(),name = 'update_exam'),
     url(r'^exam/(?P<pk>\d)/finish/$',views.FinishExam.as_view() ,name = 'finish_exam'),
-    url(r'^exam/(?P<pk>[\d\w])/info/$',views.ExamInfo.as_view() , name = 'exam_info')
+    url(r'^exam/(?P<pk>[\d\w])/info/$',views.ExamInfo.as_view() , name = 'exam_info'),
 
+    url(r'^studypost/(?P<LessonPath>[\w/]{1,100})$',views.StudyPostList.as_view() , name= 'study_post'),
 
 ]

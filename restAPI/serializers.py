@@ -4,6 +4,7 @@ from rest_framework.authtoken.models import Token
 from quizzes.models import Answer ,Quiz , QuizStatus , Exam
 from users.models import Profile , FeedBack
 from rest_framework.authtoken.models import Token
+from course.models import StudyMedia , StudyPost , StudyPostBase
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
@@ -81,3 +82,17 @@ class ExamSerializer(serializers.ModelSerializer):
             status.user_answer = quizzesStatus.get('user_answer',status.user_answer)
             status.save()
         return instance
+
+class StudyMediaSerializer(serializers.ModelSerializer):
+    class Meta:
+        models = StudyMedia
+
+class StudyPostBaseSerializer(serializers.ModelSerializer):
+    media = StudyMediaSerializer(many = True)
+    class Meta:
+        models = StudyPostBase
+
+class StudyPostSerializer(serializers.ModelSerializer):
+    post = StudyPostBaseSerializer(many = False)
+    class Meta:
+        models = StudyPost

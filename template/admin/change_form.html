@@ -2,18 +2,23 @@
 {% load staticfiles %}
 
 {% block extrahead %}{{ block.super }}
-    <script type="text/javascript" src='/static/admin/js/vendor/jquery/jquery.js'></script>
-    <script type="text/javascript">
-        var answersJson = {{ answersJson }} 
-    </script>
-    <script type="text/javascript" src='/static/scripts/quizzes/admin-change_form.js'></script>
+    
+    {% if is_quiz_admin %}
+        <script type="text/javascript" src='/static/admin/js/vendor/jquery/jquery.js'></script>
+        <script type="text/javascript">
+            var answersJson = {{ answersJson }} 
+        </script>
+        <script type="text/javascript" src='/static/scripts/quizzes/admin-change_form.js'></script>
+    {% endif %}
+
 {% endblock %}
 
-{% block form_top %}
+{% block form_top %}{{block.super}}
 
+    {% if is_quiz_admin %}
         <input id='addAnswerBtn' type="button" value="add answer" >
-        <div class='form-row' id='answer-field-container'>
-			
+            <div class='form-row' id='answer-field-container'>
         </div>
+    {% endif %}
     
 {% endblock %}
