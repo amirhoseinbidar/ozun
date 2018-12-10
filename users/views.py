@@ -6,7 +6,7 @@ from django import forms
 from django.http import  HttpResponseRedirect
 from django.contrib.sites.shortcuts import get_current_site
 from users.utils.checks import check_user_exists_decorator ,check_user_is_own
-from users.utils.forms import registerForm ,  profileEditForm
+from users.utils.forms import registerForm #,  profileEditForm
 from django.contrib.auth import login
 from users.models import  Profile  , Country_city
 from quizzes.forms import quiz_select_form

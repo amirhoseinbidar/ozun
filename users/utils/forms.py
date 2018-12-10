@@ -47,7 +47,8 @@ class profileEditForm(forms.ModelForm):
         Country_county.objects.all(),
         Country_city.objects.all(),
     ]
-    data = find_datas(models, 'name', True)
+    data = models#find_datas(models, 'name', True)
+    
     ####notice :I am wondered between these two code
     ####
     #provinces_list = [value for key, value in data[0] ]

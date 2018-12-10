@@ -3,7 +3,8 @@ from __future__ import unicode_literals
         
 from treebeard.mp_tree import MP_Node
 from core.checks import checkDublicate 
-from django.core.exceptions import ObjectDoesNotExist , ValidationError
+from django.core.exceptions import ObjectDoesNotExist , ValidationError 
+from core.exception import duplicateException
 from django.db import models
 
 class TreeContent(models.Model):
@@ -18,10 +19,10 @@ class TreeContent(models.Model):
         (TOPIC , 'topic')
     )
 
-    name = models.CharField(max_length = 100) 
-    type = models.CharField(choices = CONTENT_TYPE , max_length = 1)
+    name = models.CharField(max_length = 100,blank = False , null = False) 
+    type = models.CharField(choices = CONTENT_TYPE , max_length = 1,blank = False,null = False)
 
-    @staticmethod 
+    @staticmethod
     def getTypeByNumber(number):
         if number == 1:
             return TreeContent.GRADE
@@ -57,14 +58,33 @@ class TreeContent(models.Model):
 
     def __str__(self):
         types = dict(self.CONTENT_TYPE)
-        return u'name : %s , type:  %s' %(self.name , types[self.type])
+        try:
+            return 'name : {} , type:  {}'.format(self.name , types[self.type])
+        except:
+            return 'name : {} , type:  {}'.format(self.name,self.type)
+
 
 class LessonTree(MP_Node):
     content = models.ForeignKey(TreeContent,on_delete=models.CASCADE) 
         
     node_order_by = ['content']
     
+    def add_root(self,*args,**kwargs):#it should be staticmethod but i dont know how call super method from staticmethod
+        kwargs = self.treeContent_auto_create(**kwargs)
+        newroot = kwargs.get('content',None)
+        newroot = super(LessonTree,self).add_root(*args,**kwargs)
+        
+        try:
+            newroot.check_depth(newroot)    
+            newroot.check_dublicate() 
+        except ValidationError as e :
+            newroot.delete()
+            raise e
+        
+        return newroot
+
     def add_sibling(self,*args,**kwargs):
+        kwargs = self.treeContent_auto_create(**kwargs)
         newsibling = kwargs.get('content',None) 
         self.check_depth(self,newsibling)    
         self.check_dublicate(self,newsibling) 
@@ -72,6 +92,7 @@ class LessonTree(MP_Node):
         return super(LessonTree ,self).add_sibling(*args,**kwargs)
 
     def add_child(self,*args,**kwargs):
+        kwargs = self.treeContent_auto_create(**kwargs)
         newchild = kwargs.get('content',None)
         self.check_depth(self , newchild ,True )    
         self.check_dublicate(self , newchild , func = 'get_children')
@@ -80,28 +101,32 @@ class LessonTree(MP_Node):
 
 
     def move(self, *args,**kwargs):
+        kwargs = self.treeContent_auto_create(**kwargs)
         pos = kwargs.get('pos',None)
         if pos == 'sorted-sibling':
             self.check_dublicate(args[0] ,self)
             self.check_depth(args[0].get_parent(),self , cheack_as_child= True)
 
         elif pos == 'sorted-child':
-            self.check_dublicate(args[0] , self , 'get_children')# is in args[0] child any dublicate with self
-            self.check_depth(args[0],self,cheack_as_child=True)# is self can be child of args[0]
+            self.check_dublicate(args[0] , self , 'get_children')# is args[0] have any child  same with self
+            self.check_depth(args[0],self,cheack_as_child=True)# can self  be child of args[0]
         
-        super(LessonTree ,self).move(*args,**kwargs)
+        return super(LessonTree ,self).move(*args,**kwargs)
 
     def check_depth(self,object=None,by=None , cheack_as_child = False):
         if not object:
             object = self 
+        
         if isinstance(object , LessonTree):
             objType = object.content.type 
         else:
             objType = object.type
-        if isinstance(by ,LessonTree):
-            byType = by.content.type
-        else:
-            byType = by.type
+        
+        if by:
+            if isinstance(by ,LessonTree):
+                byType = by.content.type
+            else:
+                byType = by.type
         
         getNumber = TreeContent.getNumberByType
 
@@ -116,6 +141,7 @@ class LessonTree(MP_Node):
         if  ( (not cheack_as_child and getNumber(objType) != getNumber(byType) ) or
               (cheack_as_child and (getNumber(objType)+1) != getNumber(byType) ) ):
             raise ValidationError('cant add this content to this depth')
+
 
     def check_dublicate(self,object=None , by= None,func = 'get_siblings'):
         if not object:
@@ -132,6 +158,7 @@ class LessonTree(MP_Node):
         if check_buf :
             raise ValidationError('cant add a instance as child to a branch more then once')
 
+
     @staticmethod
     def find_by_path(path_str):
         pathes = path_str.split('/')
@@ -144,6 +171,8 @@ class LessonTree(MP_Node):
             object = object.get(content__name = name).get_children()
             index += 1
         return object
+    
+
     def turn_to_path(self):
         path_str = ''
         parent = self.get_parent()
@@ -155,8 +184,20 @@ class LessonTree(MP_Node):
         path_str += '/'+self.content.name
         return path_str
 
-#NOTE: I still dont need this function
-#   def treeContent_auto_create(**kwargs):
+
+    def treeContent_auto_create(self,**kwargs):
+        if 'content' in kwargs:
+            return kwargs
+        elif 'content_name' in kwargs and 'content_type' in kwargs:
+            name = kwargs.pop('content_name')
+            _type = kwargs.pop('content_type')
+            try:
+                content = TreeContent.objects.create(name = name,type = _type)
+            except duplicateException:
+                content = TreeContent.objects.get(name = name,type = _type)
+            kwargs['content'] = content
+
+        return kwargs
 
 
     def __str__(self):
