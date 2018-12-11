@@ -4,13 +4,13 @@ from django.db import models
 from .models_quiz import Answer , User,Quiz ,membershipException 
 from users.models import BaseTemporaryKey
 from django.utils import timezone
-from core.exception import ValidationError , duplicateException
+from core.exceptions import ValidationError , duplicationException
 from django.utils.crypto import get_random_string
 from django.db.models import Sum
 
 class QuizStatus(models.Model):#RULE: user_answer  must be one of the quiz answers or None
     quiz = models.ForeignKey(Quiz , models.CASCADE)
-    #NOTE : if use_answer be null mean user still dont anwser  this quiz
+    #NOTE : if use_answer be null mean user have not been replying  quiz
     user_answer = models.ForeignKey(Answer,blank = True,null = True , on_delete=models.CASCADE)
     exam = models.ForeignKey('Exam' ,on_delete=models.CASCADE) 
     def save(self,*args,**kwargs):
@@ -75,7 +75,7 @@ class Exam(BaseTemporaryKey):
                 break 
         
         if Exam.objects.filter(user = user , is_active = True).exists():
-            raise duplicateException('a active exam alredy exist first close it')
+            raise duplicationException('a active exam alredy exist first close it')
 
         super(Exam,self).create_record(forward_time,*args,**kwargs)
         self.key = key

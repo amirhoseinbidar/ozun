@@ -1,4 +1,4 @@
-from .exception import duplicateException
+from .exceptions import duplicationException
 
 def checkDublicate(klass,_self,objects = None,**kwargs):
     
@@ -7,4 +7,4 @@ def checkDublicate(klass,_self,objects = None,**kwargs):
     else:
         q = klass.objects.filter(**kwargs).exclude(pk = _self.pk)
     if q.exists():# should not a name duplicate 
-        raise duplicateException('this {} is alredy exist'.format(kwargs))
+        raise duplicationException('this {} is alredy exist'.format(kwargs))

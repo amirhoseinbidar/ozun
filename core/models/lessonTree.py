@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
         
-from treebeard.mp_tree import MP_Node
+from treebeard.mp_tree import MP_Node 
 from core.checks import checkDublicate 
 from django.core.exceptions import ObjectDoesNotExist , ValidationError 
-from core.exception import duplicateException
+from core.exceptions import duplicationException , overDepthException
 from django.db import models
 
 class TreeContent(models.Model):
@@ -75,9 +75,9 @@ class LessonTree(MP_Node):
         newroot = super(LessonTree,self).add_root(*args,**kwargs)
         
         try:
-            newroot.check_depth(newroot)    
-            newroot.check_dublicate() 
-        except ValidationError as e :
+            newroot.check_dublicate()
+            newroot.check_depth(newroot)     
+        except (duplicationException , overDepthException) as e  :
             newroot.delete()
             raise e
         
@@ -85,31 +85,36 @@ class LessonTree(MP_Node):
 
     def add_sibling(self,*args,**kwargs):
         kwargs = self.treeContent_auto_create(**kwargs)
-        newsibling = kwargs.get('content',None) 
-        self.check_depth(self,newsibling)    
+        newsibling = kwargs.get('content',None)    
+        
         self.check_dublicate(self,newsibling) 
+        self.check_depth(self,newsibling) 
         
         return super(LessonTree ,self).add_sibling(*args,**kwargs)
 
     def add_child(self,*args,**kwargs):
         kwargs = self.treeContent_auto_create(**kwargs)
         newchild = kwargs.get('content',None)
-        self.check_depth(self , newchild ,True )    
+        
         self.check_dublicate(self , newchild , func = 'get_children')
+        self.check_depth(self , newchild ,True )    
+        
        
         return super(LessonTree ,self).add_child(*args,**kwargs)
 
 
     def move(self, *args,**kwargs):
         kwargs = self.treeContent_auto_create(**kwargs)
-        pos = kwargs.get('pos',None)
-        if pos == 'sorted-sibling':
-            self.check_dublicate(args[0] ,self)
-            self.check_depth(args[0].get_parent(),self , cheack_as_child= True)
+        pos = kwargs.get('pos',None) or args[1]
+        target =  kwargs.get('target',None) or args[0]
+        
+        if not pos or pos == 'sorted-sibling' : #diffualt is sorted-sibling
+            self.check_dublicate(target ,self)
+            self.check_depth(target.get_parent(),self , cheack_as_child= True)
 
-        elif pos == 'sorted-child':
-            self.check_dublicate(args[0] , self , 'get_children')# is args[0] have any child  same with self
-            self.check_depth(args[0],self,cheack_as_child=True)# can self  be child of args[0]
+        elif pos == 'sorted-child' :
+            self.check_dublicate(target , self , 'get_children')# is target have any child  same with self
+            self.check_depth(target,self,cheack_as_child=True)# can self  be child of target
         
         return super(LessonTree ,self).move(*args,**kwargs)
 
@@ -131,16 +136,16 @@ class LessonTree(MP_Node):
         getNumber = TreeContent.getNumberByType
 
         if getattr(object,'depth',1) >= 5 and getattr(by,'depth',1) >= 5 :   
-            raise ValidationError('can not make a root higher level then TOPIC')
+            raise overDepthException('can not make a root higher level then TOPIC')
         
         if not by :
             if getNumber(objType) != object.depth:
-                raise ValidationError('content is in unallowed depth')
+                raise overDepthException('content is in unallowed depth')
             return
         
         if  ( (not cheack_as_child and getNumber(objType) != getNumber(byType) ) or
               (cheack_as_child and (getNumber(objType)+1) != getNumber(byType) ) ):
-            raise ValidationError('cant add this content to this depth')
+            raise overDepthException('cant add this content to this depth')
 
 
     def check_dublicate(self,object=None , by= None,func = 'get_siblings'):
@@ -156,7 +161,7 @@ class LessonTree(MP_Node):
             check_buf = getattr(object,func)().filter(
                     content = by.content).exclude(pk = by.pk).exists()
         if check_buf :
-            raise ValidationError('cant add a instance as child to a branch more then once')
+            raise duplicationException('cant add a instance as child to a branch more then once')
 
 
     @staticmethod
@@ -193,7 +198,7 @@ class LessonTree(MP_Node):
             _type = kwargs.pop('content_type')
             try:
                 content = TreeContent.objects.create(name = name,type = _type)
-            except duplicateException:
+            except duplicationException:
                 content = TreeContent.objects.get(name = name,type = _type)
             kwargs['content'] = content
 
@@ -201,7 +206,7 @@ class LessonTree(MP_Node):
 
 
     def __str__(self):
-        return u'%s' %(self.content.name)
+        return u'%s' %(self.content)
 
 def allowed_types(_type , field ,field_name):
     if not isinstance(_type , (list,tuple)):

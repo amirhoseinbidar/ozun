@@ -5,7 +5,7 @@ from collections import Counter
 
 from django.db import models
 from studylab.settings import BASE_DIR
-from core.exception import membershipException,ValidationError
+from core.exceptions import membershipException,ValidationError
 import os
 
 from django.contrib.auth.models import User

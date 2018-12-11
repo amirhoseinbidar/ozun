@@ -83,23 +83,18 @@ quizzes part :
         we use of this informations for close test its time out and rebuild the quiz page 
         for when user suddenly close page or ...  and authenticate and ...
         when removeDate of key outed or our work with its key done its active life get end 
-        and a fucntion (temprary_key_cleaner) stor its data in user info (for later use in charts and advise and ...)
-        and clear the key 
+        and a fucntion (temprary_key_cleaner) make it disactive
+
 chalenge part:
     still optional  
     
 quizzes add controller :
-    a program or a part of our website(or both) whith writers can send thair quizzes 
-    to database this is can be admin part or we can do in other part      
+    ✔ a part of our website that authors can send thair quizzes @done (12/11/2018, 8:11:45 AM)
+        to database this is in admin part   
 
+REST API part:
+    
 
 
 QUIZZES_MODEL_RULES:
-    1:
-        QUIZZES_MODEL: correct_answers should be one of the quiz_answers
-    2:
-        QUIZZES_MODEL: grade should be in the lesson.grade
-    3:
-        QUIZZES_MODEL: topics must be members of lesson
-    4:
-        
+  
