@@ -2,7 +2,7 @@
 from __future__ import unicode_literals
         
 from treebeard.mp_tree import MP_Node 
-from core.checks import checkDublicate 
+from core.checks import checkDuplicate 
 from django.core.exceptions import ObjectDoesNotExist , ValidationError 
 from core.exceptions import duplicationException , overDepthException
 from django.db import models
@@ -49,7 +49,7 @@ class TreeContent(models.Model):
         raise ValidationError('uncorrect type')
 
     def save(self,*args,**kwargs):
-        checkDublicate(TreeContent , self , name = self.name , type = self.type )
+        checkDuplicate(TreeContent , self , name = self.name , type = self.type )
         
         if isinstance(self.type , int):
            self.type = TreeContent.getTypeByNumber(self.type)
@@ -75,7 +75,7 @@ class LessonTree(MP_Node):
         newroot = super(LessonTree,self).add_root(*args,**kwargs)
         
         try:
-            newroot.check_dublicate()
+            newroot.check_Duplicate()
             newroot.check_depth(newroot)     
         except (duplicationException , overDepthException) as e  :
             newroot.delete()
@@ -87,7 +87,7 @@ class LessonTree(MP_Node):
         kwargs = self.treeContent_auto_create(**kwargs)
         newsibling = kwargs.get('content',None)    
         
-        self.check_dublicate(self,newsibling) 
+        self.check_Duplicate(self,newsibling) 
         self.check_depth(self,newsibling) 
         
         return super(LessonTree ,self).add_sibling(*args,**kwargs)
@@ -96,7 +96,7 @@ class LessonTree(MP_Node):
         kwargs = self.treeContent_auto_create(**kwargs)
         newchild = kwargs.get('content',None)
         
-        self.check_dublicate(self , newchild , func = 'get_children')
+        self.check_Duplicate(self , newchild , func = 'get_children')
         self.check_depth(self , newchild ,True )    
         
        
@@ -109,11 +109,11 @@ class LessonTree(MP_Node):
         target =  kwargs.get('target',None) or args[0]
         
         if not pos or pos == 'sorted-sibling' : #diffualt is sorted-sibling
-            self.check_dublicate(target ,self)
+            self.check_Duplicate(target ,self)
             self.check_depth(target.get_parent(),self , cheack_as_child= True)
 
         elif pos == 'sorted-child' :
-            self.check_dublicate(target , self , 'get_children')# is target have any child  same with self
+            self.check_Duplicate(target , self , 'get_children')# is target have any child  same with self
             self.check_depth(target,self,cheack_as_child=True)# can self  be child of target
         
         return super(LessonTree ,self).move(*args,**kwargs)
@@ -148,7 +148,7 @@ class LessonTree(MP_Node):
             raise overDepthException('cant add this content to this depth')
 
 
-    def check_dublicate(self,object=None , by= None,func = 'get_siblings'):
+    def check_Duplicate(self,object=None , by= None,func = 'get_siblings'):
         if not object:
             object = self
         if not by:

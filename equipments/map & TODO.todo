@@ -93,7 +93,7 @@ quizzes add controller :
         to database this is in admin part   
 
 REST API part:
-    
+    ✔ exchange data with android clients @done (12/11/2018, 8:24:32 AM)
 
 
 QUIZZES_MODEL_RULES:

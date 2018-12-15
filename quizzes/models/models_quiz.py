@@ -10,7 +10,7 @@ import os
 
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.fields import GenericRelation
-from core.checks import checkDublicate
+from core.checks import checkDuplicate
 from django.dispatch import receiver
 from django.db.models.signals import post_save
 from quizzes.utils import getTimeByLevel
@@ -33,7 +33,7 @@ class Answer(models.Model):
         return u'answer id: {0}'.format(self.pk)
     def save(self,*args,**kwargs):
         if self.is_correct_answer:
-            checkDublicate(Answer,self, is_correct_answer=True )
+            checkDuplicate(Answer,self, is_correct_answer=True )
         super(Answer,self).save(*args,**kwargs)
 
 

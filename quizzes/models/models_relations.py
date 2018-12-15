@@ -64,12 +64,12 @@ class Exam(BaseTemporaryKey):
             key = get_random_string()
         
         if not ignore_key_exception :
-            if Exam.objects.filter(key = key).exists():# should not a key duplicate
+            if Exam.objects.filter(key = key).exists():# should not a key Duplicate
                 raise ValidationError('this key is alredy exist')
         
         else:
             while True:
-                if Exam.objects.filter(key = key).exists():# should not a key duplicate
+                if Exam.objects.filter(key = key).exists():# should not a key Duplicate
                     key = get_random_string()
                     continue
                 break 

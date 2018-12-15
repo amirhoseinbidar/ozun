@@ -5,17 +5,19 @@ from quizzes.models import Answer ,Quiz , QuizStatus , Exam
 from users.models import Profile , FeedBack
 from rest_framework.authtoken.models import Token
 from course.models import StudyMedia , StudyPost , StudyPostBase
+from core.models import LessonTree 
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
     
-        fields = ('id','username','password','email','first_name','last_name','is_staff')
+        fields = ('username','password','email')
         extra_kwargs = {
             'password': {'write_only': True , 'required' : False}, 
-            'is_staff':{'read_only':True},
-            'email':{'required':True}
+            'email':{'required':True},
+            'password':{'required':True}
             }
+    
     def create(self,validated_data):
         user = User(
             username = validated_data['username'],
@@ -26,16 +28,73 @@ class UserSerializer(serializers.ModelSerializer):
         Token.objects.create(user=user)
         return user
 
-        
+
+class ProfileUserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ('id','username','email','first_name','last_name','is_staff')
+        extra_kwargs = {
+            'username' : {'read_only':True},
+            'email':{'read_only':True},
+            'is_staff': {'read_only':True},
+        }
+
 class ProfileSerializer(serializers.ModelSerializer):
-    user = serializers.PrimaryKeyRelatedField(many=False, read_only=True)
+    user = ProfileUserSerializer(many=False)
+    set_location  = serializers.CharField(max_length = 200,required = False)
+    set_grade = serializers.CharField(max_length = 200,required = False)
+    set_interest_lesson = serializers.CharField(max_length = 200,required = False)
+    location  = serializers.SerializerMethodField()
+    grade = serializers.SerializerMethodField()
+    interest_lesson = serializers.SerializerMethodField()
+
+    def get_location(self,obj):
+        pass 
+ 
+    def get_interest_lesson(self,obj):
+        data = None
+        if obj.interest_lesson:
+            data = obj.interest_lesson.turn_to_path()
+        return data
+
+    def get_grade(self,obj):
+        data = None
+        if obj.grade:
+            data = obj.grade.turn_to_path()
+        return data
+        
     
     class Meta:
         model = Profile
         fields = '__all__'
+
         extra_kwargs ={
-            'score' : {'read_only':True}
+            'score' : {'read_only':True},
+            'set_grade' : {'write_only' : True},
+            'set_location': {'write_only' : True},
+            'set_interest_lesson': {'write_only' : True},
         }
+    
+
+    def update(self,instance,validated_data):
+        user_data = validated_data.pop('user',None)
+        grade = validated_data.pop('set_grade',None)
+        interest_lesson = validated_data.pop('set_interest_lesson',None)
+        location = validated_data.pop('set_location',None)
+
+
+        if grade:
+            validated_data['grade'] = LessonTree.find_by_path(grade)
+        if interest_lesson:
+            validated_data['interest_lesson'] = LessonTree.find_by_path(interest_lesson)
+        if location:
+            validated_data['location'] = None # i will make it 
+        User.objects.filter(pk = instance.user.pk).update(**user_data)
+
+        Profile.objects.filter(pk = instance.pk).update(**validated_data)
+        instance.refresh_from_db()
+        
+        return instance
 
 class AnswerSerializer(serializers.ModelSerializer):
     class Meta:

@@ -3,65 +3,34 @@ from __future__ import unicode_literals
 
 from django.db import models
 from django.contrib.auth.models import User
-from django.utils import timezone
-from django.dispatch import receiver
-from django.db.models.signals  import post_save
-from django.core.exceptions import ValidationError
 from django.contrib.contenttypes.fields import ContentType , GenericForeignKey
 from core.models.temporaryKey import BaseTemporaryKey
-from core.models.lessonTree import LESSON , GRADE , allowed_types , LessonTree
-    
+from core.models import LESSON , GRADE , allowed_types , LessonTree ,Location 
 
 
 
 class Email_auth(BaseTemporaryKey):
     user = models.OneToOneField(User,on_delete=models.CASCADE)
+    FORWARD_TIME = 1800 #00:30:00 
+
+    def create_record(self,user,forward_time = 0,*args,**kwargs):
+        self = super(Email_auth,self).create_record(forward_time)
+        self.user = user
+        return self.save(*args,**kwargs)
 
 
-    FOEWARD_TIME = 1800 #00:30:00 
     def cleaner_action(self):
         self.user.delete()
         self.delete()
         
-    def __unicode__(self):
-        return u'username: {0} ;;; add date: {1} ;;; remove date: {2}'.format(
-            self.user.username,self.add_date, self.remove_date)
+    def __str__(self):
+        return self.user.__str__()
     class Meta:
         db_table = "email_auth"
- 
-@receiver(post_save,sender = User)
-def create_models(sender,instance,created, **kwargs):
-    if created:
-        Email_auth().create_record(user = instance)
-
-
-class Country_province(models.Model):
-    name = models.CharField(max_length = 50)
-    class Meta:
-        db_table = "province"
-    def __unicode__(self):
-        return u'{0}'.format(self.name)
-
-class Country_county(models.Model):
-    province = models.ForeignKey(Country_province , on_delete=models.CASCADE)
-    name = models.CharField(max_length = 50)
-    class Meta:
-        db_table = "county"
-    def __unicode__(self):
-        return u'{0}/{1}'.format(self.province.name,self.name)
-
-class Country_city(models.Model):
-    county = models.ForeignKey(Country_county, on_delete=models.CASCADE)
-    name = models.CharField(max_length = 50)
-    class Meta:
-        db_table = "city"
-        
-    def __unicode__(self):
-        return u'{0}/{1}/{2}'.format(self.county.province.name,self.county.name,self.name)
 
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-    location = models.ForeignKey(Country_city, null= True 
+    location = models.ForeignKey(Location, null= True 
         ,blank= True, on_delete=models.SET_NULL )
     bio = models.TextField(blank=True)
     image = models.ImageField(blank = True,upload_to='users/images')
@@ -70,13 +39,16 @@ class Profile(models.Model):
         , related_name='grade', on_delete=models.SET_NULL)
     interest_lesson = models.ForeignKey(LessonTree , blank = True ,
         null = True , related_name='interest_lesson',on_delete=models.SET_NULL)
-    score = models.IntegerField(blank = True)
+    score = models.IntegerField(blank = True , null=True)
+
     
-    
-    def save(self ,**kwargs):
+    def save(self ,*args,**kwargs):
         allowed_types(GRADE , self.grade,'grade')
         allowed_types(LESSON , self.interest_lesson , 'interest_lesson')
-        return super(Profile,self).save(**kwargs)
+        if not self.score:
+            self.score = 0
+
+        return super(Profile,self).save(*args,**kwargs)
 
 
     class Meta:

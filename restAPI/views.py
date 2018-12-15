@@ -18,6 +18,7 @@ from django.db.models import Sum
 from studylab.settings import TIME_ZONE
 from core.utils import find_in_dict
 from course.models import LessonTree
+from rest_framework.exceptions import UnsupportedMediaType , ParseError , NotFound , NotAuthenticated
 
 class UserCreate(generics.CreateAPIView):
     authentication_classes = ()
@@ -44,7 +45,8 @@ class QuizSearchList(generics.ListAPIView): # need test
     def get_queryset(self):
         action = self.kwargs['action']
         if not action in self.allowed_actions:
-            raise Http404
+            raise ParseError(
+                "unallowed action , allowed actions are 'most-voteds','lasts','path' ")
 
         elif action == 'most-voteds':
             return self.most_votedsHandler(**self.kwargs)
@@ -82,36 +84,55 @@ class ProfileView(generics.ListAPIView):
     serializer_class= ProfileSerializer
     def get_queryset(self):
         return Profile.objects.filter(pk = self.kwargs['pk'])
-    
+    def get(self,request,*args,**kwargs):
+        response = super(ProfileView,self).get()
+        return ProfileUpdate.response_maker(response)
+
 class ProfileUpdate(generics.UpdateAPIView):
     serializer_class = ProfileSerializer
     
+
+    def check_permissions(self,request):
+        if request.content_type != 'application/json' :
+            raise UnsupportedMediaType('','only "application/josn" content type accept')
+            
+              
+        super(ProfileUpdate,self).check_permissions(request)
+    
     def get_object(self):
         return Profile.objects.get(user = self.request.user)
+    
+    def request_maker(self):
+        user = {'id' :self.request.user.id} 
+       
+        
+        profile = Profile.objects.get(user = self.request.user)
+
+        self.request.data['id'] = profile.id
+        
+        if 'last_name' in self.request.data:
+            user['last_name'] = self.request.data.pop('last_name')
+        if 'first_name' in self.request.data:
+            user['first_name'] = self.request.data.pop('first_name')
+        
+        self.request.data['user'] = user
+    
+    @staticmethod
+    def response_maker(response):
+        data = response.data
+        data.update( data.pop('user',None) or {} )
+        return response
 
     def put(self,request,*args,**kwargs):
-        data = dict(request.data)
-        if 'user' in data:
-            user_ser = UserSerializer(self.request.user ,  data['user'])
-            del data['user']
-        profile = Profile.objects.get(user = self.request.user)
-       
-        response = super(ProfileUpdate,self).put(
-            request = request , pk = profile.pk)
-        
-        if user_ser.is_valid():# it is better to do it in serializer itself
-            user_ser.save()
-            response.data['user'] = user_ser.data
-            return response
+        self.request_maker()  
+        print(self.request) 
+        response = super(ProfileUpdate,self).put(self.request ,*args,**kwargs)
+        return self.response_maker(response)
 
-        response.data['error'] = user_ser.errors
-        return response
-        
     def patch(self,*args,**kwargs):
+        self.request_maker()
         response = super(ProfileUpdate,self).patch(*args,**kwargs)
-        user = UserSerializer(self.request.user)
-        response.data['user'] = user.data
-        return response
+        return self.response_maker(response)
 
 
         
@@ -123,14 +144,12 @@ class QuizFeedBack(generics.views.APIView):
         feedback_data = find_in_dict(feedback_data , FeedBack.FEEDBACK_TYPES)
         
         if not feedback_data:
-            return Response(data='uncorrect feedback' 
-                , status = status.HTTP_400_BAD_REQUEST)
+            raise ParseError('uncorrect feedback')
         
         try:
             quiz = Quiz.objects.get(pk = pk)
         except ObjectDoesNotExist:
-            return Response(data = 'Quiz does not exist' ,
-                status = status.HTTP_400_BAD_REQUEST)
+            raise ParseError('Quiz does not exist')
         
         try:# if user voted , update it
             feedback = quiz.votes.get(user = request.user)
@@ -145,12 +164,9 @@ class QuizFeedBack(generics.views.APIView):
 class StartExam(generics.ListAPIView):
     serializer_class = QuizSerializer
     exam = None
+    
     def get_queryset(self):
-        
-        try:
-            data = self.request_orderer()
-        except ValidationError as e: #NOTE: it is deffrent in py3
-            return Response(data = e.message , status=status.HTTP_400_BAD_REQUEST)
+        data = self.request_orderer()
         number = data.pop('number')
         
         quizzes = QuizSearchList.pathHandler(
@@ -164,13 +180,13 @@ class StartExam(generics.ListAPIView):
         data = self.request.data.copy()
         if ('level' in data and 
                 not find_in_dict(data['level'] , Quiz.LEVEL_TYPE)):
-            raise ValidationError('uncorrect level')
+            raise ParseError('uncorrect level')
         if ('source' in data and 
                 not Source.objects.filter(name =data['source']).exsits()):
-            raise ValidationError('source does not exits')
+            raise ParseError('source does not exits')
         if 'number' in data:
             if not data['number'].isdigit():
-                raise ValidationError('uncorrect number')
+                raise ParseError('uncorrect number')
             data['number'] = int(data['number'])
         else:
             data['number'] = 15
@@ -192,7 +208,7 @@ class UpdateExam(generics.UpdateAPIView):
         try:
             self.exam = Exam.objects.get(user = self.user , is_active = True)
         except ObjectDoesNotExist:
-            return Response('you have not any open Exam' , status.HTTP_404_NOT_FOUND)
+            raise NotFound('you have not any open Exam')
         return super(UpdateExam,self).put(request,pk = self.exam.pk 
             , *args,**kwargs)
 
@@ -212,9 +228,9 @@ class ExamInfo(generics.ListAPIView):
             exam = Exam.objects.get(pk =pk)
             if exam.user.pk == self.request.pk:
                 return exam
-            raise ValidationError('you cant access to this exam , this is not for you ')
+            raise NotAuthenticated('you cant access to this exam , this is not for you ')
         
-        raise ValidationError('uncorrect argomants')
+        raise ParseError('uncorrect argomants')
 
 class StudyPostList(generics.ListAPIView):
     serializer_class = StudyPostSerializer

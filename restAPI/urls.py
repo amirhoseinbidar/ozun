@@ -1,7 +1,7 @@
 from django.conf.urls import url,include
 from rest_framework.authtoken.views import obtain_auth_token 
 from . import views
-
+app_name = 'api'
 urlpatterns = [
     url(r'^users/$',views.UserCreate.as_view(),name ='create_user'),
     url(r"^login/$", obtain_auth_token, name="login"),

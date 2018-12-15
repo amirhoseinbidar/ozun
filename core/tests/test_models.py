@@ -7,7 +7,7 @@ from core.exceptions import duplicationException , ValidationError , overDepthEx
 
 class TreeContentTest(TestCase):
 
-    def test_dublicate(self):
+    def test_Duplicate(self):
         
         grade = TreeContent(name = 'grade_test',type=GRADE)
         grade.save()

@@ -90,7 +90,7 @@ class Grade(models.Model):
  
     added_by = models.ForeignKey(User,null = True , blank = True , on_delete = models.SET_NULL)
     def save(self , *args,**kwargs):
-        checkDublicate(self.__class__ , self, name = self.name)
+        checkDuplicate(self.__class__ , self, name = self.name)
         super(self.__class__, self).save(*args,**kwargs)
 
     def __unicode__(self):
@@ -103,7 +103,7 @@ class Lesson(models.Model):
     added_by = models.ForeignKey(User,null = True , blank = True , on_delete = models.SET_NULL)
    
     def save(self , *args,**kwargs):
-        checkDublicate(self.__class__ , self, name = self.name)
+        checkDuplicate(self.__class__ , self, name = self.name)
         super(self.__class__, self).save(*args,**kwargs)
 
     def __unicode__(self):
@@ -116,7 +116,7 @@ class Chapter(models.Model):
     name = models.CharField(max_length = 100)
     added_by = models.ForeignKey(User,null = True , blank = True , on_delete = models.SET_NULL)
     def save(self):
-        checkDublicate(self.__class__ , self, name = self.name)
+        checkDuplicate(self.__class__ , self, name = self.name)
         return super(self.__class__, self).save()
     
     def __unicode__(self):
@@ -133,7 +133,7 @@ class Topic(models.Model):
     added_by = models.ForeignKey(User,null = True , blank = True , on_delete = models.SET_NULL)    
     
     def save(self,*args,**kwargs):
-        checkDublicate(self.__class__ , self, name = self.name)
+        checkDuplicate(self.__class__ , self, name = self.name)
 
         if self.chapter.lesson.pk != self.lesson.pk:
             raise unequalityException('Topic.lesson and chapter.lesson must be same')

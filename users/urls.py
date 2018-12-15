@@ -16,7 +16,7 @@ urlpatterns = [
     url(r'^register/$', method_splitter, {
         'GET': views.register_GET,
         'POST': views.register_POST,
-    }),
+    }, name = 'register'),
     url(r'^register/successfully$',
         TemplateView.as_view(template_name='successfully_registration.html')),
     url(r'^activate/(?P<uidb64>[\d\w_\-]{1,5})/(?P<token>[\d\w]{1,13}-[\d\w]{1,30})/$',
