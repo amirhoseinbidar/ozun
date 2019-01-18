@@ -11,15 +11,19 @@ from datetime import datetime
 from django.db.models.query import QuerySet
 
 
-def choice_without_repead(Queries,step=1):
-    if not Queries:
-        raise ValidationError('QuerySet not empty' ,code='empty query') 
-    if Queries.count() < step: 
-        raise ValidationError('the number of QuerySet members must not less then step',code='overflow step')
+def choice_without_repead(Queries,step=1 , check_step_oveflow = True):
+    if check_step_oveflow:
+        if not Queries:
+            raise ValidationError('QuerySet not empty' ,code='empty_query') 
+        if Queries.count() < step: 
+            raise ValidationError('the number of QuerySet members must not less then step',code='step_overflow')
+    else:
+        if Queries.count() < step:
+            step = Queries.count()
     
     data =[]
     List = list(Queries)   
-    for _ in range(step):                         
+    for _ in range(step):                        
         buf = randint(0,len(List)-1)
         data.append(List[buf])
         List.pop(buf) 
@@ -162,7 +166,12 @@ def calculate_score(quizList):
     return {'positive_score' : positive_score , 'negative_score' : negative_score}
 
 
-
+def turn_second_to_time(second):
+    second = int(second)
+    hour = (second//3600)
+    minute =  (second - hour*3600)//60
+    second = second - (hour*3600 + minute*60 )
+    return time(hour = hour , minute = minute , second = second)
 
 
 

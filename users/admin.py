@@ -24,7 +24,4 @@ class quizzesInfoAdmin(admin.ModelAdmin):
     list_display = ('id','is_active','close_date')
 admin.site.register(models.Email_auth)
 admin.site.register(models.Profile,profileAdmin)
-admin.site.register(models.Country_province)
-admin.site.register(models.Country_county)
-admin.site.register(models.Country_city)
 admin.site.register(models.FeedBack)

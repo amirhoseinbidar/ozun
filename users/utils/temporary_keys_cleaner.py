@@ -25,10 +25,10 @@ class cleaner():
             self.idleMood = True 
 
         for record in email_auth:
-            record.cleaner_action()
+            record.close_action()
 
         for key in quizzes_cache:
-            key.cleaner_action()
+            key.close_action()
 
         if self.idleMood:
             threading.Timer(300.0, self.run_cleaner).start() # every 5 minute

@@ -2,6 +2,8 @@ from django.http import Http404
 from django.contrib.auth.models import User
 from django.core.exceptions import ObjectDoesNotExist
 from django.shortcuts import redirect
+
+
 def check_user_exists(*args,**kwargs):
     '''check user by what coder want usaully by username or pk'''
     if  User.objects.filter(*args,**kwargs).exists():
@@ -11,7 +13,7 @@ def check_user_exists(*args,**kwargs):
 
 class check_user_exists_decorator(object):
     '''
-        every function witch use this this decorator should have a "attr" argomant
+        every function witch use this  decorator should have a "attr" argomant
         with specified filterd by which one attrebute
     '''
     def __init__(self,function):

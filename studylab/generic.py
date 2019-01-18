@@ -36,4 +36,5 @@ class cacheList():
             if item.flag == flag or item.id == id:
                 del self._list[i]
             i += 1
+            
 cache_list = cacheList()        

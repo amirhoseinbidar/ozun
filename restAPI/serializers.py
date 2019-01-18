@@ -1,11 +1,14 @@
 from rest_framework import serializers
 from django.contrib.auth.models import User
 from rest_framework.authtoken.models import Token
-from quizzes.models import Answer ,Quiz , QuizStatus , Exam
+from quizzes.models import Answer ,Quiz , QuizStatus , Exam , Source 
 from users.models import Profile , FeedBack
 from rest_framework.authtoken.models import Token
 from course.models import StudyMedia , StudyPost , StudyPostBase
-from core.models import LessonTree 
+from core.models import LessonTree ,allowed_types , GRADE , LESSON  , Location
+from rest_framework.exceptions import NotFound , NotAcceptable
+from django.core.exceptions import ObjectDoesNotExist , ValidationError
+from studylab.settings import TIME_ZONE
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
@@ -39,8 +42,7 @@ class ProfileUserSerializer(serializers.ModelSerializer):
             'is_staff': {'read_only':True},
         }
 
-class ProfileSerializer(serializers.ModelSerializer):
-    user = ProfileUserSerializer(many=False)
+class ProfileSerializer(serializers.ModelSerializer): #i shuld make a custom field for this
     set_location  = serializers.CharField(max_length = 200,required = False)
     set_grade = serializers.CharField(max_length = 200,required = False)
     set_interest_lesson = serializers.CharField(max_length = 200,required = False)
@@ -49,7 +51,8 @@ class ProfileSerializer(serializers.ModelSerializer):
     interest_lesson = serializers.SerializerMethodField()
 
     def get_location(self,obj):
-        pass 
+        if obj.location:
+            return obj.location.path
  
     def get_interest_lesson(self,obj):
         data = None
@@ -66,6 +69,7 @@ class ProfileSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = Profile
+
         fields = '__all__'
 
         extra_kwargs ={
@@ -77,81 +81,122 @@ class ProfileSerializer(serializers.ModelSerializer):
     
 
     def update(self,instance,validated_data):
-        user_data = validated_data.pop('user',None)
         grade = validated_data.pop('set_grade',None)
         interest_lesson = validated_data.pop('set_interest_lesson',None)
         location = validated_data.pop('set_location',None)
-
-
+        
         if grade:
-            validated_data['grade'] = LessonTree.find_by_path(grade)
+            try:
+                validated_data['grade'] = LessonTree.find_by_path(grade)
+                allowed_types(GRADE , validated_data['grade'],'grade')
+            except ObjectDoesNotExist :
+                raise NotFound('this grade is not exist')
+            except ValidationError as e:
+                raise NotAcceptable(e.message)
         if interest_lesson:
-            validated_data['interest_lesson'] = LessonTree.find_by_path(interest_lesson)
+            try:
+                validated_data['interest_lesson'] = LessonTree.find_by_path(
+                    interest_lesson)
+                allowed_types(LESSON , validated_data['interest_lesson'] 
+                    , 'interest_lesson')
+            except ObjectDoesNotExist:
+                raise NotFound('this grade is not exist')
+            except ValidationError as e:
+                raise NotAcceptable(e.message)
+
         if location:
-            validated_data['location'] = None # i will make it 
-        User.objects.filter(pk = instance.user.pk).update(**user_data)
+            try:
+                validated_data['location'] = Location.objects.get(path = location)
+            except ObjectDoesNotExist:
+                raise NotFound('this location is not exist')
 
         Profile.objects.filter(pk = instance.pk).update(**validated_data)
         instance.refresh_from_db()
         
         return instance
 
-class AnswerSerializer(serializers.ModelSerializer):
-    class Meta:
-        models = Profile
-        fields = ('id','text','is_correct_answer')
-
-class QuizSerializer(serializers.ModelSerializer):
-    answer_set = AnswerSerializer(many = True , required = True)
-    added_by = UserSerializer(many = False , required = True)
-    class Meta:
-        model = Profile
-        fields = '__all__'
-
-class FeedBackSerializer(serializers.ModelSerializer):
-    class Meta:
-        models = FeedBack
-        fields = '__all__'
-
-class QuizStatusSerializer(serializers.ModelSerializer):
-    class Meta:
-        models = QuizStatus
-        fields = '__all__'
-
-class ExamSerializer(serializers.ModelSerializer):
-    quizstatus_set = QuizStatusSerializer(many = True )
-    class Meta:
-        models = Exam
-        fields = ('id','is_active','user','quizstatus_set')
-    
-    def create(self,validated_data):
-        quizzesStatus = validated_data.pop('quizstatus_set')
-        exam = Exam.objects.create(**validated_data)
-        for quizStatus in quizzesStatus:
-            QuizStatus.objects.create(exam = exam , **quizStatus)
-        return exam
-    
-    def update(self,instance,validated_data):
-        quizzesStatus_data = validated_data.pop('quizstatus_set')
-        quizzesStatus = (instance.quizstatus_set).all()
-        quizzesStatus = list(quizzesStatus)
-        instance.save()
-        for quizstatus in quizzesStatus_data:
-            status = quizstatus.pop(0)
-            status.user_answer = quizzesStatus.get('user_answer',status.user_answer)
-            status.save()
-        return instance
-
 class StudyMediaSerializer(serializers.ModelSerializer):
     class Meta:
-        models = StudyMedia
+        fields = ('image',)
+        model = StudyMedia
 
 class StudyPostBaseSerializer(serializers.ModelSerializer):
-    media = StudyMediaSerializer(many = True)
+    studymedia_set = StudyMediaSerializer(many = True)
     class Meta:
-        models = StudyPostBase
+        fields = '__all__'
+        model = StudyPostBase
 
 class StudyPostSerializer(serializers.ModelSerializer):
     post = StudyPostBaseSerializer(many = False)
     class Meta:
-        models = StudyPost
+        fields = ('post',)
+        model = StudyPost
+
+class AnswerSerializer(serializers.ModelSerializer):
+    post = StudyPostBaseSerializer(many = True)
+    class Meta:
+        model = Answer
+        fields = ('id','post','is_correct_answer')
+
+class SourceSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Source
+        fields = '__all__'
+
+class QuizSerializer(serializers.ModelSerializer):
+    answer_set = AnswerSerializer(many = True , required = True)
+    added_by = UserSerializer(many = False , required = True)
+    lesson = serializers.SerializerMethodField()
+    source = SourceSerializer()
+    
+    def get_lesson(self,obj):#TODO:CODE_DUPLICATE with line 56
+        data = None
+        if obj.lesson:
+            data = obj.lesson.turn_to_path()
+        return data
+    
+    class Meta:
+        model = Quiz
+        fields = '__all__'
+
+class FeedBackSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = FeedBack
+        fields = '__all__'
+
+class QuizStatusSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = QuizStatus
+        exclude = ('exam',)
+class QuizStatusListSerializer(QuizStatusSerializer):
+    quiz = QuizSerializer()
+        
+class ExamSerializer(serializers.ModelSerializer):
+    quizstatus_set = QuizStatusSerializer( many = True )
+    time_zone = serializers.SerializerMethodField()
+
+    def get_time_zone(self,obj):
+        return TIME_ZONE
+    
+    class Meta:
+        model= Exam
+        fields = ('id','close_date','add_date','time_zone' ,'quizstatus_set')
+        extra_kwargs = {
+            'close_date':{'read_only':True},
+            'add_date':{'read_only':True},
+        }
+        
+    def update(self,instance,validated_data):
+        for status in  validated_data.pop('quizstatus_set'):
+            #only one quiz_status is exist for each quiz in a exam
+            quizStatus = instance.quizstatus_set.get(quiz = status['quiz']) 
+            quizStatus.user_answer = status['user_answer']
+            quizStatus.save()
+        
+        Exam.objects.filter(pk = instance.pk).update(**validated_data)
+        instance.refresh_from_db()
+
+        return instance
+
+class ExamListSerializer(ExamSerializer):
+    quizstatus_set = QuizStatusListSerializer(many =True)

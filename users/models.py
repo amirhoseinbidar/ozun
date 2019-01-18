@@ -6,10 +6,12 @@ from django.contrib.auth.models import User
 from django.contrib.contenttypes.fields import ContentType , GenericForeignKey
 from core.models.temporaryKey import BaseTemporaryKey
 from core.models import LESSON , GRADE , allowed_types , LessonTree ,Location 
-
+from django.urls import reverse
+from datetime import datetime
 
 
 class Email_auth(BaseTemporaryKey):
+    
     user = models.OneToOneField(User,on_delete=models.CASCADE)
     FORWARD_TIME = 1800 #00:30:00 
 
@@ -18,17 +20,16 @@ class Email_auth(BaseTemporaryKey):
         self.user = user
         return self.save(*args,**kwargs)
 
-
-    def cleaner_action(self):
+    def close_action(self):
         self.user.delete()
         self.delete()
         
     def __str__(self):
         return self.user.__str__()
-    class Meta:
-        db_table = "email_auth"
+    
 
 class Profile(models.Model):
+    
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     location = models.ForeignKey(Location, null= True 
         ,blank= True, on_delete=models.SET_NULL )
@@ -41,7 +42,6 @@ class Profile(models.Model):
         null = True , related_name='interest_lesson',on_delete=models.SET_NULL)
     score = models.IntegerField(blank = True , null=True)
 
-    
     def save(self ,*args,**kwargs):
         allowed_types(GRADE , self.grade,'grade')
         allowed_types(LESSON , self.interest_lesson , 'interest_lesson')
@@ -49,22 +49,35 @@ class Profile(models.Model):
             self.score = 0
 
         return super(Profile,self).save(*args,**kwargs)
-
+    
+    def get_absolute_url(self):
+        return reverse('profile_detail', kwargs={'pk': self.pk})
+    
+    def get_user_age(self):
+        if self.brith_day:
+            deffrence = datetime.today() - self.brith_day
+            age_year = deffrence.days // (365.25)
+            age_month = (deffrence.days- age_year *365.25)//(365.25/12)
+        
+        else:
+            age_year = age_month = 0
+        
+        return (age_year,age_month)
 
     class Meta:
         db_table = "profile"
+    
     def __unicode__(self):
         return u'{0}'.format(self.user.username)
 
 
 class FeedBack(models.Model):
+    
     FAVORITE = 'F'
-    #LIKE = 'L'  I dont know why like should be but maybe will use it
     UP_VOTE = 'U'
     DOWN_VOTE = 'D'
     FEEDBACK_TYPES = (
         (FAVORITE, 'favorite'),
-    #    (LIKE, 'Like'),
         (UP_VOTE, 'up vote'),
         (DOWN_VOTE, 'down vote'),
     )

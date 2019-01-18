@@ -6,9 +6,7 @@ from core.models.lessonTree import LessonTree ,TreeContent , GRADE ,LESSON ,TOPI
 from core.exceptions import duplicationException , ValidationError , overDepthException
 
 class TreeContentTest(TestCase):
-
     def test_Duplicate(self):
-        
         grade = TreeContent(name = 'grade_test',type=GRADE)
         grade.save()
  

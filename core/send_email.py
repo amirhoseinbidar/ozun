@@ -42,6 +42,6 @@ def send_email(email, username , token):
         server.sendmail(me , msg['to'] , msg.as_string())
         server.close()
         return(1)
-    except Exception, e:  
+    except Exception as e:  
         raise ValidationError(e.message)
 

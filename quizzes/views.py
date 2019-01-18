@@ -17,6 +17,11 @@ from json import dumps , loads
 from django.utils import timezone
 from copy import deepcopy
 from studylab.settings import TIME_ZONE
+from django.views.generic import DetailView
+
+class QuizAskView(DetailView):
+    def get_object():
+        
 
 
 def quizzes_ask(request,token,grade,lesson, chapter=None,topic=None,source=None,level=None):

@@ -6,6 +6,7 @@ from core.checks import checkDuplicate
 from django.core.exceptions import ObjectDoesNotExist , ValidationError 
 from core.exceptions import duplicationException , overDepthException
 from django.db import models
+from django.core.exceptions import ObjectDoesNotExist
 
 class TreeContent(models.Model):
     GRADE = 'G'
@@ -34,6 +35,7 @@ class TreeContent(models.Model):
             return TreeContent.TOPIC
         
         raise ValidationError('number out of range')
+        
     @staticmethod
     def getNumberByType(Type):
 
@@ -70,6 +72,7 @@ class LessonTree(MP_Node):
     node_order_by = ['content']
     
     def add_root(self,*args,**kwargs):#it should be staticmethod but i dont know how call super method from staticmethod
+        
         kwargs = self.treeContent_auto_create(**kwargs)
         newroot = kwargs.get('content',None)
         newroot = super(LessonTree,self).add_root(*args,**kwargs)
@@ -95,9 +98,9 @@ class LessonTree(MP_Node):
     def add_child(self,*args,**kwargs):
         kwargs = self.treeContent_auto_create(**kwargs)
         newchild = kwargs.get('content',None)
-        
+       
         self.check_Duplicate(self , newchild , func = 'get_children')
-        self.check_depth(self , newchild ,True )    
+        self.check_depth(self ,  by=newchild , cheack_as_child= True)    
         
        
         return super(LessonTree ,self).add_child(*args,**kwargs)
@@ -166,11 +169,12 @@ class LessonTree(MP_Node):
 
     @staticmethod
     def find_by_path(path_str):
-        pathes = path_str.split('/')
+        """ Find a lesson by its path """
+        paths = path_str.split('/')
         object = LessonTree.get_root_nodes()
         index = 0
-        for name in pathes:
-            if index == len(pathes)-1:
+        for name in paths:
+            if index == len(paths)-1:
                 object = object.get(content__name = name)
                 break
             object = object.get(content__name = name).get_children()
@@ -179,6 +183,7 @@ class LessonTree(MP_Node):
     
 
     def turn_to_path(self):
+        """ Turn a lesson location to a path """
         path_str = ''
         parent = self.get_parent()
         try:
@@ -188,11 +193,37 @@ class LessonTree(MP_Node):
 
         path_str += '/'+self.content.name
         return path_str
+    
+    @staticmethod
+    def create_by_path(path_str):
+        """create objects in path if some of the 
+            objects exist this method ingore them """
+        paths = path_str.split('/')
+        index =0
+        lessonState = None
+        for index in range(len(paths)):
+            try:
+                # go on tile you reach to a object that is not exist in path
+                LessonTree.find_by_path('/'.join(paths[:(index+1)]))
+            except ObjectDoesNotExist:
+                # if object is not exist add it as previes object children
+                _type = TreeContent.getTypeByNumber((index+1))
+                
+                if index == 0:
+                    LessonTree().add_root(content_name = paths[index] , content_type = _type)
+                    continue
 
+                lessonState = LessonTree.find_by_path('/'.join(paths[:index]))
+                lessonState.add_child(content_name = paths[index] , 
+                    content_type = TreeContent.getTypeByNumber((index+1)))
+        
+        return lessonState
 
     def treeContent_auto_create(self,**kwargs):
+        '''for creating content automaticly'''
         if 'content' in kwargs:
             return kwargs
+        
         elif 'content_name' in kwargs and 'content_type' in kwargs:
             name = kwargs.pop('content_name')
             _type = kwargs.pop('content_type')
@@ -201,7 +232,7 @@ class LessonTree(MP_Node):
             except duplicationException:
                 content = TreeContent.objects.get(name = name,type = _type)
             kwargs['content'] = content
-
+        
         return kwargs
 
 
@@ -209,12 +240,14 @@ class LessonTree(MP_Node):
         return u'%s' %(self.content)
 
 def allowed_types(_type , field ,field_name):
+    ''' check and if a uncorrect type have added will raise a error 
+        use it in save method when you want to limit your types '''
     if not isinstance(_type , (list,tuple)):
         _type = [_type,]
     
     if field and not field.content.type in _type :
         types = dict(TreeContent.CONTENT_TYPE)
-        error_text = 'unallowed type of content for field %s allowed types are %s' %(field_name , types[_type])    
+        error_text = 'unallowed type of content for field %s allowed types are %s' %(field_name , types)    
         raise ValidationError(error_text)
         
        

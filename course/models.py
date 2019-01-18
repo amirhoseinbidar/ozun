@@ -33,6 +33,7 @@ class StudyPostBase(models.Model): #NOTE: it will use is quizzes part
     object_id = models.PositiveIntegerField()
     content_object = GenericForeignKey()
 
+
 class StudyPost(models.Model):
     post = models.ForeignKey(StudyPostBase, on_delete=models.CASCADE)
     timestamp = models.DateTimeField(auto_now_add=True)
