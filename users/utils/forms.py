@@ -7,7 +7,6 @@ from generics.forms import ListTextWidget ,find_datas
 from users.models import Profile
 
 
-
 class signUpForm(UserCreationForm):
     email = forms.EmailField(
         max_length=254, help_text='Required. Inform a valid email address.')

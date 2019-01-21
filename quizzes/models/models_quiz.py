@@ -95,6 +95,15 @@ class Quiz(models.Model):
                 zero or "to <= _from" ''')
         return Quiz.objects.order_by('-total_votes')[_from:to] 
 
+    @staticmethod
+    def get_by_path(lesson_path):
+        branch = LessonTree.find_by_path(lesson_path)
+        lessons = list(branch.get_descendants())+[branch]
+        quizzes =Quiz.objects.filter( 
+            lesson__in = lessons )
+            
+        return quizzes
+
     def save(self,*args,**kwargs): 
         allowed_types([LESSON ,CHAPTER ,TOPIC ],self.lesson ,'lesson' )
        

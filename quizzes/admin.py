@@ -104,4 +104,6 @@ quizzesAdminSite.register(models.Quiz,quizzesAdmin)
 quizzesAdminSite.register(models.Source)
 quizzesAdminSite.register(models.Answer)
 quizzesAdminSite.register(models.QuizStatus)
+quizzesAdminSite.register(models.Exam)
+quizzesAdminSite.register(models.ExamStatistic)
 

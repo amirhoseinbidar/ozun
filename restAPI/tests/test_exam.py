@@ -21,12 +21,12 @@ class ExamTest(BaseAPITest):
             'source' : 'نشر الگو',
             'number' : '2',
         }
+        
         return self.client.get(url,params)
     
     def test_start_exam(self):
         response = self.exam_response    
         self.assertEqual(response.status_code,200,self.write_info(200,response))
-        print(len(response.data[0]['quizstatus_set']))
         self.assertEqual(len(response.data[0]['quizstatus_set']), 2 , 
             'optional argument "number" did not work' )
         

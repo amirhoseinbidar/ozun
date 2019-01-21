@@ -3,65 +3,37 @@ from __future__ import unicode_literals
 
 from rest_framework import generics 
 from restAPI.serializers import  Quiz , ExamSerializer,ExamListSerializer , QuizStatusSerializer  
-from quizzes.models import Exam,Source
+from quizzes.models import Exam,Source ,Quiz
 from quizzes import utils
-from . import QuizSearchList
 from core.exceptions import duplicationException
 from rest_framework.exceptions import UnsupportedMediaType , NotFound , ParseError , NotAuthenticated ,APIException
 from core.utils import find_in_dict
 from rest_framework import status
 from rest_framework.response import Response
 from django.core.exceptions import ObjectDoesNotExist
-
+from django.core.exceptions import ValidationError
 
 class StartExam(generics.ListAPIView):
     
     serializer_class = ExamListSerializer
     
     def get_queryset(self):
-        data = self.request_orderer()
-        number = data.pop('number')
-        print(data)
-        quizzes = QuizSearchList.pathHandler(
-            self.kwargs.get('LessonPath')).filter(**data)
-
-        quizzes = utils.choice_without_repead(quizzes,number,False)
+        data = self.request.query_params
+        level = data.get('level' , None)
+        source = data.get('source' , None)
+      
         try:
-            exam = Exam.create_exam(quizzes,self.request.user)
-        except duplicationException as e:
+            number = int(data.get('number' , None))
+            return Exam.start_random_exam(self.kwargs["LessonPath"], 
+                        user = self.request.user , level = level , 
+                        source = source ,number = number  )
+
+        except (duplicationException, ValidationError) as e:
             raise ParseError(e,400)
+        except ValueError:
+            raise ParseError('number parametr must be digit')
 
-        return Exam.objects.filter(pk = exam.pk)
-    
-    def request_orderer(self): # check optional argumants 
-        data = dict(self.request.query_params.copy())
         
-        if 'level' in data : 
-            data['level'] = data['level'][0]
-            
-            if not find_in_dict(data['level'], Quiz.LEVEL_TYPE):
-                raise ParseError('uncorrect level')
-            
-            data['level'] = dict(Quiz.REVERS_LEVEL_TYPE)[data['level']]
-
-        if 'source' in data :
-            data['source'] = data['source'][0]
-            try:
-                data['source'] = Source.objects.get(name =data['source']).pk
-            except ObjectDoesNotExist:
-                raise ParseError('source does not exits')
-        
-        if 'number' in data:    
-            data['number'] = data['number'][0]
-            if not data['number'].isdigit():
-                raise ParseError('uncorrect number')
-            data['number'] = int(data['number'])
-        
-        else:
-            data['number'] = 15
-        
-        return data
-
 
 class CheckHaveOpenExamMixin():
     def check_exam(self):        

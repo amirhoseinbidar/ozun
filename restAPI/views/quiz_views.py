@@ -47,12 +47,9 @@ class QuizSearchList(generics.ListAPIView): # need test
   
     @staticmethod
     def pathHandler(LessonPath):
-        branch = LessonTree.find_by_path(LessonPath)
-        lessons = list(branch.get_descendants())+[branch]
-        quizzes =Quiz.objects.filter( 
-            lesson__in = lessons )
+        return Quiz.get_by_path(LessonPath)
             
-        return quizzes
+        
 
 
 class QuizFeedBack(generics.views.APIView):

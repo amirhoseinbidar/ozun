@@ -1,10 +1,8 @@
-
 from django.conf.urls import url
 from generics.view import method_splitter
 from quizzes import views
 
 urlpatterns =[
-    url(r'^ask/$',views.quizzes_ask_controller),
-    url(r'^show_answer/$',views.quizzes_showAnswers_controller),
-    url(r'^update_token/$',views.UpdateQuizzesInfo),
+    url(r'^ask/(?P<LessonPath>[\w/]+)$',views.ExamView.as_view()),
+    url(r'^show_answer/$',views.ExamInformationView.as_view()),
 ]

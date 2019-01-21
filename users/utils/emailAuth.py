@@ -16,8 +16,9 @@ def sendAuthEmail(request,user,to_email):
         'uid':urlsafe_base64_encode(force_bytes(user.pk)).decode(),
         'token': account_activation_token.make_token(user),
     }
-    message = render_to_string('acc_active_email.html', context= context )
-    
+
+    message = render_to_string('acc_active_email.html', context= context , request=request )
+
     email = EmailMessage(
                 mail_subject, message, to=[to_email]
     )
@@ -60,14 +61,13 @@ from django.urls import reverse
 from django.test import RequestFactory
 from users.models import Profile
 
-def activate_user(client,user):
-    url = reverse('users:register') 
-    request = RequestFactory().post(url)
+def activate_user(client,user): 
+    request = RequestFactory().post('/')
     #is not matter which url request just uses for findout website name    
     
     email = sendAuthEmail(request,user,user.email)
-    response = client.post('/accounts/activate/{}/{}/'.format(
-        email['uid'],email['token'] ))
+    response = client.post(reverse( 'users:activate', 
+        kwargs={ 'uidb64': email['uid'] , 'token': email['token']}) )
     #it turn test account active then make a profile for test user
     
     return Profile.objects.get(user = user)

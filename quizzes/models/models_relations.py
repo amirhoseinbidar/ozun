@@ -2,14 +2,16 @@
 from __future__ import unicode_literals
 
 from django.db import models
-from .models_quiz import Answer , User,Quiz ,membershipException 
+from .models_quiz import Answer , User,Quiz ,Source
 from users.models import BaseTemporaryKey
 from django.utils import timezone
 from django.utils.timezone import timedelta
-from core.exceptions import ValidationError , duplicationException
+from core.exceptions import ValidationError , duplicationException ,membershipException
 from django.utils.crypto import get_random_string
 from django.db.models import Sum
-from ..utils import turn_second_to_time
+from ..utils import turn_second_to_time , choice_without_repead
+from django.core.exceptions import ObjectDoesNotExist
+from core.utils import find_in_dict
 
 import datetime
 
@@ -147,6 +149,39 @@ class Exam(BaseTemporaryKey):
 
         return exam
 
+    @staticmethod
+    def start_random_exam( lesson_path , user , level=None , source =None, number=None):
+        data = Exam.__order_optional_args(level,source,number)
+        number = data.pop('number')
+
+        quizzes = Quiz.get_by_path(lesson_path).filter(**data )
+        quizzes = choice_without_repead(quizzes,number,False)
+
+        
+        exam = Exam.create_exam(quizzes,user)
+        
+        return Exam.objects.filter(pk = exam.pk)
+    
+    @staticmethod
+    def __order_optional_args(level,source , number): 
+        data = {}   
+        if level : 
+            if not find_in_dict(level, Quiz.LEVEL_TYPE):
+                raise ValidationError('uncorrect level')
+
+            data['level'] = dict(Quiz.REVERS_LEVEL_TYPE)[level]
+
+        if source :
+            try:
+                data['source'] = Source.objects.get(name =source)
+            except ObjectDoesNotExist:
+                raise ValidationError('source does not exits')
+        
+        if not number:   
+            number = 15
+        data['number'] = number
+
+        return data
 
 
 class ExamStatistic(models.Model):

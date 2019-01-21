@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     'restAPI',
     'course', 
     'treebeard',
+    'qa',
 ]
 
 MIDDLEWARE = [
