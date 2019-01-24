@@ -4,30 +4,45 @@
 {% endblock %}
 
 {% block body%}
-
-<div id='timer'>
-    {{timeout}}
-</div>
-<form method="POST" action='/quizzes/show_answer/'>
-    {% csrf_token %} 
-    {% for form in forms %}
+    {% for exam in object%}
+        <div id='timer'>
+            {{exam.total_time.isoformat}}
+        </div>
         
-        {{ form.quiz|safe}}
-        
-        <p><ul id="id_answer_{{form.pk}}">
-        {% for choice in form.answers%}
-            <li><label for="id_answer_{{form.pk}}_{{choice.number}}">
-                <input type="radio" name="answer_{{form.pk}}" value='{ "quiz_status_pk":{{form.pk}} , "answer_pk":{{choice.answer_pk}} }' required id="id_answer_{{form.pk}}_{{choice.number}}" class="radio_quiz" {%if choice.checked%} checked  {%endif%} />
-                {{choice.answer | safe}}
-            </label>
-            </li>
-        {% endfor%}
-        
-        </p></ul>
+        <div class='all-quiz-container'>
+            {% for status in exam.quizstatus_set.all %}
+                <div class='quiz-container'>
+                    <!-- quiz -->
+                    <div class = 'quiz-content' id='{{status.quiz.id}}'>
+                        {{status.quiz.text}} <!-- NOTE this is just a portotype quiz text style should change -->
+                    </div>
 
+                    <!-- answer -->
+                    <p>
+                        <ul class = 'answer-container'>
+                            
+                            {% for answer in status.quiz.answer_set.all %}
+                                <li>
+                                    <label for="answer_{{answer.pk}}">
+                                        <input type="radio" value='{{answer.pk}}' required id="answer_{{answer.pk}}" class="radio_answer" {%if status.user_answer %}{%if status.user_answer.pk == answer.pk  %} checked  {% endif%}{%endif%} />
+                                        {%for post in answer.post.all%} <!-- NOTE this is just a portotype answer post style should change -->
+                                            {{post.text}}
+                                        {% endfor %}
+                                    </label>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    </p>
+                    
+                    <!-- vote -->
+                    <input type="button" value='Up'>
+                    <input type="button" value='Down'>
 
+                </div>
+            {% endfor %}
+        </div>
     {% endfor %}
-    <input type="hidden" name='token' value='{{token}}' id='id_temporary_token'>
-    <button type="submit">Update</button>
-</form>
+    
+    <input type="button" value="finish">
+
 {% endblock %}

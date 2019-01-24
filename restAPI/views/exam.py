@@ -23,7 +23,7 @@ class StartExam(generics.ListAPIView):
         source = data.get('source' , None)
       
         try:
-            number = int(data.get('number' , None))
+            number = int(data.get('number' , 15))
             return Exam.start_random_exam(self.kwargs["LessonPath"], 
                         user = self.request.user , level = level , 
                         source = source ,number = number  )
@@ -86,13 +86,16 @@ class ExamInfo(generics.ListAPIView):
         
         pk = self.kwargs.get('exam_id')
         if pk == 'active':
+            print( Exam.objects.filter(user = self.request.user ) )
+            
             return Exam.objects.filter(user = self.request.user , is_active = True)
         
         if pk.isdigit():
             exam = Exam.objects.filter(pk =pk)
+            
             if exam.exists():
                 if exam[0].user.pk == self.request.user.pk:
                     return exam
                 raise NotAuthenticated('you cant access to this exam , this is not for you ')
-    
+            print(exam.exists())
         raise ParseError('uncorrect arguments')

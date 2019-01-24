@@ -5,13 +5,13 @@ from . import views
 
 app_name = 'api'
 urlpatterns = [
-    url(r'^users/$',views.UserCreate.as_view(),name ='create_user'),
+    url(r'^signup/$',views.UserCreate.as_view(),name ='create_user'),
     url(r"^login/$", obtain_auth_token, name="login"),
+    
     url(r'^users/profile/$', views.ProfileUpdate.as_view() ,name = 'profile_update'),
     url(r'^users/profile/(?P<pk>\d)/$',views.ProfileView.as_view(),name = 'profile_view'),
     
     url(r'^quiz/(?P<quiz_pk>\d)/feed-back/$' , views.QuizFeedBack.as_view(), name = 'quiz_feed_back'),
-    
     url(r"^quiz/(?P<action>[\w-]{1,20})/$",views.QuizSearchList.as_view() , name = 'search_quiz'),
     url(r'^quiz/(?P<action>[\w-]{1,20})/(?P<from>\d{1,10})/(?P<to>\d{1,10})/$'
         ,views.QuizSearchList.as_view(),name ='search_selected_quiz'),

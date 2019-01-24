@@ -47,7 +47,7 @@ class Profile(models.Model):
         allowed_types(LESSON , self.interest_lesson , 'interest_lesson')
         if not self.score:
             self.score = 0
-
+        
         return super(Profile,self).save(*args,**kwargs)
     
     def get_absolute_url(self):

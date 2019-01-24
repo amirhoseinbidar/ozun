@@ -21,7 +21,7 @@ urlpatterns = [
         activate,
         name='activate'),
     url(r'^profile/$', views.ProfileView.as_view(), name='profile_view_own'),
-    url(r'^profile/(?P<pk>\d+)/edit/$', views.ProfileEdit.as_view(),name = 'profile_edit'),
+    url(r'^profile/edit/$', views.ProfileEdit.as_view(),name = 'profile_edit'),
     url(r'^profile/(?P<pk>\d+)/$', views.ProfileView.as_view() , name = 'profile_view'),
 ]
 

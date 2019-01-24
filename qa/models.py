@@ -47,7 +47,7 @@ class Question(models.Model):
     title = models.CharField(max_length=200, unique=True, blank=False)
     timestamp = models.DateTimeField(auto_now_add=True)
     slug = models.SlugField(max_length=80, null=True, blank=True)
-    status = models.CharField(max_length=1, choices=STATUS, default=DRAFT)
+    status = models.CharField(max_length=1, choices=STATUS, default=OPEN)
     #content = MarkdownxField()
     has_answer = models.BooleanField(default=False)
     total_votes = models.IntegerField(default=0)

@@ -5,10 +5,10 @@ from django.contrib.sites.shortcuts import get_current_site
 from users.utils.checks import check_user_is_own
 from users.utils.forms import signUpForm 
 from users.models import  Profile  
-from quizzes.forms import quiz_select_form
 from .utils.emailAuth import sendAuthEmail
 from django.views.generic import CreateView ,DetailView
 from django.contrib.auth import get_user_model
+from django.conf import settings
 from django.urls import reverse
 from django.utils.crypto import get_random_string
 from django.http import Http404 
@@ -16,7 +16,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 
 
 class SignUp(CreateView):
-    model = get_user_model()
+    model = settings.AUTH_USER_MODEL
     template_name = 'users/sign_up.html'
     form_class = signUpForm
     
@@ -61,8 +61,7 @@ class ProfileView(LoginRequiredMixin,DetailView):
         data['domin'] = get_current_site(self.request).domain,
         
         if check_user_is_own(self.request , to =  profile.user.pk ):
-            data['quiz_select_form']= quiz_select_form( 
-                    {'token' : get_random_string(length=30)} )
+            data['token']= get_random_string(length=30) 
             data['is_user_own'] =  True           
         
         else:
@@ -72,11 +71,19 @@ class ProfileView(LoginRequiredMixin,DetailView):
 # pofile updating perform by jquery and ajax because of
 # some Tree like fields (interest_lesson , location , grade)
 # they send data to rest API of this site for update profile
-class ProfileEdit(DetailView):
+class ProfileEdit(LoginRequiredMixin,DetailView):
     model = Profile
-    
+    template_name = 'users/profile_edit.html'
+
+    def get_object(self):
+        return self.model.objects.filter(user = self.request.user)
+
     def get(self,*args,**kwargs):
-        if not get_user_model().objects.filter(pk = self.request.user.pk).exists():
+        is_exist = get_user_model().objects.filter(pk = self.request.user.pk).exists()
+        is_own = check_user_is_own(self.request , to =  self.get_object()[0].user.pk) 
+        
+        if not is_exist  or not is_own:
             return Http404
-        super().get(*args,**kwargs)
+        
+        return super().get(*args,**kwargs)
     

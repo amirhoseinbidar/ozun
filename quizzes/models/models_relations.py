@@ -9,7 +9,7 @@ from django.utils.timezone import timedelta
 from core.exceptions import ValidationError , duplicationException ,membershipException
 from django.utils.crypto import get_random_string
 from django.db.models import Sum
-from ..utils import turn_second_to_time , choice_without_repead
+from ..utils import turn_second_to_time , choice_without_repead ,calculate_score
 from django.core.exceptions import ObjectDoesNotExist
 from core.utils import find_in_dict
 
@@ -20,9 +20,10 @@ import datetime
 class QuizStatus(models.Model):#RULE: user_answer  must be one of the quiz answers or None
     
     quiz = models.ForeignKey(Quiz , models.CASCADE)
-    #NOTE : if use_answer be null mean user have not been replying  quiz
+    #NOTE : if user_answer be null mean user have not been replying  quiz
     user_answer = models.ForeignKey(Answer,blank = True,null = True , on_delete=models.CASCADE)
     exam = models.ForeignKey('Exam' ,on_delete=models.CASCADE) 
+    did_user_answer = models.BooleanField(default= False)
     
     def save(self,*args,**kwargs):
         flag = False
@@ -33,32 +34,12 @@ class QuizStatus(models.Model):#RULE: user_answer  must be one of the quiz answe
             flag = self.quiz.answer_set.filter(pk = self.user_answer.pk).exists()            
         
         if flag:
-            return super(self.__class__, self).save(*args,**kwargs)
+            super().save(*args,**kwargs) # for ensure there is no problem
+            self.did_user_answer = True
+            return super().save(*args,**kwargs)
     
         raise membershipException(message =  'user_answer should be one of the quiz.answers')
     
-    @staticmethod
-    def saveFromQuizSet(quizzes):
-        data = []
-        for quiz in quizzes:
-            quiz_status = Quiz_status(quiz = quiz,user_answer = None)
-            quiz_status.save()
-            data.append(quiz_status.pk)
-        return Quiz_status.objects.filter(pk__in = data)
-    
-    @staticmethod
-    def saveFromDict(dictionary):#RULL dictionary is like this {quiz_status_pk:##,answer_pk:##} 
-        quiz =  Quiz_status.objects.get(pk = dictionary['quiz_status_pk'])
-        quiz.user_answer = Answer.objects.get(pk = dictionary['answer_pk'])
-        quiz.save()
-        return quiz
-    @staticmethod
-    def saveFromDictList(data):
-        List = []
-        for dic in data:
-            List.append(Quiz_status.saveFromDict(dic).pk)
-        return Quiz_status.objects.filter(pk__in = List)
-
     class Meta:
         verbose_name_plural = 'Quizzes_Statuses'
 
@@ -108,7 +89,7 @@ class Exam(BaseTemporaryKey):
         self.is_active = False
         self.key = ''
         self.close_date = timezone.now()
-        #ExamStatistic(exam = self).save() ::TODO:: this is not prepare now
+        ExamStatistic.create(exam = self) 
         return self
     
     def close_action(self):
@@ -189,7 +170,14 @@ class ExamStatistic(models.Model):
     negative_score = models.PositiveIntegerField()
     positive_score = models.PositiveIntegerField()
     total_score = models.IntegerField()
-    advise = models.IntegerField()
+    #advise = models.IntegerField()
 
-    def create_exam_statistics(self,exam):
-        pass 
+    @staticmethod
+    def create(exam):
+        pos_score , neg_score = calculate_score(exam.quizstatus_set.all())
+        total_score = pos_score - neg_score
+        es = ExamStatistic(exam = exam , negative_score = neg_score ,
+                positive_score = pos_score , total_score = total_score )
+        es.save()
+        return es
+        
