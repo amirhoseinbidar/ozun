@@ -105,7 +105,6 @@ class Question(models.Model):
 
     def get_markdown(self):
         return markdownify(self.content)
-        pass
 
 
 class Answer(models.Model):
