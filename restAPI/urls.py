@@ -11,6 +11,11 @@ urlpatterns = [
     url(r'^rest-auth/', include('rest_auth.urls')),
     url(r'^rest-auth/registration/', include('rest_auth.registration.urls')),
     url(
+        r'^rest-auth/user/(?P<pk>)/',
+        views.userProfileList.as_view(),
+        name = 'user_profile_list'
+    ),
+    url(
         r'^socialaccounts/$',
         SocialAccountListView.as_view(),
         name='social_account_list'

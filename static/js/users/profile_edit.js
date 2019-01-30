@@ -14,7 +14,7 @@ $(function(){
             }
         }
         return cookieValue;
-    };
+    }
 
     function csrfSafeMethod(method) {
         // These HTTP methods do not require CSRF protection
@@ -31,15 +31,38 @@ $(function(){
         }
     });
 
-    $('#submit').click(function (){
-        // TODO: i don't know how to upload image 
-        
-        var grade = $('#grade').value
-        var interest_lesson = grade + '/' + $('#interest-lesson').value
-        var location = $('#location-province').value + '/' + $('#location-county').value + '/' + $('#location-city').value
+    $.noConflict();
+    formdata = new FormData();
+
+    $('#image').on('change',function(){
+        var file = this.files[0];
+        if(formdata){
+            formdata.append("username", $('#username').value );
+            formdata.append("image",file);
+            $.ajax({
+                url : '/api/res-auth/user/' , 
+                type : 'POST',
+                data : formdata ,
+                processData : false , 
+                contentType : false ,
+                sucess : function () {
+                    doUpdate();
+                    location.reload(true);
+                }
+            });
+        }
+    });
+   
+    $('#submit').click(doUpdate);
+    
+    function doUpdate(){     
+        var grade = $('#grade').value;
+        var interest_lesson = grade + '/' + $('#interest-lesson').value;
+        var location = $('#location-province').value + '/' + $('#location-county').value + '/' + $('#location-city').value;
         $.ajax({
-            url: 'users/profile/',
+            url: '/api/res-auth/user/',
             data:{
+                'username' : $('#username').value ,
                 'first_name': $('#first-name').value,
                 'last_name' : $('#last-name').value,
                 'bio' : $('#bio').value,
@@ -56,8 +79,7 @@ $(function(){
             error: function(e){
                 // create a message in #error
             }
-
-        });
-    });
+        })
+    }
 
 });
