@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 import yaml
-from studylab.settings import PROJECT_DIR
+from ozun.settings import PROJECT_DIR
 from core.models import Location
 
 def strip_invalid(s):

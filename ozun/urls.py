@@ -1,4 +1,4 @@
-"""studylab URL Configuration
+"""ozun URL Configuration
 
 The `urlpatterns` list routes URLs to views. For more information please see:
     https://docs.djangoproject.com/en/1.11/topics/http/urls/
@@ -17,7 +17,7 @@ from django.conf.urls import url,include
 from django.contrib import admin
 from django.contrib.staticfiles.urls import static
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns
-from studylab import settings
+from ozun import settings
 from django.views.generic import TemplateView
 from quizzes.admin import quizzesAdminSite
 

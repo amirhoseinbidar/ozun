@@ -9,7 +9,7 @@ from core.models import LessonTree ,allowed_types , GRADE , LESSON  , Location
 from rest_framework.exceptions import NotFound , NotAcceptable , ParseError
 from django.core.exceptions import ObjectDoesNotExist , ValidationError
 from rest_auth.serializers import UserDetailsSerializer
-from studylab.settings import TIME_ZONE
+from ozun.settings import TIME_ZONE
 from django.forms import ModelForm
 
 class ProfileForm(ModelForm):

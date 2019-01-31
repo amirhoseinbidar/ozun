@@ -42,7 +42,7 @@ class quizze(models.Model):
     
     exponential_answer= models.FilePathField(
         allow_folders=True,
-        path='/home/abk/bigEpsilon/studylab/exponential answers' ,
+        path='/home/abk/bigEpsilon/ozun/exponential answers' ,
         )
 
     source = models.ForeignKey(source)

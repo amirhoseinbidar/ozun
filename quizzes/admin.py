@@ -93,8 +93,8 @@ class lessonAdmin(quizAdminRules):
     readonly_fields = ['added_by']
      
 class QuizzesAdminSite(admin.AdminSite):
-    site_header = "StudyLab Quizzes Admin"
-    site_title = 'StudyLab Quizzes Admin Portal'
+    site_header = "ozun Quizzes Admin"
+    site_title = 'ozun Quizzes Admin Portal'
     index_title = 'Welome to Quizzes Administration Portal'
 
 quizzesAdminSite = QuizzesAdminSite(name='quizzes_admin')

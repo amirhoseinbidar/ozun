@@ -10,7 +10,7 @@ def send_email(email, username , token):
     me_password = 'amir1380'
  
     msg = MIMEMultipart('alternative')
-    msg['subject'] = "welcome to studylab"
+    msg['subject'] = "welcome to ozun"
     msg['to'] = email 
     msg['from'] = me
 
@@ -24,7 +24,7 @@ def send_email(email, username , token):
         <body>
             <p>Hi! %s<br>
                 How are you?<br>
-                Here is the <a href='www.studylab.com/accounts/email_authenticate/%s'>localhost:8000:/accounts/email_authenticate/%s</a> you wanted.
+                Here is the <a href='www.ozun.com/accounts/email_authenticate/%s'>localhost:8000:/accounts/email_authenticate/%s</a> you wanted.
             </p>
         </body>
     </html>

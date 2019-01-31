@@ -5,9 +5,9 @@ from django.contrib import admin
 from users import models
 from django.utils.html import mark_safe
 # Register your models here.
-admin.site.site_header = 'StudyLab Admin'
-admin.site.site_title = 'StudyLab Admin Portal'
-admin.site.index_title = 'Welcome to StudyLab Admin Portal'
+admin.site.site_header = 'ozun Admin'
+admin.site.site_title = 'ozun Admin Portal'
+admin.site.index_title = 'Welcome to ozun Admin Portal'
 
 class profileAdmin(admin.ModelAdmin):
     readonly_fields = ["profile_image",]
