@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-from django.contrib.sites.shortcuts import get_current_site
-from users.utils.checks import check_user_is_own
+from django.contrib.sites.shortcuts import get_current_site 
+from users.utils.checks import check_user_is_own 
 from users.models import  Profile  
 from django.views.generic import CreateView ,DetailView
 from django.contrib.auth import get_user_model
@@ -11,8 +11,7 @@ from django.urls import reverse
 from django.utils.crypto import get_random_string
 from django.http import Http404 
 from django.contrib.auth.mixins import LoginRequiredMixin
-
-
+ 
  
 class ProfileView(LoginRequiredMixin,DetailView):
     model =  Profile
@@ -69,4 +68,5 @@ class ProfileEdit(LoginRequiredMixin,DetailView):
             return Http404
         
         return super().get(*args,**kwargs)
+
     

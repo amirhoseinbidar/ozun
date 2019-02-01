@@ -47,7 +47,8 @@ EXTRA_APPS = [
     'treebeard',
     'taggit' , 
     'rest_auth' ,
-    
+    'test_plus' ,
+    'django_webtest' ,
     
     'allauth',
     'allauth.account',

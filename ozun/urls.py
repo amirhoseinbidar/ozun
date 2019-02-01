@@ -22,6 +22,7 @@ from django.views.generic import TemplateView
 from quizzes.admin import quizzesAdminSite
 
 urlpatterns = [
+    url(r'^$' , TemplateView.as_view(template_name = 'index.html'),name = 'index'),
     url(r'^admin/users/', admin.site.urls),
     url(r'^admin/quizzes/',quizzesAdminSite.urls),
     url(r'^accounts/', include('users.urls')),  
