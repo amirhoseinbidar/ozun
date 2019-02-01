@@ -28,6 +28,7 @@ urlpatterns = [
     url(r'^quizzes/',include('quizzes.urls')),
     url(r'^api/',include('restAPI.urls')),
     url(r'^accounts/', include('allauth.urls')),
+    url(r'^markdownx/', include('markdownx.urls')),
 ]
 
 urlpatterns += staticfiles_urlpatterns()

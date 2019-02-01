@@ -1,5 +1,4 @@
 from django.conf.urls import url
-from generics.view import method_splitter
 from quizzes import views
 
 urlpatterns =[

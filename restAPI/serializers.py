@@ -1,21 +1,14 @@
 from rest_framework import serializers
-from django.contrib.auth.models import User
-from rest_framework.authtoken.models import Token
 from quizzes.models import Answer ,Quiz , QuizStatus , Exam , Source 
-from users.models import Profile , FeedBack
-from rest_framework.authtoken.models import Token
-from course.models import StudyMedia , StudyPost , StudyPostBase
+from users.models import FeedBack
+from course.models import  StudyPost 
 from core.models import LessonTree ,allowed_types , GRADE , LESSON  , Location
 from rest_framework.exceptions import NotFound , NotAcceptable , ParseError
 from django.core.exceptions import ObjectDoesNotExist , ValidationError
 from rest_auth.serializers import UserDetailsSerializer
 from ozun.settings import TIME_ZONE
-from django.forms import ModelForm
+from users.forms import ProfileForm
 
-class ProfileForm(ModelForm):
-    class Meta:
-        model = Profile
-        fields = '__all__'
 
 
 
@@ -82,28 +75,16 @@ class UserSerializer(UserDetailsSerializer):
             raise ParseError(form.errors)
         return instance    
 
-class StudyMediaSerializer(serializers.ModelSerializer):
-    class Meta:
-        fields = ('image',)
-        model = StudyMedia
-
-class StudyPostBaseSerializer(serializers.ModelSerializer):
-    studymedia_set = StudyMediaSerializer(many = True)
-    class Meta:
-        fields = '__all__'
-        model = StudyPostBase
 
 class StudyPostSerializer(serializers.ModelSerializer):
-    post = StudyPostBaseSerializer(many = False)
     class Meta:
-        fields = ('post',)
+        fields = '__all__'
         model = StudyPost
 
 class AnswerSerializer(serializers.ModelSerializer):
-    post = StudyPostBaseSerializer(many = True)
     class Meta:
         model = Answer
-        fields = ('id','post','is_correct_answer')
+        fields = '__all__'
 
 class SourceSerializer(serializers.ModelSerializer):
     class Meta:
@@ -112,11 +93,11 @@ class SourceSerializer(serializers.ModelSerializer):
 
 class QuizSerializer(serializers.ModelSerializer):
     answer_set = AnswerSerializer(many = True , required = True)
-    added_by = UserSerializer(many = False , required = True)
+    added_by = UserDetailsSerializer(many = False , required = True)
     lesson = serializers.SerializerMethodField()
     source = SourceSerializer()
     
-    def get_lesson(self,obj):#TODO:CODE_DUPLICATE with line 56
+    def get_lesson(self,obj):
         data = None
         if obj.lesson:
             data = obj.lesson.full_path
@@ -135,6 +116,7 @@ class QuizStatusSerializer(serializers.ModelSerializer):
     class Meta:
         model = QuizStatus
         exclude = ('exam',)
+
 class QuizStatusListSerializer(QuizStatusSerializer):
     quiz = QuizSerializer()
         

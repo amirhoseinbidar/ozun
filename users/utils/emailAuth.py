@@ -33,42 +33,4 @@ def sendAuthEmail(request,user,to_email):
     email.send()
     
 
-from django.contrib.auth.models import User
-from django.contrib.auth import login
-from django.http import HttpResponseRedirect , HttpResponseNotFound
-def activate(request, uidb64, token):
-    try:
-        uid = urlsafe_base64_decode(uidb64)
-        user = User.objects.get(pk=uid)
-        #when record timeout in Email auth end we clear user and email auth so
-        # if user cleared this function raise error  
-    except :
-        user = None
-    
-    if user is not None and account_activation_token.check_token(user, token) :
-        user.is_active = True
-        user.save()
-        Profile(user =user).save()
-        Email_auth.objects.get(user = user).delete()
-        login(request,user)
-
-        return HttpResponseRedirect('/accounts/profile')
-    else:
-        text = 'Activation link is invalid or out of date! please register again' 
-        return HttpResponseNotFound(text)
-        
-from django.urls import reverse
-from django.test import RequestFactory
-from users.models import Profile
-
-def activate_user(client,user): 
-    request = RequestFactory().post('/')
-    #is not matter which url request just uses for findout website name    
-    
-    email = sendAuthEmail(request,user,user.email)
-    response = client.post(reverse( 'users:activate', 
-        kwargs={ 'uidb64': email['uid'] , 'token': email['token']}) )
-    #it turn test account active then make a profile for test user
-    
-    return Profile.objects.get(user = user)
 

@@ -9,7 +9,7 @@ from users.models import FeedBack
 from django.contrib.contenttypes.fields import GenericRelation
 from markdownx.models import MarkdownxField  
 
-from slugify import slugify
+from django.utils.text import slugify
 
 from taggit.managers import TaggableManager
 from markdownx.models import MarkdownxField
@@ -70,8 +70,7 @@ class Question(models.Model):
 
     def save(self, *args, **kwargs):
         if not self.slug:
-            self.slug = slugify("{}-{}".format(self.title,self.id),
-                                to_lower=True, max_length=80)
+            self.slug = slugify("{}-{}".format(self.title,self.id) , True)
 
         super().save(*args, **kwargs)
 

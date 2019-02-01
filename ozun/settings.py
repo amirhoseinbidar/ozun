@@ -67,6 +67,7 @@ LOCAL_APPS = [
     'restAPI',
     'course', 
     'qa',
+    'markdownx',
 ]
 
 INSTALLED_APPS = DJANGO_APPS + EXTRA_APPS + LOCAL_APPS 

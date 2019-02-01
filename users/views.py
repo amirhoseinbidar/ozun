@@ -3,9 +3,7 @@ from __future__ import unicode_literals
 
 from django.contrib.sites.shortcuts import get_current_site
 from users.utils.checks import check_user_is_own
-from users.utils.forms import signUpForm 
 from users.models import  Profile  
-from .utils.emailAuth import sendAuthEmail
 from django.views.generic import CreateView ,DetailView
 from django.contrib.auth import get_user_model
 from django.conf import settings
@@ -15,21 +13,6 @@ from django.http import Http404
 from django.contrib.auth.mixins import LoginRequiredMixin
 
 
-class SignUp(CreateView):
-    model = settings.AUTH_USER_MODEL
-    template_name = 'users/sign_up.html'
-    form_class = signUpForm
-    
-    def form_valid(self , form):
-        response = super().form_valid(form)
-        self.object.is_active = False 
-        self.object.save()
-        sendAuthEmail(self.request,self.object,form.cleaned_data.get('email'))
-        
-        return response
-
-    def get_success_url(self):
-        return reverse('users:sign_up_succ')
  
 class ProfileView(LoginRequiredMixin,DetailView):
     model =  Profile

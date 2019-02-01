@@ -11,7 +11,8 @@ from quizzes.utils import getTimeByLevel
 from users.models import FeedBack
 from core.models.lessonTree import(allowed_types ,LESSON 
                     ,TOPIC ,CHAPTER ,LessonTree)
-from course.models import StudyPostBase
+from markdownx.models import MarkdownxField
+from markdownx.utils import markdownify
 from core.exceptions import duplicationException
 
 class Source(models.Model):
@@ -30,22 +31,21 @@ class Source(models.Model):
 
 
 class Answer(models.Model):
-    post = GenericRelation( StudyPostBase )
+    content = MarkdownxField()
     is_correct_answer = models.BooleanField()
     quiz = models.ForeignKey('Quiz', on_delete=models.CASCADE)
     
     def __unicode__(self):
         return u'answer id: {0}'.format(self.pk)
    
-    def save(self,text= None,*args,**kwargs):
+    def save(self,*args,**kwargs):
         if self.is_correct_answer:
             checkDuplicate(Answer,self, is_correct_answer=True , quiz = self.quiz)
-        
-        super(Answer,self).save(*args,**kwargs)
-        if text:
-            post = StudyPostBase(text = text,content_object = self)
-            post.save()
 
+        super(Answer,self).save(*args,**kwargs)    
+
+    def get_markdownify(self):
+        return markdownify(self.content)
 
 
 class Quiz(models.Model):
@@ -69,11 +69,10 @@ class Quiz(models.Model):
         ('very easy', VERY_EASY),
     )
 
-    text = models.TextField()
-    image = models.ImageField(blank = True, null = True, upload_to = 'quizzes/images')
+    content = MarkdownxField()
     votes = GenericRelation(FeedBack)
     total_votes = models.IntegerField(default=0)
-    exponential_answer=GenericRelation(StudyPostBase,blank = True , null = True)
+    exponential_answer = MarkdownxField()
     source = models.ForeignKey(Source ,null = True, blank=True, on_delete=models.SET_NULL)
     level = models.CharField(max_length = 2,choices =LEVEL_TYPE )
     lesson = models.ForeignKey(LessonTree,null = True, blank = True , on_delete=models.SET_NULL) 
@@ -116,5 +115,11 @@ class Quiz(models.Model):
     def __unicode__(self):
         return u'{0}'.format(self.pk)
     
+    def get_markdownify_content(self):
+        return markdownify(self.content)
+    
+    def get_markdownify_EA(self):
+        return markdownify(self.exponential_answer)
+
     class Meta:
         ordering = ['-timestamp']
