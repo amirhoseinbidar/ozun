@@ -10,7 +10,7 @@ path_4 : 'یازهم تجربی/زیست شناسی'
 ---
 document : 'quizzes'
 quiz :
-  text : ' {\\beginL 1\\endL}- دمای یک میله ی فلزی به ضریب انبساط طولی \\beginL$2\\times10^{-5}K^{-1}$\\endL{}
+  content : ' {\\beginL 1\\endL}- دمای یک میله ی فلزی به ضریب انبساط طولی \\beginL$2\\times10^{-5}K^{-1}$\\endL{}
     را چند کلوین افزایش دهیم تا طول آن \\beginL$\\frac{1}{500}$\\endL{} طول
     اولیه شود ؟ '
   answers :
@@ -25,7 +25,7 @@ quiz :
 
 quiz_2 : 
   
-  text : ' {\\beginL 2\\endL} میله فلزی در صفر درجه سیلسیوس دارای طول های \\beginL$L_{1}$\\endL{}
+  content : ' {\\beginL 2\\endL} میله فلزی در صفر درجه سیلسیوس دارای طول های \\beginL$L_{1}$\\endL{}
     \\beginL$L_{2}$\\endL{} به ترتیب دارای ضریب انبساط طولی \\beginL$\\alpha_{2},\\alpha_{1}$\\endL{} میباشد و متغییر طول آن ها به ازای تغییر دمای یکسان \\beginL$\\Delta\\theta$\\endL{}
     همواره برابر است . در این صورت \\beginL$\\frac{L_{1}}{L_{2}}$\\endL{} کدام است؟ '
   
@@ -40,7 +40,7 @@ quiz_2 :
   lesson : 'دهم/فیزیک'
 
 quiz_3: 
-  text: 'اگر دمای یک میله فلزی را از \\beginL$15{^\\circ}C$\\endL{} به \\beginL$30{^\\circ}C$\\endL{}
+  content: 'اگر دمای یک میله فلزی را از \\beginL$15{^\\circ}C$\\endL{} به \\beginL$30{^\\circ}C$\\endL{}
     برسانیم طول آن {\\beginL 9\\endL} میلی متر افزایش می یابد در صورتی که
     دمای میله از \\beginL$15{^\\circ}C$\\endL{} به \\beginL$90{^\\circ}C$\\endL{}
     برسد طول میله چند میلی متر افزایش میابد '
@@ -56,7 +56,7 @@ quiz_3:
   lesson: 'دهم/فیزیک'
 
 quiz_4: 
-  text: 'طول ریل راه آهن در دمای \\beginL$-10{^\\circ}C$\\endL{}  {\\beginL 2000\\endL}
+  content: 'طول ریل راه آهن در دمای \\beginL$-10{^\\circ}C$\\endL{}  {\\beginL 2000\\endL}
     متر است اگر دما در طی سال حداکثر به \\beginL$40{^\\circ}C$\\endL{} برسد
     حداقل فاصله بین دو ریل مجاور چند سانتی متر انتخاب گردد ؟(\\beginL$\\alpha_{Fe}=12\\times10^{-6}K^{-1}$\\endL )'
   

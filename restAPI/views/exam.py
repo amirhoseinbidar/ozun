@@ -79,23 +79,18 @@ class FinishExam(generics.views.APIView , CheckHaveOpenExamMixin):
         return Response(data , status.HTTP_200_OK )
 
 class ExamInfo(generics.ListAPIView):
-    
     serializer_class = ExamListSerializer
     
     def get_queryset(self):
-        
         pk = self.kwargs.get('exam_id')
         if pk == 'active':
-            print( Exam.objects.filter(user = self.request.user ) )
-            
             return Exam.objects.filter(user = self.request.user , is_active = True)
         
         if pk.isdigit():
             exam = Exam.objects.filter(pk =pk)
-            
             if exam.exists():
                 if exam[0].user.pk == self.request.user.pk:
                     return exam
                 raise NotAuthenticated('you cant access to this exam , this is not for you ')
-            print(exam.exists())
+    
         raise ParseError('uncorrect arguments')

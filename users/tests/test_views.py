@@ -16,26 +16,6 @@ class BaseUsersTest(TestCase):
         self.profile.save()
 
 
-class SignUpTest(WebTest): 
-    
-    def test_sign_up(self):
-        page = self.app.get(reverse('users:sign_up'))
-        page.form['user name'] = 'test'
-        page.form['email'] = 'test@test.com'
-        page.form['password'] = '!@#$qwER43'
-        page.form['password 2'] = '!@#$qwER43'
-        page = page.form.submit()
-        self.assertRedirects(page, reverse('users:controller'))
-
-class LoginTest(BaseUsersTest,WebTest):
-    
-    def test_login(self):
-        page = self.app.get(reverse('user:login'))
-        page.form['user name'] = 'test'
-        page.form['password'] = '1234'
-        page = page.form.submit()
-        self.assertRedirects(page, self.profile.get_absolute_url())
-
 class ProfileTest(BaseUsersTest):
     
     def test_view_for_owner(self):

@@ -28,7 +28,8 @@ def embed_test_quizzes(): #TODO:this can be smaller
                 answer_objects = []
                 for answer in answers :
                     ans = Answer(quiz = quiz ,
-                        is_correct_answer = answer['is_correct_answer'])
-                    ans.save(text = dic['text'])
+                        is_correct_answer = answer['is_correct_answer'],
+                        content = dic['content'] )
+                    ans.save()
                     answer_objects.append(ans)
 

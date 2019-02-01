@@ -84,17 +84,17 @@ class Question(models.Model):
     def count_votes(self):
         """Method to update the sum of the total votes. Uses this complex query
         to avoid race conditions at database level."""
-        dic = Counter(self.votes.values_list("value", flat=True))
-        Question.objects.filter(id=self.id).update(total_votes=dic[True] - dic[False])
+        dic = Counter(self.votes.values_list("feedback_type", flat=True))
+        Question.objects.filter(id=self.id).update(total_votes=dic['U'] - dic['D'])
         self.refresh_from_db()
 
     def get_upvoters(self):
         """Returns a list containing the users who upvoted the instance."""
-        return [vote.user for vote in self.votes.filter(value=True)]
+        return [vote.user for vote in self.votes.filter(feedback_type='U')]
 
     def get_downvoters(self):
         """Returns a list containing the users who downvoted the instance."""
-        return [vote.user for vote in self.votes.filter(value=False)]
+        return [vote.user for vote in self.votes.filter(feedback_type='D')]
 
     def get_answers(self):
         return Answer.objects.filter(question=self)
@@ -112,8 +112,9 @@ class Answer(models.Model):
     question = models.ForeignKey(Question, on_delete=models.CASCADE)
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     content = MarkdownxField()
-    uuid_id = models.UUIDField(
-        primary_key=True, default=uuid.uuid4, editable=False)
+    #NOTE raise ""OverflowError: Python int too large to convert to SQLite INTEGE"" in sqlite3 
+    #uuid_id = models.UUIDField(  
+    #    primary_key=True, default=uuid.uuid4, editable=False ,max_length=16)
     total_votes = models.IntegerField(default=0)
     timestamp = models.DateTimeField(auto_now_add=True)
     is_answer = models.BooleanField(default=False)
@@ -133,17 +134,17 @@ class Answer(models.Model):
     def count_votes(self):
         """Method to update the sum of the total votes. Uses this complex query
         to avoid race conditions at database level."""
-        dic = Counter(self.votes.values_list("value", flat=True))
-        Answer.objects.filter(uuid_id=self.uuid_id).update(total_votes=dic[True] - dic[False])
+        dic = Counter(self.votes.values_list("feedback_type", flat=True))
+        Answer.objects.filter(id=self.id).update(total_votes=dic['U'] - dic['D'])
         self.refresh_from_db()
 
     def get_upvoters(self):
         """Returns a list containing the users who upvoted the instance."""
-        return [vote.user for vote in self.votes.filter(value=True)]
+        return [vote.user for vote in self.votes.filter(feedback_type="U")]
 
     def get_downvoters(self):
         """Returns a list containing the users who downvoted the instance."""
-        return [vote.user for vote in self.votes.filter(value=False)]
+        return [vote.user for vote in self.votes.filter(feedback_type='D')]
 
     def accept_answer(self):
         answer_set = Answer.objects.filter(question=self.question)
