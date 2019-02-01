@@ -3,29 +3,93 @@ from __future__ import unicode_literals
 
 from django.db import models
 from django.contrib.auth.models import User
-from django.utils import timezone
+from django.contrib.contenttypes.fields import ContentType , GenericForeignKey
+from core.models.temporaryKey import BaseTemporaryKey
+from core.models import LESSON , GRADE , allowed_types , LessonTree ,Location 
+from django.urls import reverse
+from datetime import datetime
+from allauth.socialaccount import default_app_config
+from django.dispatch import receiver
+from allauth.account.signals import email_confirmed
+from allauth.account.models import EmailAddress
 
-# Create your models here.
-class email_auth(models.Model):
-    user = models.OneToOneField(User)
-    add_date = models.DateTimeField()
-    remove_date = models.DateTimeField()
+
+@receiver(email_confirmed)
+def createProfile(request,email_address,**kwargs):
+    if not Profile.objects.filter(user = email_address.user).exists():
+        Profile.objects.create(
+            user = email_address.user ,
+            image = 'users/diffalte_images/(1).jpg'
+        )
+
+class Profile(models.Model):
     
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    location = models.ForeignKey(Location, null= True 
+        ,blank= True, on_delete=models.SET_NULL )
+    bio = models.TextField(blank=True)
+    image = models.ImageField(blank = True,upload_to='users/images')
+    brith_day = models.DateField(null = True , blank = True)
+    grade = models.ForeignKey(LessonTree,null = True , blank = True 
+        , related_name='grade', on_delete=models.SET_NULL)
+    interest_lesson = models.ForeignKey(LessonTree , blank = True ,
+        null = True , related_name='interest_lesson',on_delete=models.SET_NULL)
+    score = models.IntegerField(blank = True , null=True)
 
-    def create_record(self ,person = User):
-        time = timezone.now()
-        remove_time = time + timezone.timedelta(minutes = 30)
+    def save(self ,*args,**kwargs):
+        allowed_types(GRADE , self.grade,'grade')
+        allowed_types(LESSON , self.interest_lesson , 'interest_lesson')
+        if not self.score:
+            self.score = 0
+        
+        super(Profile,self).save(*args,**kwargs)
+    
+    def get_absolute_url(self):
+        return reverse('profile_detail', kwargs={'pk': self.pk})
+    
+    def get_user_age(self):
+        if self.brith_day:
+            try:
+                brith_day= datetime(
+                    year = self.brith_day.year,
+                    month = self.brith_day.month,
+                    day = self.brith_day.day,
+                    )
+            except AttributeError:
+                brith_day = None
+                
+            deffrence = datetime.today() - brith_day
+            age_year = deffrence.days // (365.25)
+            age_month = (deffrence.days- age_year *365.25)//(365.25/12)
+        
+        else:
+            age_year = age_month = 0
+        
+        return (age_year,age_month)
 
-        user = email_auth.objects.create(user = person,
-            add_date = time, remove_date = remove_time)
-        user.save()
-
-    def delete(self, *args, **kwargs): 
-        self.user.delete()  
-        return super(self.__class__, self).delete(*args, **kwargs)
-       
+    class Meta:
+        db_table = "profile"
+    
     def __unicode__(self):
-        return u'username:{0} ;;; add date:{1} ;;; remove date:{2}'.format(self.user.username,self.add_date, self.remove_date)
+        return u'{0}'.format(self.user.username)
 
 
+class FeedBack(models.Model):
+    
+    FAVORITE = 'F'
+    UP_VOTE = 'U'
+    DOWN_VOTE = 'D'
+    FEEDBACK_TYPES = (
+        (FAVORITE, 'favorite'),
+        (UP_VOTE, 'up vote'),
+        (DOWN_VOTE, 'down vote'),
+    )
 
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    feedback_type = models.CharField(max_length=1, choices=FEEDBACK_TYPES)
+    timestamp = models.DateTimeField(auto_now_add=True)
+
+    # Below the mandatory fields for generic relation
+    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
+    object_id = models.PositiveIntegerField()
+    content_object = GenericForeignKey()

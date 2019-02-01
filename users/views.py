@@ -1,95 +1,72 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-from django.shortcuts import render
-from django.forms import forms
-from django.http import HttpResponse, Http404 , HttpResponseRedirect
-from users import forms
-from django.contrib import auth
-from django.contrib.auth.models import User 
 from django.contrib.sites.shortcuts import get_current_site
-from django.utils.encoding import force_bytes, force_text
-from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
-from django.template.loader import render_to_string
-from token import account_activation_token 
-from forms import registerForm
-from django.core.mail import EmailMessage
-from django.contrib.auth import login, authenticate
-from users.models import email_auth
+from users.utils.checks import check_user_is_own
+from users.models import  Profile  
+from django.views.generic import CreateView ,DetailView
+from django.contrib.auth import get_user_model
+from django.conf import settings
+from django.urls import reverse
+from django.utils.crypto import get_random_string
+from django.http import Http404 
+from django.contrib.auth.mixins import LoginRequiredMixin
 
 
+ 
+class ProfileView(LoginRequiredMixin,DetailView):
+    model =  Profile
+    template_name = 'users/profile_view.html'
 
-# Create your views here.
-
-#method spliter  splite betwine diffrent  request methods
-def method_splitter(request, GET=None, POST=None):
-    if request.method == 'GET' and GET is not None:
-        return GET(request)
-    elif request.method == 'POST' and POST is not None:
-        return POST(request)
-    else:
-        raise Http404
-
-#this function run in first request to register url 
-def register_GET(request):
-    form = registerForm()
-    return render(request,'register.html',{'form':form})
-
-def register_POST(request):
-    form = registerForm(request.POST)
-    if form.is_valid():
-        user = form.save(commit=False)
-        user.is_active = False
-        user.save()
-        email_auth().create_record(user)
-
-        current_site = get_current_site(request)
-        mail_subject = 'Activate your account.'
-        message = render_to_string('acc_active_email.html', {
-            'user': user,
-            'domain': current_site.domain,
-            'uid':urlsafe_base64_encode(force_bytes(user.pk)),
-            'token': account_activation_token.make_token(user),
-        })
-
-        to_email = form.cleaned_data.get('email')
-        email = EmailMessage(
-                    mail_subject, message, to=[to_email]
-        )
-        email.send()
-        return HttpResponseRedirect('/accounts/register/successfully')
-    else: 
-        print(form.error_messages) 
-        return render(request,'register.html',{'form': form})
-
-    #should make a random string 
-    #then send it to the email_auth table with his/her username,password and email and add_date and remove_date
-    #and send random string to his email  
-    #(done in register_form)
-    ###############
-    #and when he is opening /accounts/email_auth/RANDOM_STRING 
-    #then send his name as a user in users database
-    #(done in active)
-    ###############
-    #TODO:make a function every 10 minute check email_auth table 
-    #if remove_date of a recorde passed remove this recorde
-
-
-def activate(request, uidb64, token):
-    try:
-        uid = urlsafe_base64_decode(uidb64)
-        user = User.objects.get(pk=uid)
-    except Exception  , e :
-        print(e)
-        user = None
+    def get(self,*args,**kwargs):
+        if not get_user_model().objects.filter(pk = self.request.user.pk).exists():
+            return Http404
+         
+        return super().get(*args,**kwargs)
     
-    if user is not None and account_activation_token.check_token(user, token):
-        user.is_active = True
-        user.save()
-        login(request,user)
+    def get_object(self):  
+        if not get_user_model().objects.filter(pk = self.request.user.pk).exists():
+            return Http404
+        
+        if self.request.user.is_authenticated and not 'pk' in self.kwargs:            
+            return self.model.objects.filter(user = self.request.user)
+        
+        try:    
+            return self.model.objects.filter(user = self.kwargs['pk'])
+        
+        except KeyError:
+            raise Http404
 
-        return HttpResponseRedirect('/accounts/register/successfully')
-    else:
-        return HttpResponse('Activation link is invalid!')
+    def get_context_data(self,*args,**kwargs):
+        data = super().get_context_data()
+        profile  = self.get_object()[0]
+        data['age_year'] , data['age_month'] = profile.get_user_age()
+        data['domin'] = get_current_site(self.request).domain,
+        
+        if check_user_is_own(self.request , to =  profile.user.pk ):
+            data['token']= get_random_string(length=30) 
+            data['is_user_own'] =  True           
+        
+        else:
+            data['is_user_own'] = False
+        return data
 
+# pofile updating perform by jquery and ajax because of
+# some Tree like fields (interest_lesson , location , grade)
+# they send data to rest API of this site for update profile
+class ProfileEdit(LoginRequiredMixin,DetailView):
+    model = Profile
+    template_name = 'users/profile_edit.html'
+
+    def get_object(self):
+        return self.model.objects.filter(user = self.request.user)
+
+    def get(self,*args,**kwargs):
+        is_exist = get_user_model().objects.filter(pk = self.request.user.pk).exists()
+        is_own = check_user_is_own(self.request , to =  self.get_object()[0].user.pk) 
+        
+        if not is_exist  or not is_own:
+            return Http404
+        
+        return super().get(*args,**kwargs)
     
