@@ -1,0 +1,31 @@
+<html>
+
+<head>
+    <script type="text/x-mathjax-config">
+        MathJax.Hub.Config({ tex2jax: {inlineMath: [["$","$"],["\\(","\\)"]]} });
+       
+    </script>
+    <script type="text/javascript" src="./MathJax.js?config=TeX-AMS_HTML-full"></script>
+   
+    
+</head>
+<body>
+   <p id ='math_field' onclick = ' embed_math2(); embed_math();' > wwwwww </p>
+    
+<script>
+        var math = document.getElementById('math_field');
+        function embed_math(){
+            
+            math.innerHTML += '  $ < x ^ 2  $';
+            MathJax.Hub.Queue(['Typeset',MathJax.Hub,math]);
+        }
+        function embed_math2(){
+            math.innerHTML = '  $ \\sqrt{x^2} = |x| $'            
+        }
+
+</script>
+
+</body>
+
+
+</html>

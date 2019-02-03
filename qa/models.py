@@ -113,8 +113,8 @@ class Answer(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     content = MarkdownxField()
     #NOTE raise ""OverflowError: Python int too large to convert to SQLite INTEGE"" in sqlite3 
-    #uuid_id = models.UUIDField(  
-    #    primary_key=True, default=uuid.uuid4, editable=False ,max_length=16)
+    uuid_id = models.UUIDField(  
+        primary_key=True, default=uuid.uuid4, editable=False ,max_length=16)
     total_votes = models.IntegerField(default=0)
     timestamp = models.DateTimeField(auto_now_add=True)
     is_answer = models.BooleanField(default=False)

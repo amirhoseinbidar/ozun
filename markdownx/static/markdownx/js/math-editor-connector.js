@@ -14,6 +14,12 @@ django.jQuery( function(){
         );
         win.focus();
     }
+
+    //for handel markdownx preview refresh 
+    $('.').bind('change' , function(){
+        MathJax.Hub.Queue(['Typeset',MathJax.Hub,math]);
+    })
+
 });
 
 

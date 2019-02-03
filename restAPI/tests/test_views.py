@@ -85,8 +85,8 @@ class QAViewsTest(BaseAPITest):
     def test_question_upvote(self):
         url = reverse("api:question_vote")
         param = {"feedback_type": "U", "question": self.question_one.id}
-        response_one = self.client.post( url , data = param)
-            #HTTP_X_REQUESTED_WITH="XMLHttpRequest")
+        response_one = self.client.post( url , data = param ,
+            HTTP_X_REQUESTED_WITH="XMLHttpRequest")
         assert response_one.status_code == 200
 
     def test_question_downvote(self):
