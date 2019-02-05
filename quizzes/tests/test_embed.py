@@ -29,7 +29,7 @@ def embed_test_quizzes(): #TODO:this can be smaller
                 for answer in answers :
                     ans = Answer(quiz = quiz ,
                         is_correct_answer = answer['is_correct_answer'],
-                        content = dic['content'] )
+                        content = answer['text'] )
                     ans.save()
                     answer_objects.append(ans)
 

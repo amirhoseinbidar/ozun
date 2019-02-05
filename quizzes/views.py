@@ -14,6 +14,8 @@ class ExamView(LoginRequiredMixin , DetailView):
     template_name = 'quizzes/ask.xhtml'
 
     def get_object(self):
+        print(self.request.GET)
+        print(self.request.query_params)
         try:
             return Exam.start_random_exam(  
                 self.kwargs['LessonPath'] ,

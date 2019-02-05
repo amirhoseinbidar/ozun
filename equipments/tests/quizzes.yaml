@@ -10,14 +10,15 @@ path_4 : 'یازهم تجربی/زیست شناسی'
 ---
 document : 'quizzes'
 quiz :
-  content : ' {\\beginL 1\\endL}- دمای یک میله ی فلزی به ضریب انبساط طولی \\beginL$2\\times10^{-5}K^{-1}$\\endL{}
-    را چند کلوین افزایش دهیم تا طول آن \\beginL$\\frac{1}{500}$\\endL{} طول
-    اولیه شود ؟ '
+  content : ' دمای یک میله ی فلزی به ضریب انبساط طولی $2\\times10^{-5}K^{-1}$
+ را چند کلوین افزایش دهیم تا طول آن 
+ $\\frac{1}{500}$    
+  طول اولیه شود ؟'
   answers :
-    - { 'text' : '{\\beginL 1\\endL}){\\beginL 273\\endL}' , 'is_correct_answer' : True}
-    - { 'text' : '{\\beginL 2\\endL}){\\beginL 100\\endL}' , 'is_correct_answer' : False}
-    - { 'text' : '{\\beginL 3\\endL}){\\beginL 50\\endL}' , 'is_correct_answer' : False}
-    - { 'text' : '{\\beginL 4\\endL}){\\beginL 373\\endL}' , 'is_correct_answer' : False} 
+    - { 'text' : '273' , 'is_correct_answer' : True}
+    - { 'text' : '100' , 'is_correct_answer' : False}
+    - { 'text' : '50' , 'is_correct_answer' : False}
+    - { 'text' : '373' , 'is_correct_answer' : False} 
   
   source : 'نشر الگو' 
   level : 'E'
@@ -40,31 +41,37 @@ quiz_2 :
   lesson : 'دهم/فیزیک'
 
 quiz_3: 
-  content: 'اگر دمای یک میله فلزی را از \\beginL$15{^\\circ}C$\\endL{} به \\beginL$30{^\\circ}C$\\endL{}
-    برسانیم طول آن {\\beginL 9\\endL} میلی متر افزایش می یابد در صورتی که
-    دمای میله از \\beginL$15{^\\circ}C$\\endL{} به \\beginL$90{^\\circ}C$\\endL{}
-    برسد طول میله چند میلی متر افزایش میابد '
+  content: 'اگر دمای یک میله فلزی را از
+$15{^\\circ}C$ به $30{^\\circ}C$ 
+برسانیم طول آن9 میلی متر افزایش می یابد در صورتی که دمای میله از
+$15{^\\circ}C$ 
+به
+$90{^\\circ}C$
+ برسد طول میله چند میلی متر افزایش میابد '
   
   answers :
-    - { 'text' : '{\\beginL 1\\endL}){\\beginL 60\\endL}' , 'is_correct_answer' : False}
-    - { 'text' : '{\\beginL 2\\endL}){\\beginL 45\\endL}' , 'is_correct_answer' : False}
-    - { 'text' : '{\\beginL 3\\endL}){\\beginL 30\\endL}' , 'is_correct_answer' : False}
-    - { 'text' : '{\\beginL 4\\endL}){\\beginL 75\\endL}' , 'is_correct_answer' : True}
+    - { 'text' : '60' , 'is_correct_answer' : False}
+    - { 'text' : '45' , 'is_correct_answer' : False}
+    - { 'text' : '30' , 'is_correct_answer' : False}
+    - { 'text' : '75' , 'is_correct_answer' : True}
  
   source: 'نشر الگو'
   level: 'H'
   lesson: 'دهم/فیزیک'
 
 quiz_4: 
-  content: 'طول ریل راه آهن در دمای \\beginL$-10{^\\circ}C$\\endL{}  {\\beginL 2000\\endL}
-    متر است اگر دما در طی سال حداکثر به \\beginL$40{^\\circ}C$\\endL{} برسد
-    حداقل فاصله بین دو ریل مجاور چند سانتی متر انتخاب گردد ؟(\\beginL$\\alpha_{Fe}=12\\times10^{-6}K^{-1}$\\endL )'
-  
+  content: 'طول ریل راه آهن در دمای 
+$-10{^\\circ}C$   , 2000
+متر است اگر دما در طی سال حداکثر به 
+$40{^\\circ}C$ 
+ برسد حداقل فاصله بین دو ریل مجاور چند سانتی متر انتخاب گردد ؟
+
+$ \\alpha_{Fe}=12\\times10^{-6}K^{-1 }$'
   answers :
-    - { 'text' : '{\\beginL 1\\endL}){\\beginL 1.2\\endL}'  , 'is_correct_answer' : False}
-    - { 'text' : '{\\beginL 2\\endL}){\\beginL 0.12\\endL}'  , 'is_correct_answer' : False}
-    - { 'text' : '{\\beginL 3\\endL}) {\\beginL 2.4\\endL}'  , 'is_correct_answer' : True}
-    - { 'text' : '{\\beginL 4\\endL}){\\beginL 0.24\\endL}'  , 'is_correct_answer' : False}
+    - { 'text' : '1.2'  , 'is_correct_answer' : False}
+    - { 'text' : '0.12'  , 'is_correct_answer' : False}
+    - { 'text' : '2.4'  , 'is_correct_answer' : True}
+    - { 'text' : '0.24'  , 'is_correct_answer' : False}
 
   source: 'نشر الگو'
   level: 'H'

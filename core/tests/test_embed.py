@@ -15,7 +15,7 @@ def strip_invalid(s):
     return res
 
 def create_documents(file_name):
-    with open(PROJECT_DIR+'/equipments/tests/{}'.format(file_name),'r') as file:
+    with open(PROJECT_DIR+'/equipments/tests/{}'.format(file_name),'r' ,encoding = 'utf-8') as file:
         file_str = file.read()
         data = yaml.load_all( strip_invalid(file_str) )
     return data

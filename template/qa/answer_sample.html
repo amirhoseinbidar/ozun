@@ -1,4 +1,4 @@
-{% load i18n humanize %}
+{% load i18n %}
 
 <div class="row answer" answer-id="{{ answer.uuid_id }}">
   {% csrf_token %}
@@ -18,7 +18,7 @@
     <div class="answer-user">
       <a href="#"><img src="{{ answer.user.picture }}" class="user"></a>
       <a href="#" class="username">{{ answer.user.username }}</a>
-      <small class="answered">{% trans "answered" %} {{ answer.timestamp|naturaltime }}</small>
+      <small class="answered">{% trans "answered" %} {{ answer.timestamp }}</small>
     </div>
     <div class="answer-description">
       {{ answer.get_markdown|safe }}

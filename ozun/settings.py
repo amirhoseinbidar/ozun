@@ -47,7 +47,6 @@ EXTRA_APPS = [
     'treebeard',
     'taggit' , 
     'rest_auth' ,
-    'test_plus' ,
     'django_webtest' ,
     
     'allauth',
@@ -119,20 +118,20 @@ WSGI_APPLICATION = 'ozun.wsgi.application'
 # https://docs.djangoproject.com/en/1.11/ref/settings/#databases
 
 DATABASES = {#TODO: this is not secure should encypte
-   'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': "ozun",
-        'USER': "root",
-        'PASSWORD': "111111",
-        'HOST': "localhost",
-        'default-character-set': 'utf8mb4',
-    },
+   #'default': {
+   #     'ENGINE': 'django.db.backends.mysql',
+   #     'NAME': "ozun",
+   #     'USER': "root",
+   #     'PASSWORD': "111111",
+   #     'HOST': "localhost",
+   #     'default-character-set': 'utf8mb4',
+   # },
 
-    ##use this for test mysql is very slow
-    #   'default': {
-    #    'ENGINE': 'django.db.backends.sqlite3',
-    #    'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-    #}
+    #use this for test mysql is very slow
+       'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+    }
    
 }
 

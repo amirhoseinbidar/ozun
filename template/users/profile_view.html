@@ -30,14 +30,16 @@
         <a href="edit/">edit profile</a>
     {% endif %}
 
-    {% if quiz_select_form %}
-        <form method="POST" action='/quizzes/ask/'>
-            {% csrf_token %} 
-            {{ quiz_select_form.as_p }}
-
-            <button type="submit">Start</button>
-        </form>
-    {% endif %}
+    <div id='select-quiz-content'>
+        <input type="range" id = 'grade-range' />
+        <input type="range" id = 'lesson-range' />
+        <input type="range" id = 'chapter-range' />
+        <input type="range" id = 'topic-range' />
+        <input type="range" id = 'source-range' />
+        <input type="tange" id = 'level-range' />
+        <input type="range" id = 'number-range' />
+        <input type="button" id = 'start-exam-btn' value="Fire Up!" />
+    <div>
 
 {% endfor %}
 

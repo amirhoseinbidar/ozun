@@ -60,7 +60,7 @@ class CreateQuestionView(LoginRequiredMixin, CreateView):
     """
     View to handle the creation of a new question
     """
-    form_class = QuestionForm
+ #   form_class = QuestionForm
     template_name = "qa/question_form.html"
     message = _("Your question has been created.")
 
@@ -90,4 +90,8 @@ class CreateAnswerView(LoginRequiredMixin, CreateView):
         messages.success(self.request, self.message)
         return reverse(
             "qa:question_detail", kwargs={"pk": self.kwargs["question_id"]})
-
+    
+    def get_context_data(self,*args,**kwargs):
+        data = super().get_context_data(*args,**kwargs)
+        data['question_id'] =  self.kwargs["question_id"]
+        return data

@@ -18,7 +18,7 @@ from core.exceptions import duplicationException
 class Source(models.Model):
     name = models.CharField(max_length=50)
 
-    def __unicode__(self):
+    def __str__(self):
         return u'{0}'.format(self.name)
 
     def save_or_get(self,*args,**kwargs):
@@ -72,7 +72,7 @@ class Quiz(models.Model):
     content = MarkdownxField()
     votes = GenericRelation(FeedBack)
     total_votes = models.IntegerField(default=0)
-    exponential_answer = MarkdownxField()
+    exponential_answer = MarkdownxField(blank=True)
     source = models.ForeignKey(Source ,null = True, blank=True, on_delete=models.SET_NULL)
     level = models.CharField(max_length = 2,choices =LEVEL_TYPE )
     lesson = models.ForeignKey(LessonTree,null = True, blank = True , on_delete=models.SET_NULL) 

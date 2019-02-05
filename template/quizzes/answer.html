@@ -1,4 +1,13 @@
 {% extends 'quizzes/base.xhtml' %}
+{% block script %}
+
+    <script type="text/x-mathjax-config">
+        MathJax.Hub.Config({
+            tex2jax: {inlineMath: [["$","$"],["\\(","\\)"]]}
+        });
+    </script>
+    <script type="text/javascript" src="/static/mathJax/MathJax.js?config=TeX-AMS_HTML-full"></script>
+
 {% block body%}
     <a href='/accounts/profile'><input type="button" value="profile"/></a>
     <p>

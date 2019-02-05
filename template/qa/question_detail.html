@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% load i18n static humanize %}
+{% load i18n static  %}
 
 {% block title %}{{ question.title }}{% endblock %}
 
@@ -7,11 +7,11 @@
   <link href="{% static 'css/qa.css' %}" rel="stylesheet">
 {% endblock head %}
 
-{% block content %}
+{% block body %}
 
     <nav aria-label="breadcrumb">
       <ol class="breadcrumb">
-        <li class="breadcrumb-item"><a href="{% url 'news:list' %}">{% trans 'Home' %}</a></li>
+        <li class="breadcrumb-item"><a href="">{% trans 'Home' %}</a></li>
         <li class="breadcrumb-item"><a href="{% url 'qa:index_noans' %}">{% trans 'Q.A' %}</a></li>
         <li class="breadcrumb-item active" aria-current="page">{{ question.title }}</li>
       </ol>
@@ -36,8 +36,8 @@
       <div class="col-md-11">
         <p>{{ question.get_markdown|safe }}</p>
         <div class="question-user pull-right">
-          <span class="text-secondary">{% trans 'Asked' %} {{ question.timestamp|naturaltime }} {% trans 'by' %}</span>
-          <a href="{% url 'users:detail' question.user.username  %}">{{ question.user.get_profile_name|title }}</a>
+          <span class="text-secondary">{% trans 'Asked' %} {{ question.timestam }} {% trans 'by' %}</span>
+          <a href="">{{ question.user.get_profile_name|title }}</a>
           {% if question.tags.names %}
             <p>
               {% for tag in question.tags.names %}
@@ -64,7 +64,7 @@
         {% endfor %}
       </ul>
     </div>
-{% endblock content %}
+{% endblock body %}
 
 
 {% block modal %}

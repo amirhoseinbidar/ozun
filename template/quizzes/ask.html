@@ -1,6 +1,13 @@
 {% extends 'quizzes/base.xhtml' %}
 {% block script %}
     <script src="/static/scripts/quizzes/quizzes-ask.js"></script>
+    <script type="text/x-mathjax-config">
+        MathJax.Hub.Config({
+            tex2jax: {inlineMath: [["$","$"],["\\(","\\)"]]}
+        });
+    </script>
+    <script type="text/javascript" src="/static/mathJax/MathJax.js?config=TeX-AMS_HTML-full"></script>
+    {{ block.super }}
 {% endblock %}
 
 {% block body%}
@@ -43,6 +50,6 @@
         </div>
     {% endfor %}
     
-    <input type="button" value="finish">
+    <input type="button" value="finish" id = 'finish-btn'>
 
 {% endblock %}
