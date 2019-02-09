@@ -40,8 +40,9 @@ class QAViewsTest(BaseAPITest):
     def test_index_questions(self):
         response = self.client.get(reverse("api:index_all"))
         assert response.status_code == 200
-        title = loads(response.content.decode())[0]['title']
+        title = loads(response.content.decode())[1]['title']
         assert "A Short Title" in title
+
     def test_create_question_view(self):
         current_count = Question.objects.count()
         response = self.client.post(reverse("api:ask_question"),
@@ -51,7 +52,6 @@ class QAViewsTest(BaseAPITest):
                                     "content": "bablababla bablababla",
                                     "status": "O",
                                     "tags": "test, tag"})
-        
         assert response.status_code == 201
         new_question = Question.objects.first()
         assert new_question.title == "Not much of a title"
@@ -66,6 +66,7 @@ class QAViewsTest(BaseAPITest):
     def test_unanswered_questions(self):
         response = self.client.get(reverse("api:index_noans"))
         assert response.status_code == 200
+        print(response.content , reverse("api:index_noans"))
         title = loads(response.content.decode())[0]['title']
         assert "This is a sample question" in title
 
@@ -99,20 +100,20 @@ class QAViewsTest(BaseAPITest):
     def test_answer_upvote(self):
         url =  reverse("api:answer_vote")
         response_one = self.client.post(
-            url, {"feedback_type": "U", "answer": self.answer.id},
+            url, {"feedback_type": "U", "answer": self.answer.uuid_id},
             HTTP_X_REQUESTED_WITH="XMLHttpRequest")
         assert response_one.status_code == 200
 
     def test_answer_downvote(self):
         response_one = self.client.post(
             reverse("api:answer_vote"),
-            {"feedback_type": "D", "answer": self.answer.id},
+            {"feedback_type": "D", "answer": self.answer.uuid_id},
             HTTP_X_REQUESTED_WITH="XMLHttpRequest")
         assert response_one.status_code == 200
 
     def test_accept_answer(self):
         url = reverse("api:accept_answer")
-        params = {"answer": self.answer.id}
+        params = {"answer": self.answer.uuid_id}
 
         response_one = self.client.post(url , params,
             HTTP_X_REQUESTED_WITH="XMLHttpRequest")

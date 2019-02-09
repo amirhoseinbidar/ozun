@@ -140,3 +140,24 @@ class quizzesSearchTest(BaseAPITest):
         self.assertEqual(response.status_code,200,self.write_info(200,response))
 
 
+class LessonPathViewTest(BaseAPITest):
+    def setUp(self):
+        super().setUp()
+        embed_test_quizzes()
+        self.client.login(username = 'test',password = 'test' )
+    
+    def test_get_path(self):
+        url = reverse('api:lesson_path_view', kwargs= {'LessonPath': "یازدهم-ریاضی"})
+        print(url)
+        response = self.client.get(url)
+        self.assertEqual(response.status_code,200,self.write_info(200,response))
+        
+        url = reverse('api:lesson_path_view', kwargs = { 'LessonPath' : 'دهم/فیزیک' })
+        response = self.client.get(url)
+        self.assertEqual(response.status_code,200,self.write_info(200,response))
+
+    def test_get_root(self):
+        url = reverse('api:lesson_path_view' , kwargs = { 'LessonPath' : 'root' })
+        response = self.client.get(url)
+        self.assertEqual(response.status_code,200,self.write_info(200,response))
+    

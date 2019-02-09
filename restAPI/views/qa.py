@@ -120,7 +120,7 @@ class QAHandler(generics.views.APIView):
         """Function view to receive post call, marks as accepted a given answer for
         an also provided question."""
         answer_id = self.request.data["answer"]
-        answer = Answer.objects.get(id=answer_id)
+        answer = Answer.objects.get(uuid_id=answer_id)
         answer.accept_answer()
         return JsonResponse({'status': 'true'}, status=200)
 

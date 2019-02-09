@@ -40,7 +40,7 @@ $(function(){
             formdata.append("username", $('#username').value );
             formdata.append("image",file);
             $.ajax({
-                url : '/api/res-auth/user/' , 
+                url : '/api/rest-auth/user/' , 
                 type : 'POST',
                 data : formdata ,
                 processData : false , 
@@ -60,7 +60,7 @@ $(function(){
         var interest_lesson = grade + '/' + $('#interest-lesson').value;
         var location = $('#location-province').value + '/' + $('#location-county').value + '/' + $('#location-city').value;
         $.ajax({
-            url: '/api/res-auth/user/',
+            url: '/api/rest-auth/user/',
             data:{
                 'username' : $('#username').value ,
                 'first_name': $('#first-name').value,
@@ -74,12 +74,41 @@ $(function(){
             type: 'post',
             cache: false,
             success: function(data){
-                // create a message in #succ-containter
+                $('#editing-succ-container').html('profile uploaded successfully')
             },
             error: function(e){
-                // create a message in #error
+                $('#errors').html(e.message)
             }
         })
     }
+    
+    UpdateGradeList()
+    
+    function UpdateGradeList(){
+        $.ajax({
+            url : '/api/lesson/children/root/',
+            type : 'get',
+            success : function(data){
+                console.log(data)
+            },
+            error: function(e){
+                console.log(e)
+            }
+        })
+    }
+
+    $('#grade').on('change',function(){
+        grade = this.val().replace(' ','-')
+        $.ajax({
+            url : 'api/lesson/children/'+grade+'/' ,
+            type : 'get' ,
+            success : function(data){
+                console.log(data)
+            },
+            error: function(e){
+                console.log(e)
+            }
+        })
+    });
 
 });

@@ -39,13 +39,6 @@ $(function () {
         $("#question-form").submit();
     });
 
-    $("#draft").click(function () {
-        // Function to operate the Draft button in the question form, marking
-        // the question status as draft.
-        $("input[name='status']").val("D");
-        $("#question-form").submit();
-    });
-
     $(".question-vote").click(function () {
         // Vote on a question.
         var span = $(this);
@@ -107,7 +100,7 @@ $(function () {
         var span = $(this);
         var answer = $(this).closest(".answer").attr("answer-id");
         $.ajax({
-            url: '/qa/accept-answer/',
+            url: 'api/qa/accept-answer/',
             data: {
                 'answer': answer
             },

@@ -27,10 +27,10 @@ urlpatterns = [
     url(r'^$' , TemplateView.as_view(template_name = 'index.html'),name = 'index'),
     url(r'^admin/users/', admin.site.urls),
     url(r'^admin/quizzes/',quizzesAdminSite.urls),
+    url(r'^api/',include('restAPI.urls')),
     url(r'^accounts/', include('users.urls')),  
     url(r'^quizzes/',include('quizzes.urls')),
     url(r'qa/',include('qa.urls')),
-    url(r'^api/',include('restAPI.urls')),
     url(r'^accounts/', include('allauth.urls')),
     url(r'^markdownx/', include('markdownx.urls')),
 ]
@@ -43,5 +43,5 @@ urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 #from quizzes.tests.test_embed import embed_test_quizzes
 #from core.tests.test_embed import embed_test_locations
 #
-#embed_test_locations()
+# embed_test_locations()
 #embed_test_quizzes()

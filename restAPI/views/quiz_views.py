@@ -2,7 +2,8 @@
 from __future__ import unicode_literals
 
 from rest_framework import generics 
-from restAPI.serializers import QuizSerializer , Quiz ,ExamSerializer , StudyPostSerializer , QuizStatusSerializer  
+from restAPI.serializers import QuizSerializer , Quiz ,ExamSerializer , StudyPostSerializer , QuizStatusSerializer 
+from core.models.lessonTree import LessonTree 
 from rest_framework.exceptions import ParseError 
 from course.models import LessonTree
 from core.exceptions import duplicationException
@@ -11,6 +12,7 @@ from core.utils import find_in_dict
 from users.models import FeedBack
 from rest_framework.response import Response
 from rest_framework import status
+from json import dumps
 
 class QuizSearchList(generics.ListAPIView): # need test
     allowed_actions = ['most-voteds','lasts','path']
@@ -45,8 +47,7 @@ class QuizSearchList(generics.ListAPIView): # need test
         To = int(kwargs.get('to'))
         return Quiz.objects.all()[From:To]
   
-    @staticmethod
-    def pathHandler(LessonPath):
+    def pathHandler(self ,LessonPath):
         return Quiz.get_by_path(LessonPath)
             
         
@@ -74,3 +75,20 @@ class QuizFeedBack(generics.views.APIView):
         feedback.save()
      
         return Response(data = 'quiz voted' , status = status.HTTP_200_OK)
+
+class LessonPathView(generics.views.APIView):
+    def get(self,request,LessonPath):
+        if LessonPath == 'root':
+            children = LessonTree.get_root_nodes() 
+        else:
+            try :
+                children = LessonTree.find_by_path(LessonPath,True).get_children()
+            except ObjectDoesNotExist:
+                raise ParseError('uncorrect path')
+        data = {
+            'children' :  list(children.values_list('content__name')),
+            'children count' : children.count() ,
+        }
+        return Response(data = dumps(data) , status = status.HTTP_200_OK)
+
+            

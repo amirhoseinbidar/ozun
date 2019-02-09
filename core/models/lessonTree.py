@@ -7,6 +7,7 @@ from django.core.exceptions import ObjectDoesNotExist , ValidationError
 from core.exceptions import duplicationException , overDepthException
 from django.db import models
 from django.core.exceptions import ObjectDoesNotExist
+from django.utils.text import slugify
 
 class TreeContent(models.Model):
     GRADE = 'G'
@@ -21,6 +22,7 @@ class TreeContent(models.Model):
     )
 
     name = models.CharField(max_length = 100,blank = False , null = False) 
+    slug = models.CharField(max_length = 100,blank = True )
     type = models.CharField(choices = CONTENT_TYPE , max_length = 1,blank = False,null = False)
 
     @staticmethod
@@ -53,6 +55,9 @@ class TreeContent(models.Model):
     def save(self,*args,**kwargs):
         checkDuplicate(TreeContent , self , name = self.name , type = self.type )
         
+        if not self.slug:
+            self.slug = slugify("{}".format(self.name) , True)
+
         if isinstance(self.type , int):
            self.type = TreeContent.getTypeByNumber(self.type)
 
@@ -168,16 +173,22 @@ class LessonTree(MP_Node):
 
 
     @staticmethod
-    def find_by_path(path_str):
+    def find_by_path(path_str = None , get_by_slug = False):
         """ Find a lesson by its path """
         paths = path_str.split('/')
         object = LessonTree.get_root_nodes()
         index = 0
         for name in paths:
             if index == len(paths)-1:
-                object = object.get(content__name = name)
+                if get_by_slug:
+                    object = object.get(content__slug = name)
+                else :
+                    object = object.get(content__name = name)
                 break
-            object = object.get(content__name = name).get_children()
+            if get_by_slug:
+                object = object.get(content__slug = name).get_children()
+            else :
+                object = object.get(content__name = name).get_children()
             index += 1
         return object
     
@@ -197,7 +208,7 @@ class LessonTree(MP_Node):
     @staticmethod
     def create_by_path(path_str):
         """create objects in path if some of the 
-            objects exist this method ingore them """
+            objects exist this method ignore them """
         paths = path_str.split('/')
         index =0
         lessonState = None

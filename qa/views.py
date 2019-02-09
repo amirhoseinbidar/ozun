@@ -8,8 +8,8 @@ from django.urls import reverse
 from django.utils.translation import ugettext as _
 from django.views.decorators.http import require_http_methods
 from django.views.generic import CreateView, ListView, DetailView
-
-from qa.models import Answer , Question
+from .forms import QuestionForm
+from .models import Answer , Question
 
 
 class QuestionsIndexListView(LoginRequiredMixin, ListView):
@@ -60,7 +60,7 @@ class CreateQuestionView(LoginRequiredMixin, CreateView):
     """
     View to handle the creation of a new question
     """
- #   form_class = QuestionForm
+    form_class = QuestionForm
     template_name = "qa/question_form.html"
     message = _("Your question has been created.")
 
