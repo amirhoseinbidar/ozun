@@ -84,7 +84,7 @@ def calculate_score(quizList):
     for quiz in quizList:       
         score = Score(quiz)
         if score < 0 :
-            negative_score += score
+            negative_score += -(score)
         else :
             positive_score += score
     return (positive_score , negative_score)

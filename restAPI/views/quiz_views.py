@@ -2,10 +2,13 @@
 from __future__ import unicode_literals
 
 from rest_framework import generics 
-from restAPI.serializers import QuizSerializer , Quiz ,ExamSerializer , StudyPostSerializer , QuizStatusSerializer 
-from core.models.lessonTree import LessonTree 
+from restAPI.serializers import (
+    QuizSerializer , Quiz ,ExamSerializer , 
+    StudyPostSerializer , QuizStatusSerializer,
+    SourceSerializer ) 
+from core.models import LessonTree  , Location 
+from core.models.countries import Country_province
 from rest_framework.exceptions import ParseError 
-from course.models import LessonTree
 from core.exceptions import duplicationException
 from django.core.exceptions import ObjectDoesNotExist , ValidationError
 from core.utils import find_in_dict
@@ -13,6 +16,7 @@ from users.models import FeedBack
 from rest_framework.response import Response
 from rest_framework import status
 from json import dumps
+from quizzes.models import Source
 
 class QuizSearchList(generics.ListAPIView): # need test
     allowed_actions = ['most-voteds','lasts','path']
@@ -39,7 +43,7 @@ class QuizSearchList(generics.ListAPIView): # need test
         To = int(kwargs.get('to'))  
         return Quiz.get_mostVotes(From,To)
 
-    def lastsHandler(self,**kwargs):#code duplicate with line 60
+    def lastsHandler(self,**kwargs):
         if not ('from' in kwargs and 'to' in kwargs):
             return Quiz.objects.all()[:50]#Quizzes orderd by Time in default
         
@@ -85,10 +89,33 @@ class LessonPathView(generics.views.APIView):
                 children = LessonTree.find_by_path(LessonPath,True).get_children()
             except ObjectDoesNotExist:
                 raise ParseError('uncorrect path')
+        children = list(children.values_list('content__name'))
         data = {
-            'children' :  list(children.values_list('content__name')),
-            'children count' : children.count() ,
+            'children' :  [ child[0] for child in children],
+            'children count' : len(children) ,
         }
         return Response(data = dumps(data) , status = status.HTTP_200_OK)
 
+class LocationPathView(generics.views.APIView):
+    def get(self,request,LocationPath):
+        if LocationPath == 'root':
+            children = Country_province.objects.all().values_list('name')
+            children = [ child[0] for child in children]
+        else:
+            try:
+                children = Location.get_children(LocationPath,True)
+
+            except ObjectDoesNotExist:
+                raise ParseError('uncorrect path')
+        
+        data = {
+            'children' : children ,
+            'children count' : len(children) ,
+        }
+        return Response(data = dumps(data),status = status.HTTP_200_OK)
+                
+class SourceView(generics.ListAPIView):
+    serializer_class = SourceSerializer
+    def get_queryset(self):
+        return Source.objects.all()
             

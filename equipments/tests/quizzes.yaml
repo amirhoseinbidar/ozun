@@ -26,15 +26,15 @@ quiz :
 
 quiz_2 : 
   
-  content : ' {\\beginL 2\\endL} میله فلزی در صفر درجه سیلسیوس دارای طول های \\beginL$L_{1}$\\endL{}
-    \\beginL$L_{2}$\\endL{} به ترتیب دارای ضریب انبساط طولی \\beginL$\\alpha_{2},\\alpha_{1}$\\endL{} میباشد و متغییر طول آن ها به ازای تغییر دمای یکسان \\beginL$\\Delta\\theta$\\endL{}
-    همواره برابر است . در این صورت \\beginL$\\frac{L_{1}}{L_{2}}$\\endL{} کدام است؟ '
+  content : '  میله فلزی در صفر درجه سیلسیوس دارای طول های  $L_{1}$
+    $L_{2}$ به ترتیب دارای ضریب انبساط طولی  $\\alpha_{2},\\alpha_{1}$ میباشد و متغییر طول آن ها به ازای تغییر دمای یکسان \\beginL$\\Delta\\theta$\\endL{}
+    همواره برابر است . در این صورت $\\frac{L_{1}}{L_{2}}$ کدام است؟ '
   
   answers :
-    - { 'text' : '{\\beginL 1\\endL})\\beginL$\\frac{\\alpha_{2}}{\\alpha_{1}}$\\endL{}' , 'is_correct_answer' : False}
-    - { 'text' : '{\\beginL 2\\endL})\\beginL$\\frac{\\alpha_{1}}{\\alpha_{2}}$\\endL{}' , 'is_correct_answer' : True}
-    - { 'text' : '{\\beginL 3\\endL})\\beginL$\\frac{L+\\alpha_{1}\\Delta\\theta}{L+\\alpha_{2}\\Delta\\theta}$\\endL{}' , 'is_correct_answer' : False}
-    - { 'text' : '{\\beginL 4\\endL})\\beginL$\\frac{L+\\alpha_{2}\\Delta\\theta}{L+\\alpha_{1}\\Delta\\theta}$\\endL{} ' , 'is_correct_answer' : False}
+    - { 'text' : '$\\frac{\\alpha_{2}}{\\alpha_{1}}$' , 'is_correct_answer' : False}
+    - { 'text' : '$\\frac{\\alpha_{1}}{\\alpha_{2}}$' , 'is_correct_answer' : True}
+    - { 'text' : '$\\frac{L+\\alpha_{1}\\Delta\\theta}{L+\\alpha_{2}\\Delta\\theta}$' , 'is_correct_answer' : False}
+    - { 'text' : '$\\frac{L+\\alpha_{2}\\Delta\\theta}{L+\\alpha_{1}\\Delta\\theta}$ ' , 'is_correct_answer' : False}
 
   source : 'قلم چی' 
   level : 'H'

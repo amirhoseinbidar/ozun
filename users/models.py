@@ -12,7 +12,10 @@ from allauth.socialaccount import default_app_config
 from django.dispatch import receiver
 from allauth.account.signals import email_confirmed
 from allauth.account.models import EmailAddress
-
+from quizzes.models import ExamStatistic 
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+from django.db.models import Sum
 
 @receiver(email_confirmed)
 def createProfile(request,email_address,**kwargs):
@@ -22,8 +25,13 @@ def createProfile(request,email_address,**kwargs):
             image = 'users/diffalte_images/(1).jpg'
         )
 
+
+@receiver(post_save ,sender = ExamStatistic) 
+def score_update(instance, **kwargs): 
+   Profile.objects.get(user = instance.exam.user).count_score()
+
+
 class Profile(models.Model):
-    
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     location = models.ForeignKey(Location, null= True 
         ,blank= True, on_delete=models.SET_NULL )
@@ -67,11 +75,17 @@ class Profile(models.Model):
         
         return (age_year,age_month)
 
+    def count_score(self):
+        self.score = ExamStatistic.objects.filter(
+            exam__user = self.user).aggregate(Sum('total_score'))['total_score__sum']
+        self.save()
+
     class Meta:
         db_table = "profile"
     
     def __unicode__(self):
         return u'{0}'.format(self.user.username)
+
 
 
 class FeedBack(models.Model):

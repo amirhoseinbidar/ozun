@@ -4,6 +4,20 @@
 
 {% block title %}{% trans 'Answer a question' %}{% endblock %}
 
+{% block extrahead %} 
+    <script type="text/x-mathjax-config">
+        MathJax.Hub.Config({
+            tex2jax: {inlineMath: [["$","$"],["\\(","\\)"]]}
+        });
+    </script>
+    <script type="text/javascript" src="/static/mathJax/MathJax.js?config=TeX-AMS_HTML-full"></script>
+    {{ block.super }}
+    <script type="text/javascript" src="/static/markdownx/js/markdownx-jquery-3.3.1.min.js"></script>
+    <script type="text/javascript" src="/static/markdownx/js/markdownx.js"></script>
+    <script type="text/javascript" src="/static/markdownx/js/math-editor-connector.js"></script>
+    <script src="{% static 'js/qa/qa.js' %}"></script>
+{% endblock %}
+
 {% block body %}
 
   <nav aria-label="breadcrumb">

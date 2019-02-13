@@ -31,21 +31,24 @@ $(function(){
         }
     });
 
-    $.noConflict();
-    formdata = new FormData();
+    $('#submit').click(doUpdate);
+    UpdateGradeList();
+    UpdataProvinceList();
 
-    $('#image').on('change',function(){
+
+    $('#image-upload').on('change',function(){  
+        formdata = new FormData();
         var file = this.files[0];
         if(formdata){
-            formdata.append("username", $('#username').value );
+            formdata.append("username",  $('#username')[0].value );
             formdata.append("image",file);
             $.ajax({
                 url : '/api/rest-auth/user/' , 
-                type : 'POST',
+                type : 'PUT',
                 data : formdata ,
                 processData : false , 
                 contentType : false ,
-                sucess : function () {
+                success : function () {
                     doUpdate();
                     location.reload(true);
                 }
@@ -53,43 +56,50 @@ $(function(){
         }
     });
    
-    $('#submit').click(doUpdate);
+   
     
     function doUpdate(){     
-        var grade = $('#grade').value;
-        var interest_lesson = grade + '/' + $('#interest-lesson').value;
-        var location = $('#location-province').value + '/' + $('#location-county').value + '/' + $('#location-city').value;
+        var grade = $('#grade-textbox')[0].value;
+        interest_lesson = grade + '/' + $('#interest-lesson-textbox')[0].value;
+        
+        var location = $('#province-textbox')[0].value + '/' + $('#county-textbox')[0].value + '/' + $('#city-textbox')[0].value;
+        var data = {
+            'username' : $('#username')[0].value ,
+            'first_name': $('#first-name')[0].value,
+            'last_name' : $('#last-name')[0].value,
+            'bio' : $('#bio')[0].value,
+            'brith_day' : $('#brith-day')[0].value,
+        }
+        if (grade != "")
+            data['grade'] = grade
+        if (interest_lesson != ""  && interest_lesson != "/" )
+            data['interest_lesson'] = interest_lesson
+        if(location != ""  && location != "//" )
+            data['location'] = location 
+
         $.ajax({
             url: '/api/rest-auth/user/',
-            data:{
-                'username' : $('#username').value ,
-                'first_name': $('#first-name').value,
-                'last_name' : $('#last-name').value,
-                'bio' : $('#bio').value,
-                'brith-day' : $('#brith-day').value,
-                'grade' : grade,
-                'interest_lesson' : interest_lesson,
-                'location' : location
-            },
-            type: 'post',
+            data: data,
+            type: 'PUT',
             cache: false,
             success: function(data){
                 $('#editing-succ-container').html('profile uploaded successfully')
             },
             error: function(e){
+                console.log(e)
                 $('#errors').html(e.message)
             }
         })
     }
     
-    UpdateGradeList()
+   
     
     function UpdateGradeList(){
         $.ajax({
-            url : '/api/lesson/children/root/',
+            url : '/api/lesson/children/root',
             type : 'get',
             success : function(data){
-                console.log(data)
+                embedDataList('#grade-list',data)  ; 
             },
             error: function(e){
                 console.log(e)
@@ -97,18 +107,86 @@ $(function(){
         })
     }
 
-    $('#grade').on('change',function(){
-        grade = this.val().replace(' ','-')
+    $('#grade-textbox').on('change',function(){
+        grade = this.value
+        if (grade == '')
+            $('#interest-lesson-list').html('')
+        else{
+            grade = grade.replace(' ','-');
+            $.ajax({
+                url : '/api/lesson/children/'+grade ,
+                type : 'get' ,
+                success : function(data){
+                    embedDataList('#interest-lesson-list',data);
+                },
+                error: function(e){
+                    console.log(e)
+                }
+            });
+        }     
+    });
+
+    function UpdataProvinceList(){
         $.ajax({
-            url : 'api/lesson/children/'+grade+'/' ,
-            type : 'get' ,
+            url : '/api/location/children/root',
+            type : 'get',
             success : function(data){
-                console.log(data)
+                embedDataList('#province-list',data)  ; 
             },
             error: function(e){
                 console.log(e)
             }
         })
+    }
+
+    $('#province-textbox').on('change',function(){
+        province = this.value
+        if (province == '')
+            $('#county-list').html('')
+        else{
+            province = province.replace(' ','-');
+            $.ajax({
+                url : '/api/location/children/'+province ,
+                type : 'get' ,
+                success : function(data){
+                    embedDataList('#county-list',data);
+                },
+                error: function(e){
+                    console.log(e)
+                }
+            });
+        }     
     });
+    
+    $('#county-textbox').on('change',function(){
+        county = this.value
+        if (county == '')
+            $('#city-list').html('')
+        else{
+            county = county.replace(' ','-');
+            province = $('#province-textbox')[0].value.replace(' ','-');
+            $.ajax({
+                url : '/api/location/children/'+province+'/'+county ,
+                type : 'get' ,
+                success : function(data){
+                    embedDataList('#city-list',data);
+                },
+                error: function(e){
+                    console.log(e)
+                }
+            });
+        }     
+    });
+    
+
+
+    function embedDataList(id , data){
+        data = JSON.parse(data)['children'];
+        dataStr = "";
+        for (ele in data){
+            dataStr += "<option value='"+data[ele]+"'>"+data[ele]+"</option>";
+        }
+        $(id).html(dataStr) ;
+    }
 
 });

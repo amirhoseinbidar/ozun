@@ -98,7 +98,7 @@ class MarkdownxWidget(forms.Textarea):
 
     class Media:
         js = [
-            'markdownx/js/jquery-3.3.1.min.js',
+            'markdownx/js/markdownx-jquery-3.3.1.min.js',
             'markdownx/js/markdownx{}.js'.format(minified),
             'markdownx/js/math-editor-connector.js',
         ]

@@ -6,6 +6,5 @@ def checkDuplicate(klass,_self,objects = None,**kwargs):
     
     else:
         q = klass.objects.filter(**kwargs).exclude(pk = _self.pk)
-    
     if q.exists():# should not a name Duplicate 
         raise duplicationException('this {} is alredy exist'.format(kwargs))

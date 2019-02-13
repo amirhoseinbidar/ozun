@@ -148,7 +148,7 @@ class LessonPathViewTest(BaseAPITest):
     
     def test_get_path(self):
         url = reverse('api:lesson_path_view', kwargs= {'LessonPath': "یازدهم-ریاضی"})
-        print(url)
+
         response = self.client.get(url)
         self.assertEqual(response.status_code,200,self.write_info(200,response))
         

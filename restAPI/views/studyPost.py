@@ -3,7 +3,7 @@ from __future__ import unicode_literals
 from rest_framework import generics 
 from restAPI.views import QuizSearchList
 from restAPI.serializers import StudyPostSerializer , UserSerializer
-from course.models import LessonTree
+from core.models import LessonTree
 from users.models import User
 
 class userProfileList(generics.ListAPIView):

@@ -33,7 +33,10 @@ urlpatterns = [
         ,views.QuizSearchList.as_view(),name ='search_selected_quiz'),
     url(r'^quiz/(?P<action>[\w-]{1,20})/(?P<LessonPath>[\w/-]+)' , 
         views.QuizSearchList.as_view() , name = 'search_lesson_path'),
+    
     url(r'^lesson/children/(?P<LessonPath>[\w/-]+)' , views.LessonPathView.as_view() , name = 'lesson_path_view'),
+    url(r'^location/children/(?P<LocationPath>[\w/-]+)' , views.LocationPathView.as_view() , name = 'location_path_view'), 
+    url(r'^sources/' , views.SourceView.as_view() , name = 'source_view' ),
 
     url(r'^exam/update/$',views.UpdateExam.as_view(),name = 'update_exam'),
     url(r'^exam/finish/$',views.FinishExam.as_view() ,name = 'finish_exam'),

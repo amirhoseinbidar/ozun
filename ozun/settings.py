@@ -65,7 +65,7 @@ LOCAL_APPS = [
     'quizzes',
     'users',
     'restAPI',
-    'course', 
+    'studypost', 
     'qa',
     'markdownx',
 ]
@@ -216,7 +216,7 @@ REST_FRAMEWORK = {
 ACCOUNT_EMAIL_VERIFICATION = "mandatory"
 ACCOUNT_EMAIL_REQUIRED = True
 ACCOUNT_USERNAME_MIN_LENGTH = 6
-ACCOUNT_AUTHENTICATION_METHOD = 'username'
+ACCOUNT_AUTHENTICATION_METHOD = 'username_email'
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 ##### allauth rest setting #####

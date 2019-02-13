@@ -1,14 +1,13 @@
 from rest_framework import serializers
 from quizzes.models import Answer ,Quiz , QuizStatus , Exam , Source 
 from users.models import FeedBack
-from course.models import  StudyPost 
+from studypost.models import  StudyPost 
 from core.models import LessonTree ,allowed_types , GRADE , LESSON  , Location
 from rest_framework.exceptions import NotFound , NotAcceptable , ParseError
 from django.core.exceptions import ObjectDoesNotExist , ValidationError
-from rest_auth.serializers import UserDetailsSerializer
+from rest_auth.serializers import UserDetailsSerializer ,LoginSerializer
 from ozun.settings import TIME_ZONE
 from users.forms import ProfileForm
-
 
 
 

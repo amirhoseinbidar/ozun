@@ -11,7 +11,7 @@ from django.utils.crypto import get_random_string
 from django.db.models import Sum
 from ..utils import turn_second_to_time , choice_without_repead ,calculate_score
 from django.core.exceptions import ObjectDoesNotExist
-from core.utils import find_in_dict
+from core.utils import find_in_dict 
 
 import datetime
 
@@ -147,10 +147,11 @@ class Exam(BaseTemporaryKey):
     def __order_optional_args(level,source , number): 
         data = {}   
         if level : 
-            if not find_in_dict(level, Quiz.LEVEL_TYPE):
+            if not find_in_dict(level, Quiz.LEVEL_TYPE) or not find_in_dict(level,Quiz.REVERS_LEVEL_TYPE):
                 raise ValidationError('uncorrect level')
-
+            
             data['level'] = dict(Quiz.REVERS_LEVEL_TYPE)[level]
+
 
         if source :
             try:

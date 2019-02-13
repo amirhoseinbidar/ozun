@@ -20,4 +20,14 @@ class StudyPost(models.Model):
 
     def get_markdownfy(self):
         return markdownify(self.content)
+    
+    class Meta:
+        abstract = True   
 
+##NOTE magazin and course are exaclly same but for diffrent purpose
+
+class magazin(StudyPost):
+    pass
+
+class course(StudyPost):
+    pass 

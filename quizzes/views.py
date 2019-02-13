@@ -11,16 +11,22 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 
 class ExamView(LoginRequiredMixin , DetailView):
     model = Exam
-    template_name = 'quizzes/ask.xhtml'
+    template_name = 'quizzes/ask.html'
 
     def get_object(self):
-        print(self.request.GET)
-        print(self.request.query_params)
+        dataGet = self.request.GET
+        data = {}
+        if 'level' in dataGet:
+            data['level'] = dataGet['level']
+        if 'source' in dataGet:
+            data['source'] = dataGet['source']
         try:
             return Exam.start_random_exam(  
                 self.kwargs['LessonPath'] ,
-                self.request.user
+                self.request.user,
+                **data
             )
+
         except duplicationException:
             return Exam.objects.filter(
                 user = self.request.user,

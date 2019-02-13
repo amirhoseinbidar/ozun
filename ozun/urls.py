@@ -43,5 +43,5 @@ urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 #from quizzes.tests.test_embed import embed_test_quizzes
 #from core.tests.test_embed import embed_test_locations
 #
-# embed_test_locations()
+#embed_test_locations()
 #embed_test_quizzes()

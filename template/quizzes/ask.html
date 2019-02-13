@@ -1,4 +1,4 @@
-{% extends 'quizzes/base.xhtml' %}
+{% extends 'quizzes/base.html' %}
 {% block script %}
     <script src="/static/scripts/quizzes/quizzes-ask.js"></script>
     <script type="text/x-mathjax-config">
@@ -21,21 +21,18 @@
                 <div class='quiz-container'>
                     <!-- quiz -->
                     <div class = 'quiz-content' id='{{status.quiz.id}}'>
-                        {{status.quiz.text}} <!-- NOTE this is just a portotype quiz text style should change -->
+                        {{status.quiz.get_markdownify_content | safe}} 
                     </div>
 
                     <!-- answer -->
                     <p>
                         <ul class = 'answer-container'>
-                            
                             {% for answer in status.quiz.answer_set.all %}
                                 <li>
-                                    <label for="answer_{{answer.pk}}">
-                                        <input type="radio" value='{{answer.pk}}' required id="answer_{{answer.pk}}" class="radio_answer" {%if status.user_answer %}{%if status.user_answer.pk == answer.pk  %} checked  {% endif%}{%endif%} />
-                                        {%for post in answer.post.all%} <!-- NOTE this is just a portotype answer post style should change -->
-                                            {{post.text}}
-                                        {% endfor %}
+                                    <label for="answer_{{answer.pk}}">    
+                                        {{ answer.get_markdownify|safe }} 
                                     </label>
+                                    <input type="radio" value='{{answer.pk}}' required name={{status.pk}} id="answer_{{answer.pk}}" class="radio_answer" {%if status.user_answer %}{%if status.user_answer.pk == answer.pk  %} checked  {% endif%}{%endif%} />  
                                 </li>
                             {% endfor %}
                         </ul>
