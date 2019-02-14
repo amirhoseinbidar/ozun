@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from quizzes.models import Answer ,Quiz , QuizStatus , Exam , Source 
-from users.models import FeedBack
+from core.models import FeedBack , LessonTree ,TreeContent
 from studypost.models import  StudyPost 
 from core.models import LessonTree ,allowed_types , GRADE , LESSON  , Location
 from rest_framework.exceptions import NotFound , NotAcceptable , ParseError
@@ -149,4 +149,13 @@ class ExamSerializer(serializers.ModelSerializer):
 class ExamListSerializer(ExamSerializer):
     quizstatus_set = QuizStatusListSerializer(many =True)
 
+class LessonContentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = TreeContent
+        fields = '__all__'
 
+class LessonSeializer(serializers.ModelSerializer):
+    content = LessonContentSerializer()
+    class Meta:
+        model = LessonTree
+        fields = ('content',)

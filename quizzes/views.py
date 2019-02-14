@@ -8,30 +8,51 @@ from quizzes.models import Exam , ExamStatistic
 from django.views.generic import DetailView
 from core.exceptions import duplicationException
 from django.contrib.auth.mixins import LoginRequiredMixin
+from .form import examStartForm
 
 class ExamView(LoginRequiredMixin , DetailView):
     model = Exam
     template_name = 'quizzes/ask.html'
+    opt_data = None
 
     def get_object(self):
-        dataGet = self.request.GET
-        data = {}
-        if 'level' in dataGet:
-            data['level'] = dataGet['level']
-        if 'source' in dataGet:
-            data['source'] = dataGet['source']
-        try:
+        if self.kwargs.pop('is_post' ,False):
             return Exam.start_random_exam(  
                 self.kwargs['LessonPath'] ,
                 self.request.user,
-                **data
-            )
-
-        except duplicationException:
-            return Exam.objects.filter(
+                **self.opt_data)
+        else :
+            exam = Exam.objects.filter(
                 user = self.request.user,
-                is_active = True 
-            )
+                is_active = True )
+            if not exam.exists():
+                raise Http404()
+            return exam
+        
+    def post(self,*args,**kwargs):
+        form = examStartForm(self.request.POST)
+        if form.is_valid():
+            self.kwargs['LessonPath'] = form.get_lesson_path()
+            self.kwargs['is_post'] = True
+            self.get_optional_data({
+                'level' : form['level'].value(),
+                'source' : form['source'].value(),
+                'number' : int(form['number'].value()),
+            })
+            return self.get(self.request)
+
+    def get_optional_data(self,dic):
+        data = {}
+        if dic['level']:
+            data['level'] = dic['level']
+        if dic['source']:
+            data['source'] = dic['source']
+        if dic['number']:
+            data['number'] = dic['number']
+        print(dic)
+        self.opt_data = data
+            
+        
 
 
 

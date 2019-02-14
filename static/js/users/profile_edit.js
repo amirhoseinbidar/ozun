@@ -86,7 +86,6 @@ $(function(){
                 $('#editing-succ-container').html('profile uploaded successfully')
             },
             error: function(e){
-                console.log(e)
                 $('#errors').html(e.message)
             }
         })
@@ -99,7 +98,7 @@ $(function(){
             url : '/api/lesson/children/root',
             type : 'get',
             success : function(data){
-                embedDataList('#grade-list',data)  ; 
+                embedDataListLesson('#grade-list',data)  ; 
             },
             error: function(e){
                 console.log(e)
@@ -117,7 +116,7 @@ $(function(){
                 url : '/api/lesson/children/'+grade ,
                 type : 'get' ,
                 success : function(data){
-                    embedDataList('#interest-lesson-list',data);
+                    embedDataListLesson('#interest-lesson-list',data);
                 },
                 error: function(e){
                     console.log(e)
@@ -131,7 +130,7 @@ $(function(){
             url : '/api/location/children/root',
             type : 'get',
             success : function(data){
-                embedDataList('#province-list',data)  ; 
+                embedDataListLocation('#province-list',data)  ; 
             },
             error: function(e){
                 console.log(e)
@@ -149,7 +148,7 @@ $(function(){
                 url : '/api/location/children/'+province ,
                 type : 'get' ,
                 success : function(data){
-                    embedDataList('#county-list',data);
+                    embedDataListLocation('#county-list',data);
                 },
                 error: function(e){
                     console.log(e)
@@ -169,7 +168,7 @@ $(function(){
                 url : '/api/location/children/'+province+'/'+county ,
                 type : 'get' ,
                 success : function(data){
-                    embedDataList('#city-list',data);
+                    embedDataListLocation('#city-list',data);
                 },
                 error: function(e){
                     console.log(e)
@@ -180,7 +179,7 @@ $(function(){
     
 
 
-    function embedDataList(id , data){
+    function embedDataListLocation(id , data){
         data = JSON.parse(data)['children'];
         dataStr = "";
         for (ele in data){
@@ -188,5 +187,14 @@ $(function(){
         }
         $(id).html(dataStr) ;
     }
+    
+    function embedDataListLesson(id , data){        
+        dataStr = "";
+        for (ele in data){
+            dataStr += "<option value='"+data[ele]['content']['name']+"'></option>";
+        }
+        $(id).html(dataStr) ;
+    }
+    
 
 });

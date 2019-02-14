@@ -13,9 +13,10 @@ from django.utils.timezone import get_current_timezone
 
 
 def choice_without_repead(Queries,step=1 , check_step_oveflow = True):
+    if not Queries or Queries.count() == 0 :
+        raise ValidationError('QuerySet is empty' ,code='empty_query') 
+
     if check_step_oveflow:
-        if not Queries:
-            raise ValidationError('QuerySet not empty' ,code='empty_query') 
         if Queries.count() < step: 
             raise ValidationError('the number of QuerySet members must not less then step',code='step_overflow')
     else:

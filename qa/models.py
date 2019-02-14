@@ -5,7 +5,7 @@ from django.db import models
 from django.utils.translation import ugettext_lazy as _
 from django.conf import settings
 from django.db.models import Count
-from users.models import FeedBack
+from core.models import FeedBack
 from django.contrib.contenttypes.fields import GenericRelation
 from markdownx.models import MarkdownxField  
 

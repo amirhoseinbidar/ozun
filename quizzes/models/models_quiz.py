@@ -8,7 +8,7 @@ from django.contrib.auth.models import User
 from django.contrib.contenttypes.fields import GenericRelation
 from core.checks import checkDuplicate
 from quizzes.utils import getTimeByLevel
-from users.models import FeedBack
+from core.models import FeedBack
 from core.models.lessonTree import(allowed_types ,LESSON 
                     ,TOPIC ,CHAPTER ,LessonTree)
 from markdownx.models import MarkdownxField
@@ -110,8 +110,6 @@ class Quiz(models.Model):
             self.time_for_out = getTimeByLevel(self.level)
         super(Quiz,self).save(*args,**kwargs)
         
-        self.count_votes()    
-    
     def __unicode__(self):
         return u'{0}'.format(self.pk)
     

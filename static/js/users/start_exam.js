@@ -52,7 +52,7 @@ $(function(){
             url : '/api/lesson/children/root',
             type : 'get',
             success : function(data){
-                embedDataList('#grade-list',data)  ; 
+                embedDataListLesson('#grade-list',data)  ; 
             },
             error: function(e){
                 console.log(e)
@@ -60,7 +60,7 @@ $(function(){
         })
     }
 
-    $('#grade-txt').on('change',function(){
+    $('#id_grade').on('change',function(){
         grade = this.value
         if (grade == '')
             $('#lesson-list').html('')
@@ -70,7 +70,7 @@ $(function(){
                 url : '/api/lesson/children/'+grade ,
                 type : 'get' ,
                 success : function(data){
-                    embedDataList('#lesson-list',data);
+                    embedDataListLesson('#lesson-list',data);
                 },
                 error: function(e){
                     console.log(e)
@@ -80,18 +80,18 @@ $(function(){
     });
 
     
-    $('#lesson-txt').on('change',function(){
+    $('#id_lesson').on('change',function(){
         lesson = this.value
         if (lesson == '')
             $('#chapter-list').html('')
         else{
             lesson = lesson.replace(' ','-');
-            grade = $('#grade-txt')[0].value;
+            grade = $('#id_grade')[0].value;
             $.ajax({
                 url : '/api/lesson/children/'+grade+'/'+lesson ,
                 type : 'get' ,
                 success : function(data){
-                    embedDataList('#chapter-list',data);
+                    embedDataListLesson('#chapter-list',data);
                 },
                 error: function(e){
                     console.log(e)
@@ -101,19 +101,19 @@ $(function(){
     });
 
         
-    $('#chapter-txt').on('change',function(){
+    $('#id_chapter').on('change',function(){
         chapter = this.value
         if (chapter == '')
             $('#topic-list').html('')
         else{
             chapter = chapter.replace(' ','-');
-            grade = $('#grade-txt')[0].value;
-            lesson = $('#lesson-txt')[0].value;
+            grade = $('#id_grade')[0].value;
+            lesson = $('#id_lesson')[0].value;
             $.ajax({
                 url : '/api/lesson/children/'+grade+'/'+lesson+'/'+chapter ,
                 type : 'get' ,
                 success : function(data){
-                    embedDataList('#topic-list',data);
+                    embedDataListLesson('#topic-list',data);
                 },
                 error: function(e){
                     console.log(e)
@@ -123,13 +123,11 @@ $(function(){
     });
 
 
-    function embedDataList(id , data){
-        data = JSON.parse(data)['children'];
+    function embedDataListLesson(id , data){        
         dataStr = "";
         for (ele in data){
-            dataStr += "<option value='"+data[ele]+"'>"+data[ele]+"</option>";
+            dataStr += "<option value='"+data[ele]['content']['name']+"'></option>";
         }
         $(id).html(dataStr) ;
     }
-
 });

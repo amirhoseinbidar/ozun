@@ -96,5 +96,12 @@ REST API part:
     ✔ exchange data with android clients @done (12/11/2018, 8:24:32 AM)
 
 
-QUIZZES_MODEL_RULES:
-  
+
+✔ start a Exam  from profile @done (14/02/2019, 10:36 AM)
+✔ update exam status when user answer a quiz and upvote and downvote to quiz @done(14/02/2019, 11:45)
+able to make quiz and answer from restAPI
+able to make magazine 
+answer statistic view 
+chart views 
+login and register with social account 
+

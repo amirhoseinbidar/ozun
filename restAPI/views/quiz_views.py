@@ -5,14 +5,14 @@ from rest_framework import generics
 from restAPI.serializers import (
     QuizSerializer , Quiz ,ExamSerializer , 
     StudyPostSerializer , QuizStatusSerializer,
-    SourceSerializer ) 
+    SourceSerializer , LessonSeializer ) 
 from core.models import LessonTree  , Location 
 from core.models.countries import Country_province
 from rest_framework.exceptions import ParseError 
 from core.exceptions import duplicationException
 from django.core.exceptions import ObjectDoesNotExist , ValidationError
 from core.utils import find_in_dict
-from users.models import FeedBack
+from core.models import FeedBack
 from rest_framework.response import Response
 from rest_framework import status
 from json import dumps
@@ -77,24 +77,21 @@ class QuizFeedBack(generics.views.APIView):
 
         feedback.feedback_type = feedback_data
         feedback.save()
+        quiz.count_votes()
      
         return Response(data = 'quiz voted' , status = status.HTTP_200_OK)
 
-class LessonPathView(generics.views.APIView):
-    def get(self,request,LessonPath):
-        if LessonPath == 'root':
-            children = LessonTree.get_root_nodes() 
+
+class LessonPathView(generics.ListAPIView):
+    serializer_class = LessonSeializer
+    def get_queryset(self):
+        if self.kwargs['LessonPath'] == 'root':
+            return LessonTree.get_root_nodes() 
         else:
             try :
-                children = LessonTree.find_by_path(LessonPath,True).get_children()
+                return LessonTree.find_by_path(self.kwargs['LessonPath'],True).get_children()
             except ObjectDoesNotExist:
                 raise ParseError('uncorrect path')
-        children = list(children.values_list('content__name'))
-        data = {
-            'children' :  [ child[0] for child in children],
-            'children count' : len(children) ,
-        }
-        return Response(data = dumps(data) , status = status.HTTP_200_OK)
 
 class LocationPathView(generics.views.APIView):
     def get(self,request,LocationPath):

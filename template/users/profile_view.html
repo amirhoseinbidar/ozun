@@ -35,42 +35,11 @@
         <a href="edit/">edit profile</a>
     {% endif %}
 
-    <div id='select-quiz-content'>
-        <label for='grade-txt'>grade: </label>
-        <input type="text" id = 'grade-txt' list="grade-list" />      <br />
-        <datalist id= grade-list></datalist>
-
-        <label for='lesson-txt'>lesson: </label>
-        <input type="text" id = 'lesson-txt' list="lesson-list"/>     <br />
-        <datalist id= lesson-list></datalist>
-
-        <label for='chapter-txt'>chapter: </label>
-        <input type="text" id = 'chapter-txt' list="chapter-list" />    <br />
-        <datalist id= chapter-list></datalist>
-
-        <label for='topic-txt'>topic: </label>
-        <input type="text" id = 'topic-txt' list="topic-list"/>      <br />
-        <datalist id= topic-list></datalist>
-
-        <label for='source-txt'>source: </label>
-        <input type="text" id = 'source-txt' list="source-list" />     <br />
-        <datalist id= source-list></datalist>
-        
-        <label for='level-txt'>level: </label>
-        <input type="text" id = 'level-txt' list = 'level-list' />      <br />
-        <datalist id= level-list>
-            <option value="very easy">very easy</option>
-            <option value="easy">easy</option>
-            <option value="medium">medium</option>
-            <option value="hard">hard</option>
-            <option value="very hard">very hard</option>
-        </datalist>
-
-        <label for='number-txt'>number: </label>
-        <input type="number" id = 'number-txt' />     <br />
-
-        <input type="button" id = 'start-exam-btn' value="Fire Up!" />
-    <div>
+    <form method="POST" action="/quizzes/ask/">
+        {% csrf_token %}
+        {{ form }}
+        <input type="submit" id = 'start-exam-btn' value="Fire Up!" />
+    </form>
 
 {% endfor %}
 

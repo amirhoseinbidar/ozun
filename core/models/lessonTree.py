@@ -24,7 +24,8 @@ class TreeContent(models.Model):
     name = models.CharField(max_length = 100,blank = False , null = False) 
     slug = models.CharField(max_length = 100,blank = True )
     type = models.CharField(choices = CONTENT_TYPE , max_length = 1,blank = False,null = False)
-
+    image = models.ImageField(blank = True , null = True)
+    
     @staticmethod
     def getTypeByNumber(number):
         if number == 1:

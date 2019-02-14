@@ -1,6 +1,6 @@
 {% extends 'quizzes/base.html' %}
 {% block script %}
-    <script src="/static/scripts/quizzes/quizzes-ask.js"></script>
+    <script src="/static/js//quizzes/quizzes-ask.js"></script>
     <script type="text/x-mathjax-config">
         MathJax.Hub.Config({
             tex2jax: {inlineMath: [["$","$"],["\\(","\\)"]]}
@@ -32,15 +32,16 @@
                                     <label for="answer_{{answer.pk}}">    
                                         {{ answer.get_markdownify|safe }} 
                                     </label>
-                                    <input type="radio" value='{{answer.pk}}' required name={{status.pk}} id="answer_{{answer.pk}}" class="radio_answer" {%if status.user_answer %}{%if status.user_answer.pk == answer.pk  %} checked  {% endif%}{%endif%} />  
+                                    <input type="radio" value='{{answer.pk}}' for_quiz='{{status.quiz.id}}' required name={{status.pk}} id="answer_{{answer.pk}}" class="radio_answer" {%if status.user_answer %}{%if status.user_answer.pk == answer.pk  %} checked  {% endif%}{%endif%} />  
                                 </li>
                             {% endfor %}
                         </ul>
                     </p>
                     
+                    <div class='quiz-vote-status' id='{{status.quiz.id}}-quiz-vote-status'></div>
                     <!-- vote -->
-                    <input type="button" value='Up'>
-                    <input type="button" value='Down'>
+                    <input type="button" value='Up Vote' for_quiz='{{status.quiz.id}}' class='up-vote-btn'>
+                    <input type="button" value='Down Vote' for_quiz='{{status.quiz.id}}' class='down-vote-btn'>
 
                 </div>
             {% endfor %}

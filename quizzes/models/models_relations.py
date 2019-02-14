@@ -3,7 +3,7 @@ from __future__ import unicode_literals
 
 from django.db import models
 from .models_quiz import Answer , User,Quiz ,Source
-from users.models import BaseTemporaryKey
+from core.models import BaseTemporaryKey
 from django.utils import timezone
 from django.utils.timezone import timedelta
 from core.exceptions import ValidationError , duplicationException ,membershipException
@@ -137,10 +137,8 @@ class Exam(BaseTemporaryKey):
 
         quizzes = Quiz.get_by_path(lesson_path).filter(**data )
         quizzes = choice_without_repead(quizzes,number,False)
-
         
         exam = Exam.create_exam(quizzes,user)
-        
         return Exam.objects.filter(pk = exam.pk)
     
     @staticmethod

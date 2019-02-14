@@ -11,7 +11,7 @@ from django.urls import reverse
 from django.utils.crypto import get_random_string
 from django.http import Http404 
 from django.contrib.auth.mixins import LoginRequiredMixin
- 
+from quizzes.form import examStartForm
  
 class ProfileView(LoginRequiredMixin,DetailView):
     model =  Profile
@@ -41,11 +41,11 @@ class ProfileView(LoginRequiredMixin,DetailView):
         profile  = self.get_object()[0]
         data['age_year'] , data['age_month'] = profile.get_user_age()
         data['domin'] = get_current_site(self.request).domain,
-        
+        data['form'] = examStartForm()
+        print(examStartForm())
         if check_user_is_own(self.request , to =  profile.user.pk ):
             data['token']= get_random_string(length=30) 
             data['is_user_own'] =  True           
-        
         else:
             data['is_user_own'] = False
         return data

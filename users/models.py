@@ -12,10 +12,12 @@ from allauth.socialaccount import default_app_config
 from django.dispatch import receiver
 from allauth.account.signals import email_confirmed
 from allauth.account.models import EmailAddress
-from quizzes.models import ExamStatistic 
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.db.models import Sum
+from quizzes.models import ExamStatistic 
+
+
 
 @receiver(email_confirmed)
 def createProfile(request,email_address,**kwargs):
@@ -87,23 +89,3 @@ class Profile(models.Model):
         return u'{0}'.format(self.user.username)
 
 
-
-class FeedBack(models.Model):
-    
-    FAVORITE = 'F'
-    UP_VOTE = 'U'
-    DOWN_VOTE = 'D'
-    FEEDBACK_TYPES = (
-        (FAVORITE, 'favorite'),
-        (UP_VOTE, 'up vote'),
-        (DOWN_VOTE, 'down vote'),
-    )
-
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    feedback_type = models.CharField(max_length=1, choices=FEEDBACK_TYPES)
-    timestamp = models.DateTimeField(auto_now_add=True)
-
-    # Below the mandatory fields for generic relation
-    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
-    object_id = models.PositiveIntegerField()
-    content_object = GenericForeignKey()
