@@ -2,4 +2,5 @@
     "python.pythonPath": "C:\\Program Files (x86)\\Python37-32\\python.exe",
     "editor.mouseWheelZoom": true,
     "importCost.showCalculatingDecoration": true,
+    "python.linting.pylintEnabled": true,
 }

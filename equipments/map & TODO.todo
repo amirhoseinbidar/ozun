@@ -15,7 +15,7 @@ register part:
 
 profile part :
     user can go to profile in two way
-    first : log in 
+    first : login 
     secound : active token 
 
     ✔ active token is just for first log in (register) @done (6/25/2018, 5:00:37 AM)
@@ -29,7 +29,7 @@ profile part :
     done in profile 
 
     should make two decorators:  
-        ✔ one for check db and make sure user in exist @done (7/2/2018, 6:29:02 AM)
+        ✔ one for check db and make sure user is exist @done (7/2/2018, 6:29:02 AM)
         ✘ onother for check entry user and make sure entry user is for this profile @cancelled (7/2/2018, 6:29:08 AM)
         
     ✔ complete profile enter @done (7/2/2018, 6:29:16 AM)
@@ -61,22 +61,16 @@ profile part :
     ✔ complete profile part @done (7/10/2018, 10:12:03 AM)
 
 quizzes part :
-    ☐ add some quiestion to data base should add handset and write quiestions by latex*
+    ✔ add some quiestion to data base should add handset and write quiestions by latex* @done (15/02/2019, 15:53:33)
     
     ✔ make a quiestion selector witch select some quiestion by orders @done (7/20/2018, 5:56:35 AM)
     
     ✔ show theme in a page and other data @done (7/24/2018, 3:38:55 AM)
     
-    ☐ collect user's posted data and store theme to user_info table
-    
     ✔ show the correct answares and some advise @done (7/24/2018, 3:39:30 AM)
 
-    ✔ make some futher : when user get out of quiz page he can come back and start again while his time @done (8/12/2018, 5:27:18 AM)
-        does not out  
-        but there this some problem :
-            users answered quizzes lost when he get out (just his quizzes load again not thair answer)
-            I should store every quiz answer when user answer or change answer by ajax and jquery 
-    
+    ✔ make some futher : when user get out of quiz page he can come back and start again while his time does not out  @done (8/12/2018, 5:27:18 AM) 
+       
     about temprary_key in quizzes part :
         tempray_key in quizzes part  is just like a cash which store a active test information and 
         determain this test build for which one of users exactly and test time out
@@ -97,11 +91,17 @@ REST API part:
 
 
 
-✔ start a Exam  from profile @done (14/02/2019, 10:36 AM)
-✔ update exam status when user answer a quiz and upvote and downvote to quiz @done(14/02/2019, 11:45)
-able to make quiz and answer from restAPI
-able to make magazine 
-answer statistic view 
-chart views 
-login and register with social account 
+✔ start a Exam  from profile  @done (14/02/2019, 10:36 AM)
+✔ update exam status when user answer a quiz and upvote and downvote to quiz @done (14/02/2019, 11:45)
+✔ enable to make quiz and answer from restAPI @done (15/02/2019, 20:26:23)
 
+☐ enable to make magazine
+☐ make a better quiz admin
+☐ make image compresore
+☐ login and register with social account
+☐ answer statistic view
+☐ chart views
+☐ localize website
+
+☐ make API that user can send image with text as Quiz, now he just can send text
+☐ improve profile edit form and start exam form

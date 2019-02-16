@@ -8,6 +8,7 @@ from django.core.exceptions import ObjectDoesNotExist , ValidationError
 from rest_auth.serializers import UserDetailsSerializer ,LoginSerializer
 from ozun.settings import TIME_ZONE
 from users.forms import ProfileForm
+from .utils import checkLessonTreeContent , checkLocationContent , checkSourceContent
 
 
 
@@ -39,30 +40,13 @@ class UserSerializer(UserDetailsSerializer):
         profile_data['user'] = instance.pk
 
         if grade:
-            try:
-                grade = LessonTree.find_by_path(grade)
-                allowed_types(GRADE , grade,'grade')
-                profile_data['grade'] = grade.pk 
-            except ObjectDoesNotExist :
-                raise NotFound('this grade is not exist')
-            except ValidationError as e:
-                raise NotAcceptable(e.message)
+            profile_data['grade'] = checkLessonTreeContent(grade , GRADE , 'grade').pk
         if interest_lesson:
-            try:
-                interest_lesson = LessonTree.find_by_path(interest_lesson)
-                allowed_types(LESSON ,  interest_lesson , 'interest_lesson')
-                profile_data['interest_lesson'] =  interest_lesson.pk
-            except ObjectDoesNotExist:
-                raise NotFound('this grade is not exist')
-            except ValidationError as e:
-                raise NotAcceptable(e.message)
+            profile_data['interest_lesson'] = checkLessonTreeContent(interest_lesson , LESSON , 'interest_lesson').pk
 
         if location:
-            try:
-                profile_data['location'] = Location.objects.get(path = location).pk
-            except ObjectDoesNotExist:
-                raise NotFound('this location is not exist')
-
+            profile_data['location'] = checkLocationContent(location).pk
+            
         if 'image' in profile_data:
             form = ProfileForm( profile_data ,
                 {'image': profile_data['image']} , instance = profile ) 
@@ -83,7 +67,8 @@ class StudyPostSerializer(serializers.ModelSerializer):
 class AnswerSerializer(serializers.ModelSerializer):
     class Meta:
         model = Answer
-        fields = '__all__'
+        exclude = ('quiz',)
+
 
 class SourceSerializer(serializers.ModelSerializer):
     class Meta:
@@ -91,20 +76,57 @@ class SourceSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 class QuizSerializer(serializers.ModelSerializer):
-    answer_set = AnswerSerializer(many = True , required = True)
-    added_by = UserDetailsSerializer(many = False , required = True)
-    lesson = serializers.SerializerMethodField()
-    source = SourceSerializer()
-    
-    def get_lesson(self,obj):
-        data = None
-        if obj.lesson:
-            data = obj.lesson.full_path
-        return data
+    answer_set = AnswerSerializer(many = True )
+    added_by = UserDetailsSerializer(many = False )
+    lesson = serializers.CharField(source = 'lesson.full_path')
+    source = SourceSerializer(required = True)
+
+    class Meta:
+        model = Quiz
+        fields = '__all__'
+      
+
+class QuizManagerSerializer(serializers.ModelSerializer):
+    answer_set = AnswerSerializer(many = True ,required=True)
+    lesson = serializers.CharField(source = 'lesson.full_path' ,required = True)
+    source = serializers.CharField(source = 'source.name', required = True)
+
+    def create(self,validated_data):
+        answer_set = validated_data.pop('answer_set' , None)
+        validated_data['lesson'] = validated_data.pop('lesson',{}).pop('full_path',None)
+        validated_data['lesson'] = checkLessonTreeContent(validated_data['lesson'],LESSON , 'lesson' )
+        validated_data['source'] = validated_data.pop('source',{}).pop('name',None)
+        validated_data['source'] = checkSourceContent(validated_data['source'])
+        quiz = Quiz.objects.create(**validated_data)
+
+        for answer in answer_set:
+            answer['quiz'] = quiz
+            Answer.objects.create(**answer)
+        
+        return quiz
+
+    def update(self,instance,validated_data):
+        answer_set = validated_data.pop('answer_set' , None)
+        validated_data['lesson'] = validated_data.pop('lesson',{}).pop('full_path',None)
+        validated_data['lesson'] = checkLessonTreeContent(validated_data['lesson'],LESSON , 'lesson' )
+        validated_data['source'] = validated_data.pop('source',{}).pop('name',None)
+        validated_data['source'] = checkSourceContent(validated_data['source'])
+        Quiz.objects.filter(pk = instance.pk).update(**validated_data)
+        instance.refresh_from_db()
+        
+        Answer.objects.filter(quiz = instance).delete() # delete all previous answers
+        for answer in answer_set: # add new answers
+            answer['quiz'] = instance
+            Answer.objects.create(**answer)
+        
+        return instance
     
     class Meta:
         model = Quiz
         fields = '__all__'
+        extra_kwargs = {
+            'added_by' : {'required' : True},
+        }
 
 class FeedBackSerializer(serializers.ModelSerializer):
     class Meta:

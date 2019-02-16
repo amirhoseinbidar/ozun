@@ -12,7 +12,7 @@ urlpatterns = [
     url(r'^rest-auth/', include('rest_auth.urls')),
     url(r'^rest-auth/registration/', include('rest_auth.registration.urls')),
     url(
-        r'^rest-auth/user/(?P<pk>)/',
+        r'^rest-auth/user/(?P<pk>\d+)/',
         views.userProfileList.as_view(),
         name = 'user_profile_list'
     ),
@@ -26,7 +26,9 @@ urlpatterns = [
         SocialAccountDisconnectView.as_view(),
         name='social_account_disconnect'
     ),
-     
+    
+    url(r'^quiz/create/$', views.QuizCreate.as_view(), name='quiz_create'),
+    url(r'^quiz/update/(?P<pk>\d+)/$', views.QuizUpdate.as_view(), name='quiz_update'),
     url(r'^quiz/(?P<quiz_pk>\d)/feed-back/$' , views.QuizFeedBack.as_view(), name = 'quiz_feed_back'),
     url(r"^quiz/(?P<action>[\w-]{1,20})/$",views.QuizSearchList.as_view() , name = 'search_quiz'),
     url(r'^quiz/(?P<action>[\w-]{1,20})/(?P<from>\d{1,10})/(?P<to>\d{1,10})/$'
@@ -34,6 +36,7 @@ urlpatterns = [
     url(r'^quiz/(?P<action>[\w-]{1,20})/(?P<LessonPath>[\w/-]+)' , 
         views.QuizSearchList.as_view() , name = 'search_lesson_path'),
     
+
     url(r'^lesson/children/(?P<LessonPath>[\w/-]+)' , views.LessonPathView.as_view() , name = 'lesson_path_view'),
     url(r'^location/children/(?P<LocationPath>[\w/-]+)' , views.LocationPathView.as_view() , name = 'location_path_view'), 
     url(r'^sources/' , views.SourceView.as_view() , name = 'source_view' ),

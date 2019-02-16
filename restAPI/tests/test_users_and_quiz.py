@@ -36,9 +36,11 @@ class BaseAPITest(TestCase):
     
     @staticmethod
     def write_info(expect_code,response):
+        status_text = getattr(response,'status_text',None) 
+        status_code = getattr(response,'status_code',None)
+        data = getattr(response,'data',None) or getattr(response,'content',None) 
         return 'Expected Response Code {}, received {} instead. \n error message: {} \n erro data:{}'.format(
-            expect_code,response.status_code ,response.status_text,
-            response.data)
+            expect_code,status_code ,status_text,data)
 
 
 #class UserProfileTest(BaseAPITest):#TODO this test have problem
@@ -138,6 +140,54 @@ class quizzesSearchTest(BaseAPITest):
         url = reverse('api:search_lesson_path',kwargs={'action':'path' , 'LessonPath': 'دهم/فیزیک'})
         response = self.client.get(url)
         self.assertEqual(response.status_code,200,self.write_info(200,response))
+
+class QuizManagerTest(BaseAPITest):
+    def setUp(self):
+        super().setUp()
+        embed_test_quizzes()
+        self.client.login(username = 'test',password = 'test')
+    
+    def test_create_quiz(self):
+        url = reverse('api:quiz_create')
+        params = {
+            "answer_set": [
+                {"content": "1","is_correct_answer": False},
+                {"content": "2" ,"is_correct_answer": False},
+                {"content": "3","is_correct_answer": False},
+                {"content": "4","is_correct_answer": True}
+            ],
+            "lesson": "دهم/فیزیک",
+            "added_by" : str(self.user.pk),
+            "source": "نشر الگو" ,
+            "content": " this is a test with math symbols like this $ sqrt{x^2} = |x| $ yeah this test is good  ",
+            "exponential_answer": " and this is a exponential answer this have things  like this ",
+            "level": "H",
+        }
+        response = self.client.post(url ,params,format='json')
+        self.assertEqual(response.status_code,201,self.write_info(201,response))
+    
+    def test_update_quiz(self):
+        self.test_create_quiz()
+        quiz = Quiz.objects.get(added_by = self.user)
+        url = reverse('api:quiz_update' , kwargs={'pk':quiz.pk})
+        params = {
+            "answer_set": [
+                {'id':str(quiz.answer_set.all()[0]) ,"content": "1 test 1 ","is_correct_answer": False},
+                {"content": "2 test 2 " ,"is_correct_answer": False},
+                {"content": "3 test 3 ","is_correct_answer": False},
+                {"content": "4 test 4 ","is_correct_answer": True}
+            ],
+            "lesson": "دهم/ریاضی",
+            "added_by" : str(self.user.pk),
+            "source": "قلم چی" ,
+            "content": " this is a test with math symbols like this $ sqrt{x^2} = |x| $ yeah this test is good  ",
+            "exponential_answer": " and this is a exponential answer update answer",
+            "level": "E",
+        }
+        response = self.client.put(url,params,format='json')
+        self.assertEqual(response.status_code,200,self.write_info(200,response))
+        
+
 
 
 class LessonPathViewTest(BaseAPITest):

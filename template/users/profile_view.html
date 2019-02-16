@@ -33,14 +33,13 @@
 
     {% if is_user_own %}
         <a href="edit/">edit profile</a>
+   
+        <form method="POST" action="/quizzes/ask/">
+            {% csrf_token %}
+            {{ form }}
+            <input type="submit" id = 'start-exam-btn' value="Fire Up!" />
+        </form>
     {% endif %}
-
-    <form method="POST" action="/quizzes/ask/">
-        {% csrf_token %}
-        {{ form }}
-        <input type="submit" id = 'start-exam-btn' value="Fire Up!" />
-    </form>
-
 {% endfor %}
 
 {% endblock %}

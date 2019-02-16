@@ -5,7 +5,8 @@ from rest_framework import generics
 from restAPI.serializers import (
     QuizSerializer , Quiz ,ExamSerializer , 
     StudyPostSerializer , QuizStatusSerializer,
-    SourceSerializer , LessonSeializer ) 
+    SourceSerializer , LessonSeializer,
+    QuizManagerSerializer ) 
 from core.models import LessonTree  , Location 
 from core.models.countries import Country_province
 from rest_framework.exceptions import ParseError 
@@ -17,6 +18,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from json import dumps
 from quizzes.models import Source
+from users.models import User
 
 class QuizSearchList(generics.ListAPIView): # need test
     allowed_actions = ['most-voteds','lasts','path']
@@ -81,6 +83,36 @@ class QuizFeedBack(generics.views.APIView):
      
         return Response(data = 'quiz voted' , status = status.HTTP_200_OK)
 
+
+class QuizCreate(generics.CreateAPIView):
+    serializer_class = QuizManagerSerializer
+    def post(self,*args,**kwargs):
+        # if 'added_by' is not exists let this go on parent method will raise error
+        user_pk = self.request.data.get('added_by' , None)
+        if user_pk and str(user_pk).isdigit :
+            if  self.request.user != User.objects.get(pk = user_pk):
+                raise ParseError('you can not create quiz as another user')
+        return super().post(*args,**kwargs)
+
+
+class QuizUpdate(generics.UpdateAPIView):
+    serializer_class = QuizManagerSerializer
+    def get_queryset(self): 
+        return Quiz.objects.filter(added_by = self.request.user)
+    
+    def put(self ,*args,**kwargs):
+        user_pk = self.request.data.get('added_by' , None)
+        if user_pk and str(user_pk).isdigit :
+            if  self.request.user != User.objects.get(pk = user_pk):
+                raise ParseError('you can not create quiz as another user')
+        return super().put(*args,**kwargs)
+
+    def patch(self,*args,**kwargs):
+        user_pk = self.request.data.get('added_by' , None)
+        if user_pk and str(user_pk).isdigit :
+            if  self.request.user != User.objects.get(pk = user_pk):
+                raise ParseError('you can not create quiz as another user')
+        return super().patch(*args,**kwargs)
 
 class LessonPathView(generics.ListAPIView):
     serializer_class = LessonSeializer

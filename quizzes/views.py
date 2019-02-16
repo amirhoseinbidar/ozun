@@ -37,7 +37,7 @@ class ExamView(LoginRequiredMixin , DetailView):
             self.get_optional_data({
                 'level' : form['level'].value(),
                 'source' : form['source'].value(),
-                'number' : int(form['number'].value()),
+                'number' : form['number'].value(),
             })
             return self.get(self.request)
 
@@ -48,7 +48,7 @@ class ExamView(LoginRequiredMixin , DetailView):
         if dic['source']:
             data['source'] = dic['source']
         if dic['number']:
-            data['number'] = dic['number']
+            data['number'] = int(dic['number'])
         print(dic)
         self.opt_data = data
             

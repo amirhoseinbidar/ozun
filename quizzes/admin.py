@@ -23,7 +23,7 @@ class quizAdminRules(admin.ModelAdmin):
 
 class quizzesAdmin(quizAdminRules):
     
-    readonly_fields = ['added_by','total_votes']
+    readonly_fields = ['total_votes',] #'added_by'
     #def address(self,obj):
     #    base = '{}/{}'.format(obj.grade.name , obj.lesson.name)
     #    data = ''
