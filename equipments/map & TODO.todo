@@ -95,6 +95,10 @@ REST API part:
 ✔ update exam status when user answer a quiz and upvote and downvote to quiz @done (14/02/2019, 11:45)
 ✔ enable to make quiz and answer from restAPI @done (15/02/2019, 20:26:23)
 
+make light-weight website:
+    use of cdn instead local statics
+
+there is probelm in opennig visual math studio editor part (should turn to html) 
 ☐ enable to make magazine
 ☐ make a better quiz admin
 ☐ make image compresore
