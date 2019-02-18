@@ -100,12 +100,17 @@ make light-weight website:
 
 there is probelm in opennig visual math studio editor part (should turn to html) 
 ☐ enable to make magazine
+✔ enable to make magazine @done (17/02/2019, 13:52:55)
+☐ make some test magazine and course
+
 ☐ make a better quiz admin
 ☐ make image compresore
 ☐ login and register with social account
 ☐ answer statistic view
 ☐ chart views
 ☐ localize website
+
+☐ this is a problem with VMS it crash when open with uncorrect TeX
 
 ☐ make API that user can send image with text as Quiz, now he just can send text
 ☐ improve profile edit form and start exam form

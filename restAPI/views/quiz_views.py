@@ -4,9 +4,8 @@ from __future__ import unicode_literals
 from rest_framework import generics 
 from restAPI.serializers import (
     QuizSerializer , Quiz ,ExamSerializer , 
-    StudyPostSerializer , QuizStatusSerializer,
-    SourceSerializer , LessonSeializer,
-    QuizManagerSerializer ) 
+    QuizStatusSerializer, QuizManagerSerializer ,
+    SourceSerializer ,  LessonSeializer) 
 from core.models import LessonTree  , Location 
 from core.models.countries import Country_province
 from rest_framework.exceptions import ParseError 
@@ -21,28 +20,33 @@ from quizzes.models import Source
 from users.models import User
 
 class QuizSearchList(generics.ListAPIView): # need test
-    allowed_actions = ['most-voteds','lasts','path']
+    allowed_actions = ['most-voteds','lasts','path' ,'get']
     serializer_class = QuizSerializer
     def get_queryset(self):
         action = self.kwargs['action'] 
         if not action in self.allowed_actions:
             raise ParseError(
-                "unallowed action , allowed actions are 'most-voteds','lasts','path' ")
-
-        elif action == 'most-voteds':
+                "unallowed action , allowed actions are {} ".format(self.allowed_actions))
+       
+        elif action == 'most-voteds': 
             return self.most_votedsHandler(**self.kwargs)
         elif action == "lasts":
             return self.lastsHandler(**self.kwargs)
+        elif action == 'get':
+            return self.getHandler(**self.kwargs)    
         elif action == 'path':
             return self.pathHandler(self.kwargs.get('LessonPath'))
-           
+
     
     def most_votedsHandler(self,**kwargs):
+        print('efwasdasxaser')
+        print(Quiz.get_mostVotes(0,49))
         if not ('from' in kwargs and 'to' in kwargs):
-            return Quiz.get_mostVotes(1,50)
+            return Quiz.get_mostVotes(0,49)
          
         From = int(kwargs.get('from'))
         To = int(kwargs.get('to'))  
+        
         return Quiz.get_mostVotes(From,To)
 
     def lastsHandler(self,**kwargs):
@@ -55,10 +59,12 @@ class QuizSearchList(generics.ListAPIView): # need test
   
     def pathHandler(self ,LessonPath):
         return Quiz.get_by_path(LessonPath)
-            
+    
+    def getHandler(self,**kwargs):
+        print(kwargs, 'drtgsdrt')
+        return Quiz.objects.filter(pk = kwargs['pk'])
         
-
-
+        
 class QuizFeedBack(generics.views.APIView):
     def post(self,request,quiz_pk):
         feedback_data = request.data.get('feedback_type',None)
@@ -113,6 +119,7 @@ class QuizUpdate(generics.UpdateAPIView):
             if  self.request.user != User.objects.get(pk = user_pk):
                 raise ParseError('you can not create quiz as another user')
         return super().patch(*args,**kwargs)
+        
 
 class LessonPathView(generics.ListAPIView):
     serializer_class = LessonSeializer

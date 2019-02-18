@@ -24,9 +24,9 @@ class StudyPost(models.Model):
     class Meta:
         abstract = True   
 
-##NOTE magazin and course are exaclly same but for diffrent purpose
+##NOTE magazine and course are exaclly same but for diffrent purpose
 
-class magazin(StudyPost):
+class magazine(StudyPost):
     pass
 
 class course(StudyPost):

@@ -13,6 +13,7 @@ from ..utils import turn_second_to_time , choice_without_repead ,calculate_score
 from django.core.exceptions import ObjectDoesNotExist
 from core.utils import find_in_dict 
 
+from ozun.settings import DIFAULT_SEND_QUIZ
 import datetime
 
 
@@ -99,11 +100,6 @@ class Exam(BaseTemporaryKey):
         if self.is_active:
             return super().check_out_of_date()
         
-    def __unicode__(self):
-        if timezone.now() > self.close_date :
-            return u'key {0} is out of date'.format(self.key)
-        return u'key: {0} ;;; {1} later will delete'.format(self.key,self.close_date - timezone.now() )
-    
     @staticmethod
     def get_total_time(quizzes):
         forward_time = timedelta(0) 
@@ -121,8 +117,7 @@ class Exam(BaseTemporaryKey):
 
         exam = Exam().create_record(user = user , total_time = total_time  
             , forward_time=forward_time.total_seconds())
-        
-
+         
         statuses_data = [ QuizStatus(quiz = quiz , 
             user_answer = None,exam = exam) for quiz in quizzes ]
         
@@ -150,7 +145,6 @@ class Exam(BaseTemporaryKey):
             
             data['level'] = dict(Quiz.REVERS_LEVEL_TYPE)[level]
 
-
         if source :
             try:
                 data['source'] = Source.objects.get(name =source)
@@ -158,7 +152,7 @@ class Exam(BaseTemporaryKey):
                 raise ValidationError('source does not exits')
         
         if not number:   
-            number = 15
+            number = DIFAULT_SEND_QUIZ
         data['number'] = number
 
         return data

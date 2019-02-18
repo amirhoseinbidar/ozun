@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from quizzes.models import Answer ,Quiz , QuizStatus , Exam , Source 
 from core.models import FeedBack , LessonTree ,TreeContent
-from studypost.models import  StudyPost 
+from studypost.models import  magazine , course
 from core.models import LessonTree ,allowed_types , GRADE , LESSON  , Location
 from rest_framework.exceptions import NotFound , NotAcceptable , ParseError
 from django.core.exceptions import ObjectDoesNotExist , ValidationError
@@ -59,10 +59,17 @@ class UserSerializer(UserDetailsSerializer):
         return instance    
 
 
-class StudyPostSerializer(serializers.ModelSerializer):
+class magazineSerializer(serializers.ModelSerializer):
+    lesson = serializers.CharField(source = 'magazine.lesson.full_path')
     class Meta:
         fields = '__all__'
-        model = StudyPost
+        model = magazine
+
+class  CourseSerializer(serializers.ModelSerializer):
+    lesson = serializers.CharField(source = 'magazine.lesson.full_path')
+    class Meta:
+        fields = '__all__'
+        model = course
 
 class AnswerSerializer(serializers.ModelSerializer):
     class Meta:
