@@ -15,6 +15,7 @@ from markdownx.models import MarkdownxField
 from markdownx.utils import markdownify
 from core.exceptions import duplicationException
 
+
 class Source(models.Model):
     name = models.CharField(max_length=50)
 
@@ -89,9 +90,8 @@ class Quiz(models.Model):
     @staticmethod
     def get_mostVotes(_from,to):
         """ return a list of most Voted quizzes by area"""
-        if not ( to > _from and to >=1 and _from >= 1 ):
-            raise  ValidationError(''''one of argomants are negative or
-                zero or "to <= _from" ''')
+        if not ( to > _from and to >=0 and _from >= 0 ):
+            raise  ValidationError(''''one of argomants are negative or "to <= _from" ''')
         return Quiz.objects.order_by('-total_votes')[_from:to] 
 
     @staticmethod

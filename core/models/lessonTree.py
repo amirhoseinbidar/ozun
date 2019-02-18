@@ -25,7 +25,8 @@ class TreeContent(models.Model):
     slug = models.CharField(max_length = 100,blank = True )
     type = models.CharField(choices = CONTENT_TYPE , max_length = 1,blank = False,null = False)
     image = models.ImageField(blank = True , null = True)
-    
+    quote = models.CharField(max_length = 255 , blank = True)
+
     @staticmethod
     def getTypeByNumber(number):
         if number == 1:
@@ -77,11 +78,11 @@ class LessonTree(MP_Node):
         
     node_order_by = ['content']
     
-    def add_root(self,*args,**kwargs):#it should be staticmethod but i dont know how call super method from staticmethod
-        
-        kwargs = self.treeContent_auto_create(**kwargs)
+    @classmethod
+    def add_root(cls,*args,**kwargs):
+        kwargs = cls.treeContent_auto_create(cls,**kwargs)
         newroot = kwargs.get('content',None)
-        newroot = super(LessonTree,self).add_root(*args,**kwargs)
+        newroot = super(LessonTree,cls).add_root(*args,**kwargs)
         
         try:
             newroot.check_Duplicate()
@@ -122,8 +123,8 @@ class LessonTree(MP_Node):
             self.check_depth(target.get_parent(),self , cheack_as_child= True)
 
         elif pos == 'sorted-child' :
-            self.check_Duplicate(target , self , 'get_children')# is target have any child  same with self
-            self.check_depth(target,self,cheack_as_child=True)# can self  be child of target
+            self.check_Duplicate(target , self , 'get_children')# is target have any child  same with self ?
+            self.check_depth(target,self,cheack_as_child=True)# can self  be child of target ?
         
         return super(LessonTree ,self).move(*args,**kwargs)
 
