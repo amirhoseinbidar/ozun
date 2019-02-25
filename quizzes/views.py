@@ -16,12 +16,12 @@ class ExamView(LoginRequiredMixin , DetailView):
     opt_data = None
 
     def get_object(self):
-        if self.kwargs.pop('is_post' ,False):
-            return Exam.start_random_exam(  
+        if self.kwargs.pop('is_post' ,False): # by post we create a new  exam 
+            return Exam.start_random_exam(  #if there be a active exam this method will raise a error
                 self.kwargs['LessonPath'] ,
                 self.request.user,
                 **self.opt_data)
-        else :
+        else : # by get we send active exam if exists 
             exam = Exam.objects.filter(
                 user = self.request.user,
                 is_active = True )
@@ -49,7 +49,6 @@ class ExamView(LoginRequiredMixin , DetailView):
             data['source'] = dic['source']
         if dic['number']:
             data['number'] = int(dic['number'])
-        print(dic)
         self.opt_data = data
             
         
@@ -58,14 +57,16 @@ class ExamView(LoginRequiredMixin , DetailView):
 
 class ExamInformationView(LoginRequiredMixin,DetailView):
     model = Exam
-
+    template_name = 'quizzes/answer.html' 
     def get_object(self):
-        exam = Exam.objects.filter(pk = self.kwargs['pk'])
-        if exam.user.pk == self.request.user.pk:
-            return ExamStatistic.object.filter(exam__pk = self.kwargs['pk'])
-    
+        exam = Exam.objects.filter(pk = int(self.kwargs['pk']) )
+        if exam.exists and exam[0].user.pk == self.request.user.pk:
+            return exam
         raise Http404
-
+    def get_context_data(self , *args ,**kwargs ):
+        data = super().get_context_data(*args , **kwargs)
+        data['statistic'] = ExamStatistic.objects.filter(exam__pk = int(self.kwargs['pk']) )
+        return data
 ###### 
 # exam updating and finishing perform with jquery and ajax they
 # request to rest_api urls to do this so there is no need to make 

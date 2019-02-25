@@ -112,16 +112,19 @@ class QuizManagerSerializer(serializers.ModelSerializer):
         
         return quiz
 
-    def update(self,instance,validated_data):
+    def update(self,instance,validated_data): #TODO Update is very slow i should think about it 
         answer_set = validated_data.pop('answer_set' , None)
         validated_data['lesson'] = validated_data.pop('lesson',{}).pop('full_path',None)
         validated_data['lesson'] = checkLessonTreeContent(validated_data['lesson'],LESSON , 'lesson' )
         validated_data['source'] = validated_data.pop('source',{}).pop('name',None)
         validated_data['source'] = checkSourceContent(validated_data['source'])
         Quiz.objects.filter(pk = instance.pk).update(**validated_data)
+        answers = Answer.objects.filter(quiz = instance) 
+        answers.delete()# delete all previous answers
+
         instance.refresh_from_db()
-        
-        Answer.objects.filter(quiz = instance).delete() # delete all previous answers
+        print(answer_set)
+
         for answer in answer_set: # add new answers
             answer['quiz'] = instance
             Answer.objects.create(**answer)

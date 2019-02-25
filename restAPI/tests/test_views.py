@@ -66,7 +66,6 @@ class QAViewsTest(BaseAPITest):
     def test_unanswered_questions(self):
         response = self.client.get(reverse("api:index_noans"))
         assert response.status_code == 200
-        print(response.content , reverse("api:index_noans"))
         title = loads(response.content.decode())[0]['title']
         assert "This is a sample question" in title
 

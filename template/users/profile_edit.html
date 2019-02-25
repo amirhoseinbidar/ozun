@@ -9,47 +9,15 @@
 {% block body %}
     <div id = "errors">
     </div>
+    
     {% for obj in object %}
         <img src='{{ obj.image.url }}' height="300px" width="500px" id = 'user-image'>
-        <input type="file" id = 'image-upload' /> <br />
-        
-        <label for="first-name">first name: </label>
-        <input type="text" value="{{obj.user.first_name}}" id = 'first-name' /> <br />
-        
-        <label for='last-name'>last name: </label>
-        <input type="text" value="{{obj.user.last_name}}" id = 'last-name' /> <br />
-        
-        <label for='bio'>bio: </label>
-        <input type="text" value="{{obj.bio}}" id = 'bio' /> <br />
-
-        <label for='brith-day'>brith data: </label>
-        <input type="date" value="{{obj.brith_day.isoformat}}" id = 'brith-day' /> <br />
-        
-        <label for='grade-textbox'>grade: </label>
-        <input type="text" value="{{obj.grade.content.name}}" id = 'grade-textbox' list= 'grade-list' /> 
-        <datalist id='grade-list'></datalist> <br />
-
-        <label for='interest-lesson-textbox'>interest lesson: </label>
-        <input type="text" value="{{obj.interest_lesson.content.name}}" id = 'interest-lesson-textbox' list='interest-lesson-list'>
-        <datalist id='interest-lesson-list'></datalist> <br />
-
-        <label for='province-textbox'>province: </label>
-        <input type="text" value="{{obj.location.city.county.province.name}}" id = 'province-textbox' list="province-list"/>
-        <datalist id = 'province-list'> </datalist> <br />
-        
-        <label for="county-textbox">county: </label>
-        <input type="text" value="{{obj.location.city.county.name}}" id = 'county-textbox' list="county-list" />
-        <datalist id = 'county-list'> </datalist> <br />
-
-        <label for="city-textbox">city: </label>
-        <input type="text" value="{{obj.location.city.name}}" id = 'city-textbox' list="city-list"/>
-        <datalist id = 'city-list'> </datalist> <br />
-
         <input type="hidden" value="{{obj.user.username}}" id='username' />
-        
-        <input type="button" value="submit" id="submit"  />
     {% endfor %}
-    <div id="editing-succ-container">
+    {{ form.as_p }}
+        
+        <div id="editing-succ-container"> 
+        <input type="button" value="submit" id="submit"  />
     </div>
 
 {% endblock %}

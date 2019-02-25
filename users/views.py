@@ -12,7 +12,8 @@ from django.utils.crypto import get_random_string
 from django.http import Http404 
 from django.contrib.auth.mixins import LoginRequiredMixin
 from quizzes.form import examStartForm
- 
+from .forms import profileEditForm 
+
 class ProfileView(LoginRequiredMixin,DetailView):
     model =  Profile
     template_name = 'users/profile_view.html'
@@ -37,12 +38,11 @@ class ProfileView(LoginRequiredMixin,DetailView):
             raise Http404
 
     def get_context_data(self,*args,**kwargs):
-        data = super().get_context_data()
+        data = super().get_context_data(*args,**kwargs)
         profile  = self.get_object()[0]
         data['age_year'] , data['age_month'] = profile.get_user_age()
         data['domin'] = get_current_site(self.request).domain,
         data['form'] = examStartForm()
-        print(examStartForm())
         if check_user_is_own(self.request , to =  profile.user.pk ):
             data['token']= get_random_string(length=30) 
             data['is_user_own'] =  True           
@@ -56,7 +56,8 @@ class ProfileView(LoginRequiredMixin,DetailView):
 class ProfileEdit(LoginRequiredMixin,DetailView):
     model = Profile
     template_name = 'users/profile_edit.html'
-
+    form_class = profileEditForm
+       
     def get_object(self):
         return self.model.objects.filter(user = self.request.user)
 
@@ -68,5 +69,7 @@ class ProfileEdit(LoginRequiredMixin,DetailView):
             return Http404
         
         return super().get(*args,**kwargs)
-
-    
+    def get_context_data(self,*args,**kwargs):
+        data = super().get_context_data(*args,**kwargs)
+        data['form'] = self.form_class(self.request.user)
+        return data

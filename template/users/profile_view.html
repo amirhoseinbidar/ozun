@@ -36,7 +36,7 @@
    
         <form method="POST" action="/quizzes/ask/">
             {% csrf_token %}
-            {{ form }}
+            {{ form.as_p }}
             <input type="submit" id = 'start-exam-btn' value="Fire Up!" />
         </form>
     {% endif %}
