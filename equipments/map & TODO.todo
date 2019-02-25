@@ -93,7 +93,12 @@ REST API part:
 
 ✔ start a Exam  from profile  @done (14/02/2019, 10:36 AM)
 ✔ update exam status when user answer a quiz and upvote and downvote to quiz @done (14/02/2019, 11:45)
-✔ enable to make quiz and answer from restAPI @done (15/02/2019, 20:26:23)
+
+enable to make quiz and answer from restAPI:
+    this have problem editor-loader load at first then ediors embed to page so edirtos dont work 
+    i have to reload it or somewhave load my script at first
+
+
 
 make light-weight website:
     use of cdn instead local statics
@@ -101,9 +106,11 @@ make light-weight website:
 there is probelm in opennig visual math studio editor part (should turn to html) 
 ☐ enable to make magazine
 ✔ enable to make magazine @done (17/02/2019, 13:52:55)
+✔ make a better quiz admin @done (21/02/2019, 10:25:24)
+
 ☐ make some test magazine and course
 
-☐ make a better quiz admin
+☐ adding answer to a quiz is very slow
 ☐ make image compresore
 ☐ login and register with social account
 ☐ answer statistic view
@@ -113,4 +120,4 @@ there is probelm in opennig visual math studio editor part (should turn to html)
 ☐ this is a problem with VMS it crash when open with uncorrect TeX
 
 ☐ make API that user can send image with text as Quiz, now he just can send text
-☐ improve profile edit form and start exam form
+✔ improve profile edit form and start exam form @done (21/02/2019, 14:09:49)

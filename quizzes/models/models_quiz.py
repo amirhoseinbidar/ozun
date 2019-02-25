@@ -95,11 +95,10 @@ class Quiz(models.Model):
         return Quiz.objects.order_by('-total_votes')[_from:to] 
 
     @staticmethod
-    def get_by_path(lesson_path):
-        branch = LessonTree.find_by_path(lesson_path)
+    def get_by_path(lesson_path,get_by_slug =True):
+        branch = LessonTree.find_by_path(lesson_path , get_by_slug)
         lessons = list(branch.get_descendants())+[branch]
-        quizzes =Quiz.objects.filter( 
-            lesson__in = lessons )
+        quizzes =Quiz.objects.filter( lesson__in = lessons )
             
         return quizzes
 

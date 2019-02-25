@@ -23,7 +23,9 @@ class StartExam(generics.ListAPIView):
         source = data.get('source' , None)
       
         try:
-            number = int(data.get('number' , 15))
+            number = data.get('number' ,None)
+            if number:
+                number = int(number)
             return Exam.start_random_exam(self.kwargs["LessonPath"], 
                         user = self.request.user , level = level , 
                         source = source ,number = number  )
@@ -73,12 +75,11 @@ class FinishExam(generics.views.APIView , CheckHaveOpenExamMixin):
             'notification' : 'exam finished successfully',
             'exam_pk' : exam.pk,
             'add_date' : exam.add_date,
-            'close_date' : exam.close_date,
-            #TODO: ExamStatistics 
+            'close_date' : exam.close_date, 
         }
         return Response(data , status.HTTP_200_OK )
 
-class ExamInfo(generics.ListAPIView):
+class ExamInfo(generics.ListAPIView):#TODO: ExamStatistics
     serializer_class = ExamListSerializer
     
     def get_queryset(self):

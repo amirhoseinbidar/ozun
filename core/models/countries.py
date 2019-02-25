@@ -117,7 +117,6 @@ class Location(models.Model):
             location_set = Location.objects.filter(path_slug__startswith = path_str)
         else:
             location_set = Location.objects.filter(path__startswith = path_str)
-        print(location_set.values())
         if not location_set.exists():
             raise ObjectDoesNotExist()
         data = []

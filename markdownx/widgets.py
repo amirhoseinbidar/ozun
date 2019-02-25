@@ -57,8 +57,6 @@ class MarkdownxWidget(forms.Textarea):
         attrs.update(self.attrs)
         attrs.update(self.add_markdownx_attrs(attrs))
 
-        print(attrs ,value , name , renderer )
-
         if is_post_10:
             return super(MarkdownxWidget, self).render(name, value, attrs, renderer)
 

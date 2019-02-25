@@ -19,6 +19,7 @@ $(document).ready(function(){
     function csrfSafeMethod(method) {
         // These HTTP methods do not require CSRF protection
         return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+        
     }
 
     var csrftoken = getCookie('csrftoken');
@@ -70,5 +71,16 @@ $(document).ready(function(){
                 $('#'+quiz+'-quiz-vote-status').html('quiz down voted !')
             }
         })
+    });
+    $('#finish-btn').on('click' , function(event){
+        $.ajax({
+            url : '/api/exam/finish/' , // this recognize exam automaticlly there is no need to send exam pk
+            type : 'GET' ,
+            success: function(){
+                exam = event.target.attributes.for_exam.value
+                location.replace('/quizzes/show_answer/'+exam+'/')
+            }
+        })
+
     });
 });

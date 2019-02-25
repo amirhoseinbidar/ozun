@@ -175,7 +175,7 @@ class LessonTree(MP_Node):
 
 
     @staticmethod
-    def find_by_path(path_str = None , get_by_slug = False):
+    def find_by_path(path_str = None , get_by_slug = True):
         """ Find a lesson by its path """
         paths = path_str.split('/')
         object = LessonTree.get_root_nodes()

@@ -10,25 +10,12 @@
 
 {% block form_top %}{{block.super}}
     {% if is_quiz_admin %}
-        <input id='addAnswerBtn' type="button" value="add answer" >    
+        <input id='addAnswerBtn' type="button" value="add answer" />   
         <fieldset class = 'module aligned'>
             <fieldset class='form-row field-answer'>
                 <div id='answer-field-container'></div>
-
-                
             </fieldset>
         </fieldset> 
-        
-        <div class="markdownx">
-            <textarea name="test" cols="40" rows="10" required id="id_test"
-            class="markdownx-editor markdownx-editor" data-markdownx-editor-resizable
-            data-markdownx-urls-path="/markdownx/markdownify/" 
-            data-markdownx-upload-urls-path="/markdownx/upload/" data-markdownx-latency="500" 
-            style="transition: opacity 1s ease 0s;"></textarea>
-        
-            <input type="button" value="open in math editor" class="markdownx-open-math-editor" markdownx-inputer-id="id_test">
-            <div class="markdownx-preview"></div>
-        </div>
 
     {% endif %}
 {% endblock %}

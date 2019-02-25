@@ -39,8 +39,6 @@ class QuizSearchList(generics.ListAPIView): # need test
 
     
     def most_votedsHandler(self,**kwargs):
-        print('efwasdasxaser')
-        print(Quiz.get_mostVotes(0,49))
         if not ('from' in kwargs and 'to' in kwargs):
             return Quiz.get_mostVotes(0,49)
          
@@ -61,7 +59,6 @@ class QuizSearchList(generics.ListAPIView): # need test
         return Quiz.get_by_path(LessonPath)
     
     def getHandler(self,**kwargs):
-        print(kwargs, 'drtgsdrt')
         return Quiz.objects.filter(pk = kwargs['pk'])
         
         

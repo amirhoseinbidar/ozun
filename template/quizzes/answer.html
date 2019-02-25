@@ -11,31 +11,37 @@
 {% endblock %}
 
 {% block body%}
-    <a href='/accounts/profile'><input type="button" value="profile"/></a>
+    <a href='/accounts/profile'><input type="button" value="پروفایل"/></a>
     <p>
-        جمع کل : {{ total_score }}
-        جمع نمرات مثبت :{{positive_score}}
-        جمع نمرات منفی :{{negative_score}}
+        جمع کل : {{ statistic.0.total_score }} <br />
+        جمع نمرات مثبت :{{ statistic.0.positive_score }} <br />
+        جمع نمرات منفی :{{ statistic.0.negative_score }} <br />
     </p>
-    {% for choice in quizzes%}
-    <p>
-        {{choice.quiz | safe }}
+    {% for exam in object %}
+        {% for status in exam.quizstatus_set.all %}
+            <p>
+                {{status.quiz.get_markdownify_content | safe }}
 
-        جواب شما :{{choice.person_answer | safe}}
+                جواب شما :{{status.user_answer.get_markdownify | safe}}
+                {%for answer in status.quiz.answer_set.all %}    
+                    {% if answer.is_correct_answer%}   
+                         جواب درست :{{answer.get_markdownify | safe}}
+                        
+                         {% if status.user_answer.pk == answer.pk%}
+                             افرین جواب شما درست است 
+                        {% else %}
+                             جواب شما غلط هست دفعه بعد بیشتر سعی کنید 
+                        {% endif%}
+                    {% endif%}
+                {% endfor %}
+                
 
-        جواب درست :{{choice.correct_answer | safe}}
 
-        {% if is_answer_correct%}
-            افرین جواب شما درست است 
-        {% else %}
-            جواب شما غلط هست دفعه بعد بیشتر سعی کنید 
-        {% endif%} 
-        <br />
-        سطح سوال : {{ choice.level }}  
-        <br />
-        امتیاز : {{ choice.score}}
-        <br />
-    </p>
-    <br /><br />
+                <br />
+                سطح سوال : {{ status.quiz.level }}  
+
+            </p>
+            <br /><br />
+        {% endfor %}
     {% endfor %}
 {% endblock %}
