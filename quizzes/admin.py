@@ -60,7 +60,8 @@ class quizzesAdmin(quizAdminRules):
                     answer.save()
     def add_view(self,request, form_url='', extra_context=None):
         extra_context = extra_context or {}
-        extra_context['is_quiz_admin'] = True
+        #extra_context['is_quiz_admin'] = True
+        
         return super(quizzesAdmin,self).add_view(
             request,form_url,extra_context
         )
@@ -70,6 +71,7 @@ class quizzesAdmin(quizAdminRules):
         extra_context = extra_context or {}
         #extra_context['answersJson'] = self.answersJson( Quiz.objects.get(id = object_id) )
         extra_context['is_quiz_admin']= True
+        extra_context['quiz_id'] = object_id
         return super(quizzesAdmin, self).change_view(
             request, object_id, form_url, extra_context=extra_context,
         )

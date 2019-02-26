@@ -33,7 +33,7 @@
         });
     
     var js_src = '/static/markdownx/js/markdownx.js';
-
+    
     function reload_markdownx_js(){
         $("script[src='"+js_src+"']").remove();
         $('head').append('<script type="text/javascript" src="'+js_src+'"></script>');
@@ -41,10 +41,11 @@
 
     var newCount = 0;
     var rowCount = 0;
-    deleteBtn = '<input type="button" value="delete" />' ;
-    mainTable = '#answer-field-container';
+    var deleteBtn = '<input type="button" value="delete" />' ;
+    var mainTable = '#answer-field-container';
     var quiz_data = [];
-    
+    var quiz_id = $('#quiz_id')[0].value ;
+
     $('#addAnswerBtn').on('click',function(event){
         createRow('');
         reload_markdownx_js();
@@ -54,7 +55,7 @@
     
     function init(){ 
         $.ajax({
-            url:'/api/quiz/get/6/',
+            url:'/api/quiz/get/'+quiz_id+'/',
             type:'GET',
             success:function(data){
                 quiz_data = data = data[0]
