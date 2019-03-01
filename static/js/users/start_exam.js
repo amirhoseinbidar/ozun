@@ -63,7 +63,6 @@ $(function () {
 
     $('#id_grade').on('change', function () {
         grade = getSlug(this.value); //find grade slug
-        console.log(grade)
         if (grade == '')
             $('#lesson-list').html('');
         else {

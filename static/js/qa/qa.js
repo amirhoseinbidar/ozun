@@ -14,7 +14,7 @@ $(function () {
             }
         }
         return cookieValue;
-    };
+    }
 
     function csrfSafeMethod(method) {
         // These HTTP methods do not require CSRF protection

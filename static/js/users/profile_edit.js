@@ -84,7 +84,6 @@ $(function () {
             data.interest_lesson = interest_lesson;
         if (location != "" && location != "//")
             data.location = location;
-        console.log(data);
         $.ajax({
             url: '/api/rest-auth/user/',
             data: data,

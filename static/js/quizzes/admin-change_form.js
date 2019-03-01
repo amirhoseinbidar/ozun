@@ -58,17 +58,17 @@
                 url: '/api/quiz/get/' + quiz_id + '/',
                 type: 'GET',
                 success: function (data) {
-                    quiz_data = data = data[0]
-                    for (answer in data['answer_set']) {
-                        createRow(content = data['answer_set'][answer]['content'],
-                            is_correct_answer = data['answer_set'][answer]['is_correct_answer']);
+                    quiz_data = data = data[0];
+                    for (var answer in data.answer_set) {
+                        createRow(content = data.answer_set[answer].content,
+                            is_correct_answer = data.answer_set[answer].is_correct_answer);
                     }
                     reload_markdownx_js();
-                    quiz_data['answer_set'] = [];
-                    quiz_data['added_by'] = quiz_data['added_by']['pk'];
-                    quiz_data['source'] = quiz_data['source']['name'];
+                    quiz_data.answer_set = [];
+                    quiz_data.added_by = quiz_data.added_by.pk;
+                    quiz_data.source = quiz_data.source.name;
                 }
-            })
+            });
         }
 
 
@@ -83,12 +83,12 @@
                 cbx += 'checked';
             cbx += '>';
 
-            var editor = getEditor(name, content)
+            var editor = getEditor(name, content);
 
             newrow = $('<fieldset id="Answer-row-' + String(rowCount) + ' class="form-row field-answer" >' + cbx + editor + '</fieldset>').appendTo(mainTable);
             $(deleteBtn).on('click', function (event) {
                 deleteRow(event.target);
-            }).appendTo(newrow)
+            }).appendTo(newrow);
 
         }
 
@@ -98,7 +98,6 @@
         data-markdownx-urls-path="/markdownx/markdownify/" 
         data-markdownx-upload-urls-path="/markdownx/upload/" data-markdownx-latency="500" 
         style="transition: opacity 1s ease 0s;">` + content + `</textarea> 
-        
         <input type="button" value="open in math editor" class="markdownx-open-math-editor" markdownx-inputer-id="id_` + name + `">
         <div class="markdownx-preview"></div></div>`;
             return editor;
@@ -106,28 +105,28 @@
 
         $('input[name="_save"] , input[name="_addanother"] , input[name="_continue"]').on('click', function () {
             answers = $('.correct_answer_rdbx');
-            quiz_data['answer_set'] = []; //empty answers list and recollect answers 
+            quiz_data.answer_set = []; //empty answers list and recollect answers 
 
             for (i = 0; i < answers.length; i++) {
                 is_correct = answers[i].checked;
-                answer = $('#' + answers[i].attributes['for_answer'].value)[0];
+                answer = $('#' + answers[i].attributes.for_answer.value)[0];
 
-                quiz_data['answer_set'].push({
+                quiz_data.answer_set.push({
                     'is_correct_answer': is_correct,
                     'content': answer.value
                 });
             }
 
             $.ajax({
-                url: '/api/quiz-manage/update/' + quiz_data['id'] + '/',
+                url: '/api/quiz-manage/update/' + quiz_data.id + '/',
                 type: 'PUT',
                 cache: false,
                 contentType: 'application/json',
                 data: JSON.stringify(quiz_data),
                 success: function () {
-                    console.log('answers updated')
+                    console.log('answers updated');
                 }
-            })
+            });
         });
 
         function deleteRow(row) {

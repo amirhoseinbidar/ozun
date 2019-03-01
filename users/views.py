@@ -40,7 +40,6 @@ class ProfileView(LoginRequiredMixin, DetailView):
 
     def get_context_data(self, *args, **kwargs):
         data = super().get_context_data(*args, **kwargs)
-        print(self.get_object())
         profile = self.get_object()[0]
         data['age_year'], data['age_month'] = profile.get_user_age()
         data['domin'] = get_current_site(self.request).domain,

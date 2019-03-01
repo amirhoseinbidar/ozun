@@ -22,7 +22,6 @@ class profileEditForm(forms.Form):
     def __init__(self,user,*args,**kwargs):
         super().__init__(*args,**kwargs)
         profile =  Profile.objects.get(user = user)
-        print(profile)
         self.fields['first_name'].widget.attrs.update( {'value' :profile.user.first_name} ) 
         self.fields['last_name'].widget.attrs.update( {'value' : profile.user.last_name} ) 
         self.fields['bio'].widget.attrs.update( { 'value' : profile.bio } )

@@ -118,12 +118,10 @@ class QuizManagerSerializer(serializers.ModelSerializer):
         validated_data['lesson'] = checkLessonTreeContent(validated_data['lesson'],LESSON , 'lesson' )
         validated_data['source'] = validated_data.pop('source',{}).pop('name',None)
         validated_data['source'] = checkSourceContent(validated_data['source'])
+        
         Quiz.objects.filter(pk = instance.pk).update(**validated_data)
-        answers = Answer.objects.filter(quiz = instance) 
-        answers.delete()# delete all previous answers
-
+        answers = Answer.objects.filter(quiz = instance).delete()# delete all previous answers 
         instance.refresh_from_db()
-        print(answer_set)
 
         for answer in answer_set: # add new answers
             answer['quiz'] = instance

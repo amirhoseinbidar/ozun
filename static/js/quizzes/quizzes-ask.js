@@ -38,7 +38,7 @@ $(document).ready(function () {
                 'quiz': event.target.attributes.for_quiz.value,
                 'user_answer': event.target.value,
             }]
-        })
+        });
         $.ajax({
             url: "/api/exam/update/",
             type: "PUT",
@@ -48,7 +48,7 @@ $(document).ready(function () {
     });
 
     $('.up-vote-btn').on('click', function (event) {
-        quiz = event.target.attributes.for_quiz.value
+        quiz = event.target.attributes.for_quiz.value;
         $.ajax({
             url: "/api/quiz/" + quiz + "/feed-back/",
             type: 'POST',
@@ -56,13 +56,13 @@ $(document).ready(function () {
                 'feedback_type': 'up vote'
             },
             success: function () {
-                $('#' + quiz + '-quiz-vote-status').html('quiz up voted !')
+                $('#' + quiz + '-quiz-vote-status').html('quiz up voted !');
             }
-        })
+        });
     });
 
     $('.down-vote-btn').on('click', function (event) {
-        quiz = event.target.attributes.for_quiz.value
+        quiz = event.target.attributes.for_quiz.value;
         $.ajax({
             url: "/api/quiz/" + quiz + "/feed-back/",
             type: 'POST',
@@ -70,19 +70,19 @@ $(document).ready(function () {
                 'feedback_type': 'down vote'
             },
             success: function () {
-                $('#' + quiz + '-quiz-vote-status').html('quiz down voted !')
+                $('#' + quiz + '-quiz-vote-status').html('quiz down voted !');
             }
-        })
+        });
     });
     $('#finish-btn').on('click', function (event) {
         $.ajax({
             url: '/api/exam/finish/', // this recognize exam automaticlly there is no need to send exam pk
             type: 'GET',
             success: function () {
-                exam = event.target.attributes.for_exam.value
-                location.replace('/quizzes/show_answer/' + exam + '/')
+                exam = event.target.attributes.for_exam.value;
+                location.replace('/quizzes/show_answer/' + exam + '/');
             }
-        })
+        });
 
     });
 });
