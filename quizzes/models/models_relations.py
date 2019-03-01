@@ -126,11 +126,11 @@ class Exam(BaseTemporaryKey):
         return exam
 
     @staticmethod
-    def start_random_exam( lesson_path , user , level=None , source =None, number=None):
+    def start_random_exam( lesson_path , user ,is_path_slug =True, level=None , source =None, number=None):
         data = Exam.__order_optional_args(level,source,number)
         number = data.pop('number')
 
-        quizzes = Quiz.get_by_path(lesson_path).filter(**data )
+        quizzes = Quiz.get_by_path(lesson_path,is_path_slug).filter(**data )
         quizzes = choice_without_repead(quizzes,number,False)
         
         exam = Exam.create_exam(quizzes,user)

@@ -31,8 +31,8 @@ $(function () {
         }
     });
 
-    UpdataSource()
-    UpdateGradeList()
+    UpdataSource();
+    UpdateGradeList();
 
     function UpdataSource() {
         $.ajax({
@@ -40,40 +40,42 @@ $(function () {
             type: 'get',
             success: function (data) {
                 dataStr = "";
-                for (ele in data)
-                    dataStr += "<option value='" + data[ele]['name'] + "'>" + data[ele]['name'] + "</option>";
+                for (var ele in data)
+                    dataStr += "<option value='" + data[ele].name + "'>" + data[ele].name + "</option>";
                 $('#source-list').html(dataStr);
             }
         });
-    };
+    }
 
     function UpdateGradeList() {
         $.ajax({
             url: '/api/lesson/children/root',
             type: 'get',
+            async: false,
             success: function (data) {
                 embedDataListLesson('#grade-list', data);
             },
             error: function (e) {
-                console.log(e)
+                console.log(e);
             }
-        })
+        });
     }
 
     $('#id_grade').on('change', function () {
-        grade = this.value
+        grade = getSlug(this.value); //find grade slug
+        console.log(grade)
         if (grade == '')
-            $('#lesson-list').html('')
+            $('#lesson-list').html('');
         else {
-            grade = grade.replace(' ', '-');
             $.ajax({
                 url: '/api/lesson/children/' + grade,
                 type: 'get',
+                async: false,
                 success: function (data) {
                     embedDataListLesson('#lesson-list', data);
                 },
                 error: function (e) {
-                    console.log(e)
+                    console.log(e);
                 }
             });
         }
@@ -81,20 +83,20 @@ $(function () {
 
 
     $('#id_lesson').on('change', function () {
-        lesson = this.value
+        lesson = getSlug(this.value); //find grade slug
         if (lesson == '')
-            $('#chapter-list').html('')
+            $('#chapter-list').html('');
         else {
-            lesson = lesson.replace(' ', '-');
-            grade = $('#id_grade')[0].value;
+            grade = getSlug($('#id_grade')[0].value);
             $.ajax({
                 url: '/api/lesson/children/' + grade + '/' + lesson,
                 type: 'get',
+                async: false,
                 success: function (data) {
                     embedDataListLesson('#chapter-list', data);
                 },
                 error: function (e) {
-                    console.log(e)
+                    console.log(e);
                 }
             });
         }
@@ -102,31 +104,34 @@ $(function () {
 
 
     $('#id_chapter').on('change', function () {
-        chapter = this.value
+        chapter = getSlug(this.value);
         if (chapter == '')
-            $('#topic-list').html('')
+            $('#topic-list').html('');
         else {
-            chapter = chapter.replace(' ', '-');
-            grade = $('#id_grade')[0].value;
-            lesson = $('#id_lesson')[0].value;
+            grade = getSlug($('#id_grade')[0].value);
+            lesson = getSlug($('#id_lesson')[0].value);
+            
             $.ajax({
                 url: '/api/lesson/children/' + grade + '/' + lesson + '/' + chapter,
                 type: 'get',
+                async: false,
                 success: function (data) {
                     embedDataListLesson('#topic-list', data);
                 },
                 error: function (e) {
-                    console.log(e)
+                    console.log(e);
                 }
             });
         }
     });
 
-
+    function getSlug(name){
+        return  $("option[value='"+name+"']")[0].attributes.slug.value; //find grade slug
+    }
     function embedDataListLesson(id, data) {
         dataStr = "";
-        for (ele in data) {
-            dataStr += "<option value='" + data[ele]['content']['name'] + "'></option>";
+        for (var ele in data) {
+            dataStr += "<option value='" + data[ele].content.name + "' slug='"+data[ele].content.slug+"''></option>";
         }
         $(id).html(dataStr);
     }

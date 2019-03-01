@@ -14,8 +14,8 @@ from .utils import checkLessonTreeContent , checkLocationContent , checkSourceCo
 
 class UserSerializer(UserDetailsSerializer):
     location = serializers.CharField(source = 'profile.location.path',required = False)
-    grade = serializers.CharField(source = 'profile.grade.full_path_slug',required = False)
-    interest_lesson = serializers.CharField(source = 'profile.interest_lesson.full_path_slug',required = False)
+    grade = serializers.CharField(source = 'profile.grade.full_path',required = False)
+    interest_lesson = serializers.CharField(source = 'profile.interest_lesson.full_path',required = False)
     score = serializers.IntegerField(source = 'profile.score',read_only = True,required = False)
     bio = serializers.CharField(source = 'profile.bio',required = False)
     image = serializers.ImageField(source = 'profile.image' ,required = False)
@@ -30,9 +30,9 @@ class UserSerializer(UserDetailsSerializer):
     def update(self,instance,validated_data):
         profile_data = validated_data.pop('profile' , {})
 
-        grade = profile_data.pop('grade',{}).pop('full_path_slug' ,None)
+        grade = profile_data.pop('grade',{}).pop('full_path' ,None)
         interest_lesson = profile_data.pop(
-                'interest_lesson',{}).pop('full_path_slug' ,None)
+                'interest_lesson',{}).pop('full_path' ,None)
         location =  profile_data.pop('location',{}).pop('path' ,None)
         
         instance = super(UserSerializer, self).update(instance, validated_data)
@@ -40,9 +40,9 @@ class UserSerializer(UserDetailsSerializer):
         profile_data['user'] = instance.pk
 
         if grade:
-            profile_data['grade'] = checkLessonTreeContent(grade , GRADE , 'grade').pk
+            profile_data['grade'] = checkLessonTreeContent(grade , GRADE , 'grade' ,False).pk
         if interest_lesson:
-            profile_data['interest_lesson'] = checkLessonTreeContent(interest_lesson , LESSON , 'interest_lesson').pk
+            profile_data['interest_lesson'] = checkLessonTreeContent(interest_lesson , LESSON , 'interest_lesson',  False).pk
 
         if location:
             profile_data['location'] = checkLocationContent(location).pk

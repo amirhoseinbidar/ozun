@@ -4,9 +4,9 @@ from quizzes.models import Source
 from django.core.exceptions import  ValidationError , ObjectDoesNotExist
 from core.models import Location
 
-def checkLessonTreeContent(content , _type , field_name):
+def checkLessonTreeContent(content , _type , field_name ,is_slug =True):
     try:
-        obj = LessonTree.find_by_path(content)
+        obj = LessonTree.find_by_path(content , is_slug)
         allowed_types(_type , obj , field_name )
         return obj
     except ObjectDoesNotExist :

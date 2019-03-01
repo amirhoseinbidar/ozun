@@ -22,15 +22,19 @@ class profileEditForm(forms.Form):
     def __init__(self,user,*args,**kwargs):
         super().__init__(*args,**kwargs)
         profile =  Profile.objects.get(user = user)
+        print(profile)
         self.fields['first_name'].widget.attrs.update( {'value' :profile.user.first_name} ) 
         self.fields['last_name'].widget.attrs.update( {'value' : profile.user.last_name} ) 
         self.fields['bio'].widget.attrs.update( { 'value' : profile.bio } )
         self.fields['brith_day'].widget.attrs.update( { 'value' : profile.brith_day } ) 
-        self.fields['province'].widget.attrs.update( { 'value' : profile.location.city.county.province.name } )
-        self.fields['county'].widget.attrs.update( { 'value' : profile.location.city.county.name } )
-        self.fields['city'].widget.attrs.update( { 'value' : profile.location.city.name } )
-        self.fields['grade'].widget.attrs.update( { 'value' : profile.grade.content.name } )
-        self.fields['interest_lesson'].widget.attrs.update( { 'value' : profile.interest_lesson.content.name } )
+        if profile.location:
+            self.fields['province'].widget.attrs.update( { 'value' : profile.location.city.county.province.name } )
+            self.fields['county'].widget.attrs.update( { 'value' : profile.location.city.county.name } )
+            self.fields['city'].widget.attrs.update( { 'value' : profile.location.city.name } )
+        if profile.grade: 
+            self.fields['grade'].widget.attrs.update( { 'value' : profile.grade.content.name } )
+        if profile.interest_lesson:
+            self.fields['interest_lesson'].widget.attrs.update( { 'value' : profile.interest_lesson.content.name } )
         
         
     

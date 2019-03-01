@@ -76,26 +76,27 @@ $(function () {
             'last_name': $('#id_last_name')[0].value,
             'bio': $('#id_bio')[0].value,
             'brith_day': $('#id_brith_day')[0].value,
-        }
+        };
+       
         if (grade != "")
-            data['grade'] = grade
+            data.grade = grade;
         if (interest_lesson != "" && interest_lesson != "/")
-            data['interest_lesson'] = interest_lesson
+            data.interest_lesson = interest_lesson;
         if (location != "" && location != "//")
-            data['location'] = location
-
+            data.location = location;
+        console.log(data);
         $.ajax({
             url: '/api/rest-auth/user/',
             data: data,
             type: 'PUT',
             cache: false,
             success: function (data) {
-                $('#editing-succ-container').html('profile uploaded successfully')
+                $('#editing-succ-container').html('profile uploaded successfully');
             },
             error: function (e) {
-                $('#errors').html(e.message)
+                $('#errors').html(e.message);
             }
-        })
+        });
     }
 
 
@@ -104,32 +105,33 @@ $(function () {
         $.ajax({
             url: '/api/lesson/children/root',
             type: 'get',
+            async : false ,
             success: function (data) {
                 embedDataListLesson('#grade-list', data);
             },
             error: function (e) {
-                console.log(e)
+                console.log(e);
             }
-        })
+        });
     }
 
     $('#id_grade').on('change', updateLesson);
-
     function updateLesson() {
-        grade = $('#id_grade')[0].value;
+        grade_val = $('#id_grade')[0].value;
+        grade = $("option[value='"+grade_val+"']")[0].attributes.slug.value;
+
         if (grade == '')
             $('#interest_lesson-list').html('');
         else {
-
-            grade = grade.replace(' ', '-');
             $.ajax({
                 url: '/api/lesson/children/' + grade,
                 type: 'get',
+                async : false ,
                 success: function (data) {
                     embedDataListLesson('#interest_lesson-list', data);
                 },
                 error: function (e) {
-                    console.log(e)
+                    console.log(e);
                 }
             });
         }
@@ -143,18 +145,17 @@ $(function () {
                 embedDataListLocation('#province-list', data);
             },
             error: function (e) {
-                console.log(e)
+                console.log(e);
             }
-        })
+        });
     }
 
     $('#id_province').on('change', updateCounty);
-
     function updateCounty() {
-        province = $('#id_province')[0].value
+        province = $('#id_province')[0].value;
 
         if (province == '')
-            $('#county-list').html('')
+            $('#county-list').html('');
         else {
             province = province.replace(' ', '-');
             $.ajax({
@@ -164,17 +165,17 @@ $(function () {
                     embedDataListLocation('#county-list', data);
                 },
                 error: function (e) {
-                    console.log(e)
+                    console.log(e);
                 }
             });
         }
     }
+    
     $('#id_county').on('change', updateCity);
-
     function updateCity() {
-        county = $('#id_county')[0].value
+        county = $('#id_county')[0].value;
         if (county == '')
-            $('#city-list').html('')
+            $('#city-list').html('');
         else {
             county = county.replace(' ', '-');
             province = $('#id_province')[0].value.replace(' ', '-');
@@ -185,7 +186,7 @@ $(function () {
                     embedDataListLocation('#city-list', data);
                 },
                 error: function (e) {
-                    console.log(e)
+                    console.log(e);
                 }
             });
         }
@@ -193,9 +194,9 @@ $(function () {
 
 
     function embedDataListLocation(id, data) {
-        data = JSON.parse(data)['children'];
+        data = JSON.parse(data).children;
         dataStr = "";
-        for (ele in data) {
+        for (var ele in data) {
             dataStr += "<option value='" + data[ele] + "'>" + data[ele] + "</option>";
         }
         $(id).html(dataStr);
@@ -203,8 +204,8 @@ $(function () {
 
     function embedDataListLesson(id, data) {
         dataStr = "";
-        for (ele in data) {
-            dataStr += "<option value='" + data[ele]['content']['name'] + "'></option>";
+        for (var ele in data) {
+            dataStr += "<option value='" + data[ele].content.name + "' slug='"+data[ele].content.slug +"'></option>";
         }
         $(id).html(dataStr);
     }

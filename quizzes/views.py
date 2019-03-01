@@ -20,7 +20,8 @@ class ExamView(LoginRequiredMixin, DetailView):
         if self.kwargs.pop('is_post', False):  # by post we create a new  exam
             return Exam.start_random_exam(  # if there be a active exam this method will raise a error
                 self.kwargs['LessonPath'],
-                self.request.user,
+                self.request.user, 
+                is_path_slug=False,
                 **self.opt_data)
         else:  # by get we send active exam if exists
             exam = Exam.objects.filter(

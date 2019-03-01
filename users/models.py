@@ -10,7 +10,7 @@ from django.urls import reverse
 from datetime import datetime
 from allauth.socialaccount import default_app_config
 from django.dispatch import receiver
-from allauth.account.signals import email_confirmed
+from allauth.account.signals import user_signed_up
 from allauth.account.models import EmailAddress
 from django.db.models.signals import post_save
 from django.dispatch import receiver
@@ -18,11 +18,11 @@ from django.db.models import Sum
 from quizzes.models import ExamStatistic
 
 
-@receiver(email_confirmed)
-def createProfile(request, email_address, **kwargs):
-    if not Profile.objects.filter(user=email_address.user).exists():
+@receiver(user_signed_up)
+def createProfile(request, user, **kwargs):
+    if not Profile.objects.filter(user=user).exists():
         Profile.objects.create(
-            user=email_address.user,
+            user=user,
             image='users/diffalte_images/(1).jpg'
         )
 

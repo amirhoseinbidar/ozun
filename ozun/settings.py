@@ -55,9 +55,7 @@ EXTRA_APPS = [
     'allauth.socialaccount',
     'allauth.socialaccount.providers.github',
     'allauth.socialaccount.providers.google',
-    'allauth.socialaccount.providers.linkedin',
-    'allauth.socialaccount.providers.twitter',
-    'allauth.socialaccount.providers.facebook',
+    'allauth.socialaccount.providers.instagram',
 ]
 
 LOCAL_APPS = [
@@ -214,8 +212,9 @@ REST_FRAMEWORK = {
 }
 
 ##### allauth setting #####
-ACCOUNT_EMAIL_VERIFICATION = "mandatory"
-ACCOUNT_EMAIL_REQUIRED = True
+#   NOTE: there is no need for verifying email now I think
+#ACCOUNT_EMAIL_VERIFICATION = "mandatory"
+#ACCOUNT_EMAIL_REQUIRED = True  
 ACCOUNT_USERNAME_MIN_LENGTH = 6
 ACCOUNT_AUTHENTICATION_METHOD = 'username_email'
 
@@ -230,9 +229,6 @@ REST_AUTH_SERIALIZERS = {
 DIFAULT_SEND_QUIZ = 7
 
 # Loging NOTE:it make a big log file  just use for deep and heavy problems
-
-#LOGIN_REDIRECT_URL = 'profile_controller'
-#LOGIN_URL = 'profile_controller'
 #
 # LOGGING = {
 #    'version': 1,

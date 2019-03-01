@@ -41,6 +41,7 @@ class QAViewsTest(BaseAPITest):
         response = self.client.get(reverse("api:index_all"))
         assert response.status_code == 200
         title = loads(response.content.decode())[1]['title']
+        print(loads(response.content.decode()))
         assert "A Short Title" in title
 
     def test_create_question_view(self):
