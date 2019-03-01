@@ -31,7 +31,8 @@ class MarkdownxWidget(forms.Textarea):
     Django "TextArea" widget.
     """
 
-    template_name = 'markdownx/widget{}.html'.format('2' if is_post_10 else str())
+    template_name = 'markdownx/widget{}.html'.format(
+        '2' if is_post_10 else str())
 
     def get_context(self, name, value, attrs=None):
         """
@@ -102,7 +103,6 @@ class MarkdownxWidget(forms.Textarea):
             'markdownx/js/markdownx{}.js'.format(minified),
             'markdownx/js/math-editor-connector.js',
         ]
-
 
 
 class AdminMarkdownxWidget(MarkdownxWidget, widgets.AdminTextareaWidget):

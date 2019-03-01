@@ -25,7 +25,7 @@ $(function () {
     var page_title = $(document).attr("title");
     // This sets up every ajax call with proper headers.
     $.ajaxSetup({
-        beforeSend: function(xhr, settings) {
+        beforeSend: function (xhr, settings) {
             if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
                 xhr.setRequestHeader("X-CSRFToken", csrftoken);
             }
@@ -52,17 +52,17 @@ $(function () {
         $.ajax({
             url: '/qa/question/vote/',
             data: {
-              'question': question,
-              'value': vote
+                'question': question,
+                'value': vote
             },
             type: 'post',
             cache: false,
             success: function (data) {
-              $('.vote', span).removeClass('voted');
-              if (vote === "U") {
-                $(span).addClass('voted');
-              }
-              $("#questionVotes").text(data.votes);
+                $('.vote', span).removeClass('voted');
+                if (vote === "U") {
+                    $(span).addClass('voted');
+                }
+                $("#questionVotes").text(data.votes);
             }
         });
     });
@@ -80,17 +80,17 @@ $(function () {
         $.ajax({
             url: '/qa/answer/vote/',
             data: {
-              'answer': answer,
-              'value': vote
+                'answer': answer,
+                'value': vote
             },
             type: 'post',
             cache: false,
             success: function (data) {
-              $('.vote', span).removeClass('voted');
-              if (vote === "U") {
-                $(span).addClass('voted');
-              }
-              $("#answerVotes").text(data.votes);
+                $('.vote', span).removeClass('voted');
+                if (vote === "U") {
+                    $(span).addClass('voted');
+                }
+                $("#answerVotes").text(data.votes);
             }
         });
     });

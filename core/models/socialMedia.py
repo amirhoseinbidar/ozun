@@ -2,11 +2,12 @@
 from __future__ import unicode_literals
 
 from django.db import models
-from django.contrib.contenttypes.fields import ContentType , GenericForeignKey
+from django.contrib.contenttypes.fields import ContentType, GenericForeignKey
 from django.contrib.auth.models import User
 
+
 class FeedBack(models.Model):
-    
+
     FAVORITE = 'F'
     UP_VOTE = 'U'
     DOWN_VOTE = 'D'

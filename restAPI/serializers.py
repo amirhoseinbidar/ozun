@@ -14,8 +14,8 @@ from .utils import checkLessonTreeContent , checkLocationContent , checkSourceCo
 
 class UserSerializer(UserDetailsSerializer):
     location = serializers.CharField(source = 'profile.location.path',required = False)
-    grade = serializers.CharField(source = 'profile.grade.full_path',required = False)
-    interest_lesson = serializers.CharField(source = 'profile.interest_lesson.full_path',required = False)
+    grade = serializers.CharField(source = 'profile.grade.full_path_slug',required = False)
+    interest_lesson = serializers.CharField(source = 'profile.interest_lesson.full_path_slug',required = False)
     score = serializers.IntegerField(source = 'profile.score',read_only = True,required = False)
     bio = serializers.CharField(source = 'profile.bio',required = False)
     image = serializers.ImageField(source = 'profile.image' ,required = False)
@@ -30,9 +30,9 @@ class UserSerializer(UserDetailsSerializer):
     def update(self,instance,validated_data):
         profile_data = validated_data.pop('profile' , {})
 
-        grade = profile_data.pop('grade',{}).pop('full_path' ,None)
+        grade = profile_data.pop('grade',{}).pop('full_path_slug' ,None)
         interest_lesson = profile_data.pop(
-                'interest_lesson',{}).pop('full_path' ,None)
+                'interest_lesson',{}).pop('full_path_slug' ,None)
         location =  profile_data.pop('location',{}).pop('path' ,None)
         
         instance = super(UserSerializer, self).update(instance, validated_data)
@@ -60,13 +60,13 @@ class UserSerializer(UserDetailsSerializer):
 
 
 class magazineSerializer(serializers.ModelSerializer):
-    lesson = serializers.CharField(source = 'magazine.lesson.full_path')
+    lesson = serializers.CharField(source = 'magazine.lesson.full_path_slug')
     class Meta:
         fields = '__all__'
         model = magazine
 
 class  CourseSerializer(serializers.ModelSerializer):
-    lesson = serializers.CharField(source = 'magazine.lesson.full_path')
+    lesson = serializers.CharField(source = 'magazine.lesson.full_path_slug')
     class Meta:
         fields = '__all__'
         model = course
@@ -85,7 +85,7 @@ class SourceSerializer(serializers.ModelSerializer):
 class QuizSerializer(serializers.ModelSerializer):
     answer_set = AnswerSerializer(many = True )
     added_by = UserDetailsSerializer(many = False )
-    lesson = serializers.CharField(source = 'lesson.full_path')
+    lesson = serializers.CharField(source = 'lesson.full_path_slug')
     source = SourceSerializer(required = True)
 
     class Meta:
@@ -95,12 +95,12 @@ class QuizSerializer(serializers.ModelSerializer):
 
 class QuizManagerSerializer(serializers.ModelSerializer):
     answer_set = AnswerSerializer(many = True ,required=True)
-    lesson = serializers.CharField(source = 'lesson.full_path' ,required = True)
+    lesson = serializers.CharField(source = 'lesson.full_path_slug' ,required = True)
     source = serializers.CharField(source = 'source.name', required = True)
 
     def create(self,validated_data):
         answer_set = validated_data.pop('answer_set' , None)
-        validated_data['lesson'] = validated_data.pop('lesson',{}).pop('full_path',None)
+        validated_data['lesson'] = validated_data.pop('lesson',{}).pop('full_path_slug',None)
         validated_data['lesson'] = checkLessonTreeContent(validated_data['lesson'],LESSON , 'lesson' )
         validated_data['source'] = validated_data.pop('source',{}).pop('name',None)
         validated_data['source'] = checkSourceContent(validated_data['source'])
@@ -114,7 +114,7 @@ class QuizManagerSerializer(serializers.ModelSerializer):
 
     def update(self,instance,validated_data): #TODO Update is very slow i should think about it 
         answer_set = validated_data.pop('answer_set' , None)
-        validated_data['lesson'] = validated_data.pop('lesson',{}).pop('full_path',None)
+        validated_data['lesson'] = validated_data.pop('lesson',{}).pop('full_path_slug',None)
         validated_data['lesson'] = checkLessonTreeContent(validated_data['lesson'],LESSON , 'lesson' )
         validated_data['source'] = validated_data.pop('source',{}).pop('name',None)
         validated_data['source'] = checkSourceContent(validated_data['source'])

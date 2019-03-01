@@ -32,7 +32,7 @@ $(function () {
     });
 
 
-    
+
     $('#submit').click(doUpdate);
     UpdateGradeList();
     UpdataProvinceList();
@@ -114,12 +114,13 @@ $(function () {
     }
 
     $('#id_grade').on('change', updateLesson);
+
     function updateLesson() {
         grade = $('#id_grade')[0].value;
         if (grade == '')
             $('#interest_lesson-list').html('');
         else {
-            
+
             grade = grade.replace(' ', '-');
             $.ajax({
                 url: '/api/lesson/children/' + grade,
@@ -147,10 +148,11 @@ $(function () {
         })
     }
 
-    $('#id_province').on('change', updateCounty );
-    function updateCounty(){
+    $('#id_province').on('change', updateCounty);
+
+    function updateCounty() {
         province = $('#id_province')[0].value
-        
+
         if (province == '')
             $('#county-list').html('')
         else {
@@ -168,7 +170,8 @@ $(function () {
         }
     }
     $('#id_county').on('change', updateCity);
-    function updateCity(){
+
+    function updateCity() {
         county = $('#id_county')[0].value
         if (county == '')
             $('#city-list').html('')

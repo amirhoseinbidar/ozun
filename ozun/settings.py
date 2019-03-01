@@ -25,7 +25,7 @@ SECRET_KEY = 'qn4*+bl3$6u6ahyaof%w3lu3+x*-+ql#2lq#g)tmzi!!kta34v'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = [ "localhost", "127.0.0.1" ]
+ALLOWED_HOSTS = ["localhost", "127.0.0.1"]
 
 
 # Application definition
@@ -40,15 +40,15 @@ DJANGO_APPS = [
     'django.contrib.staticfiles',
 ]
 
-EXTRA_APPS = [    
+EXTRA_APPS = [
     'rest_framework',
     'rest_framework.authtoken',
     'django_cleanup',
     'treebeard',
-    'taggit' , 
-    'rest_auth' ,
-    'django_webtest' ,
-    
+    'taggit',
+    'rest_auth',
+    'django_webtest',
+
     'allauth',
     'allauth.account',
     'rest_auth.registration',
@@ -65,12 +65,12 @@ LOCAL_APPS = [
     'quizzes',
     'users',
     'restAPI',
-    'studypost', 
+    'studypost',
     'qa',
     'markdownx',
 ]
 
-INSTALLED_APPS = DJANGO_APPS + EXTRA_APPS + LOCAL_APPS 
+INSTALLED_APPS = DJANGO_APPS + EXTRA_APPS + LOCAL_APPS
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -87,7 +87,7 @@ ROOT_URLCONF = 'ozun.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [BASE_DIR+'/template',],
+        'DIRS': [BASE_DIR+'/template', ],
         'APP_DIRS': True,
         'OPTIONS': {
             'debug': True,
@@ -105,10 +105,10 @@ TEMPLATES = [
 ]
 
 AUTHENTICATION_BACKENDS = (
-        # Needed to login by username in Django admin, regardless of `allauth`
-        'django.contrib.auth.backends.ModelBackend',
-        # `allauth` specific authentication methods, such as login by e-mail
-        'allauth.account.auth_backends.AuthenticationBackend',
+    # Needed to login by username in Django admin, regardless of `allauth`
+    'django.contrib.auth.backends.ModelBackend',
+    # `allauth` specific authentication methods, such as login by e-mail
+    'allauth.account.auth_backends.AuthenticationBackend',
 )
 
 WSGI_APPLICATION = 'ozun.wsgi.application'
@@ -117,22 +117,22 @@ WSGI_APPLICATION = 'ozun.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/1.11/ref/settings/#databases
 
-DATABASES = {#TODO: this is not secure should encypte
-   #'default': {
-   #     'ENGINE': 'django.db.backends.mysql',
-   #     'NAME': "ozun",
-   #     'USER': "root",
-   #     'PASSWORD': "111111",
-   #     'HOST': "localhost",
-   #     'default-character-set': 'utf8mb4',
-   # },
+DATABASES = {  # TODO: this is not secure should encypte
+    # 'default': {
+    #     'ENGINE': 'django.db.backends.mysql',
+    #     'NAME': "ozun",
+    #     'USER': "root",
+    #     'PASSWORD': "111111",
+    #     'HOST': "localhost",
+    #     'default-character-set': 'utf8mb4',
+    # },
 
-    #use this for test mysql is very slow
-       'default': {
+    # use this for test mysql is very slow
+    'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
     }
-   
+
 }
 
 
@@ -174,30 +174,30 @@ USE_TZ = True
 
 
 PROJECT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-BASE_DIR =os.path.dirname(PROJECT_DIR)
+BASE_DIR = os.path.dirname(PROJECT_DIR)
 STATICFILES_FINDER = [
     'django.contrib.staticfiles.finders.FileSystemFinder',
     'django.contrib.staticfiles.finders.appDirectoriesFinder',
 ]
 STATICFILES_DIRS = [
-    os.path.join(PROJECT_DIR,'static'),
+    os.path.join(PROJECT_DIR, 'static'),
 ]
-STATIC_ROOT = os.path.join(BASE_DIR,'static')
+STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
 STATIC_URL = '/static/'
 
-##### Media Files ##### 
+##### Media Files #####
 
 MEDIA_ROOT = os.path.join(PROJECT_DIR, 'media')
 MEDIA_URL = '/media/'
 
 
 ##### Email setting #####
- 
+
 #EMAIL_USE_TLS = True
 #EMAIL_HOST = 'smtp.gmail.com'
 #EMAIL_HOST_USER = 'amirhoseinbk00@gmail.com'
-#EMAIL_HOST_PASSWORD = 'amir1380' #TODO: this is not secure should encypte
+# EMAIL_HOST_PASSWORD = 'amir1380' #TODO: this is not secure should encypte
 #EMAIL_PORT = 587
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
@@ -227,14 +227,14 @@ REST_AUTH_SERIALIZERS = {
 }
 
 ##### ozun setting #####
-DIFAULT_SEND_QUIZ = 7 
+DIFAULT_SEND_QUIZ = 7
 
-#Loging NOTE:it make a big log file  just use for deep and heavy problems 
+# Loging NOTE:it make a big log file  just use for deep and heavy problems
 
 #LOGIN_REDIRECT_URL = 'profile_controller'
 #LOGIN_URL = 'profile_controller'
 #
-#LOGGING = {
+# LOGGING = {
 #    'version': 1,
 #    'disable_existing_loggers': False,
 #    'handlers': {
@@ -251,8 +251,4 @@ DIFAULT_SEND_QUIZ = 7
 #            'propagate': True,
 #        },
 #    },
-#}
-
-
-
-
+# }

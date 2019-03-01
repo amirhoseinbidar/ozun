@@ -1,6 +1,5 @@
-from test_plus.test import TestCase
-
 from qa.models import Question, Answer
+from django.test import TestCase
 
 
 class QAModelsTest(TestCase):
