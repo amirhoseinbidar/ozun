@@ -17,18 +17,10 @@ from core.exceptions import duplicationException
 
 
 class Source(models.Model):
-    name = models.CharField(max_length=50)
+    name = models.CharField(max_length=50 , unique = True)
 
     def __str__(self):
         return u'{0}'.format(self.name)
-
-    def save_or_get(self,*args,**kwargs):
-        try:
-            checkDuplicate(Source,self,name = self.name)
-        except duplicationException :
-            return Source.objects.get(name = self.name)
-        self.save()
-        return self
 
 
 class Answer(models.Model):
@@ -38,12 +30,11 @@ class Answer(models.Model):
     
     def __unicode__(self):
         return u'answer id: {0}'.format(self.pk)
-   
-    def save(self,*args,**kwargs):
+    
+    def clean(self):
         if self.is_correct_answer:
             checkDuplicate(Answer,self, is_correct_answer=True , quiz = self.quiz)
 
-        super(Answer,self).save(*args,**kwargs)    
 
     def get_markdownify(self):
         return markdownify(self.content)

@@ -50,31 +50,17 @@ class QuizStatus(models.Model):#RULE: user_answer  must be one of the quiz answe
 class Exam(BaseTemporaryKey):
     
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    key = models.CharField(max_length = 100 , blank = True)
     is_active = models.BooleanField() 
     total_time = models.TimeField()
     
-    def create_record(self,user,total_time,key=None,ignore_key_exception =True
-            , forward_time = 0,is_active = True,*args,**kwargs ): 
-        if not key:
-            key = get_random_string()
-        
-        if not ignore_key_exception :
-            if Exam.objects.filter(key = key).exists():# should not a key Duplicate
-                raise ValidationError('this key is alredy exist')
-        
-        else:
-            while True:
-                if Exam.objects.filter(key = key).exists():# should not a key Duplicate
-                    key = get_random_string()
-                    continue
-                break 
-        
-        if Exam.objects.filter(user = user , is_active = True).exists():
+    def clean(self):
+        if Exam.objects.filter(user = self.user , is_active = True).exists():
             raise duplicationException('a active exam alredy exist first close it')
 
+
+    def create_record(self,user,total_time,ignore_key_exception =True
+            , forward_time = 0,is_active = True,*args,**kwargs ): 
         super(Exam,self).create_record(forward_time,*args,**kwargs)
-        self.key = key
         self.is_active = is_active
         self.user = user
         self.total_time = total_time
@@ -88,7 +74,6 @@ class Exam(BaseTemporaryKey):
 
     def disable(self):
         self.is_active = False
-        self.key = ''
         self.close_date = timezone.now()
         ExamStatistic.create(exam = self) 
         return self

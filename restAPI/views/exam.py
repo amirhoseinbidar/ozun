@@ -13,10 +13,9 @@ from rest_framework.response import Response
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.exceptions import ValidationError
 
+#I must do it in post
 class StartExam(generics.ListAPIView):
-    
     serializer_class = ExamListSerializer
-    
     def get_queryset(self):
         data = self.request.query_params
         level = data.get('level' , None)
@@ -44,8 +43,9 @@ class CheckHaveOpenExamMixin():
             raise NotFound('you have not any open Exam')
         return q
     
-class UpdateExam(generics.GenericAPIView  , CheckHaveOpenExamMixin, 
-            generics.mixins.UpdateModelMixin):
+class UpdateExam(  CheckHaveOpenExamMixin,
+                   generics.mixins.UpdateModelMixin,
+                   generics.GenericAPIView ):
     
     def get_queryset(self):
         return Exam.objects.filter(user = self.request.user , is_active = True)
@@ -64,7 +64,7 @@ class UpdateExam(generics.GenericAPIView  , CheckHaveOpenExamMixin,
         return self.update(request, paritial = True ,  *args,**kwargs)
     
     
-class FinishExam(generics.views.APIView , CheckHaveOpenExamMixin):
+class FinishExam(CheckHaveOpenExamMixin ,generics.views.APIView ):
     def get_queryset(self):
         return Exam.objects.filter(user = self.request.user , is_active = True)
 
