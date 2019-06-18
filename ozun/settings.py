@@ -11,21 +11,25 @@ https://docs.djangoproject.com/en/1.11/ref/settings/
 """
 
 import os
+import json
+from django.utils.translation import ugettext_lazy as _
+
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
+with open(BASE_DIR+'/env_var.json','r') as file:
+    ENV = json.loads(file.read())
+    
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.11/howto/deployment/checklist/
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'qn4*+bl3$6u6ahyaof%w3lu3+x*-+ql#2lq#g)tmzi!!kta34v'
 
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+SECRET_KEY =  ENV['SECRET_KEY']  
+DEBUG = ENV['DEBUG']
+ALLOWED_HOSTS = ENV['ALLOWED_HOSTS'].split(',')
 
-ALLOWED_HOSTS = ["localhost", "127.0.0.1"]
 
 
 # Application definition
@@ -115,23 +119,24 @@ WSGI_APPLICATION = 'ozun.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/1.11/ref/settings/#databases
 
-DATABASES = {  # TODO: this is not secure should encypte
-    # 'default': {
-    #     'ENGINE': 'django.db.backends.mysql',
-    #     'NAME': "ozun",
-    #     'USER': "root",
-    #     'PASSWORD': "111111",
-    #     'HOST': "localhost",
-    #     'default-character-set': 'utf8mb4',
-    # },
-
-    # use this for test mysql is very slow
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+if ENV['UNDER_TEST']:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        }   
     }
-
-}
+else :
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.mysql',
+            'NAME': ENV['DB_NAME'],
+            'USER': ENV['DB_USER'],
+            'PASSWORD': ENV['DB_PASSWORD'],
+            'HOST': ENV['DB_HOST'] ,
+            'default-character-set': ENV['DB_CHARSET'],
+        },
+    }
 
 
 # Password validation
@@ -191,30 +196,29 @@ MEDIA_URL = '/media/'
 
 
 ##### Email setting #####
-
-#EMAIL_USE_TLS = True
-#EMAIL_HOST = 'smtp.gmail.com'
-#EMAIL_HOST_USER = 'amirhoseinbk00@gmail.com'
-# EMAIL_HOST_PASSWORD = 'amir1380' #TODO: this is not secure should encypte
-#EMAIL_PORT = 587
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+if ENV['REAL_SERVER']:
+    EMAIL_USE_TLS = True
+    EMAIL_HOST = ENV['EMAIL_HOST']
+    EMAIL_HOST_USER = ENV['EMAIL_HOST_USER']
+    EMAIL_HOST_PASSWORD =  ENV['EMAIL_HOST_PASSWORD']
+    EMAIL_PORT = 587
 
 ##### Rest framework authentication setting #####
-
 REST_FRAMEWORK = {
-    'DEFAULT_AUTHENTICATION_CLASSES': (
+    'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework.authentication.TokenAuthentication',
-        'rest_framework.authentication.SessionAuthentication',
-    ),
-    'DEFAULT_PERMISSION_CLASSES': (
+    ],
+    'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.IsAuthenticated',
-    ),
+    ],
 }
+# this make life easier
+if not ENV['REAL_SERVER']:
+    REST_FRAMEWORK['DEFAULT_AUTHENTICATION_CLASSES'].append(
+        'rest_framework.authentication.SessionAuthentication'
+    )
 
 ##### allauth setting #####
-#   NOTE: there is no need for verifying email now I think
-#ACCOUNT_EMAIL_VERIFICATION = "mandatory"
-#ACCOUNT_EMAIL_REQUIRED = True  
 ACCOUNT_USERNAME_MIN_LENGTH = 6
 ACCOUNT_AUTHENTICATION_METHOD = 'username_email'
 
@@ -227,24 +231,3 @@ REST_AUTH_SERIALIZERS = {
 
 ##### ozun setting #####
 DIFAULT_SEND_QUIZ = 7
-
-# Loging NOTE:it make a big log file  just use for deep and heavy problems
-#
-# LOGGING = {
-#    'version': 1,
-#    'disable_existing_loggers': False,
-#    'handlers': {
-#        'file': {
-#            'level': 'DEBUG',
-#            'class': 'logging.FileHandler',
-#            'filename': '/home/abk/bigEpsilon/ozun/debug.log',
-#        },
-#    },
-#    'loggers': {
-#        'django': {
-#            'handlers': ['file'],
-#            'level': 'DEBUG',
-#            'propagate': True,
-#        },
-#    },
-# }

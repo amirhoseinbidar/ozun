@@ -28,20 +28,13 @@ urlpatterns = [
     url(r'^admin/users/', admin.site.urls),
     url(r'^admin/quizzes/',quizzesAdminSite.urls),
     url(r'^api/',include('restAPI.urls')),
-    url(r'^accounts/', include('users.urls')),  
-    url(r'^quizzes/',include('quizzes.urls')),
-    url(r'qa/',include('qa.urls')),
-    url(r'^accounts/', include('allauth.urls')),
-    url(r'^markdownx/', include('markdownx.urls')),
+    #url(r'^accounts/', include('users.urls')),  
+    #url(r'^quizzes/',include('quizzes.urls')),
+    #url(r'qa/',include('qa.urls')),
+    #url(r'^accounts/', include('allauth.urls')),
+    url(r'^markdownx/', include('markdownx.urls')), # this should change with ckeditor
 ]
 
 urlpatterns += staticfiles_urlpatterns()
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
-### for embed test queries (just run them once )
-#
-#from quizzes.tests.test_embed import embed_test_quizzes
-#from core.tests.test_embed import embed_test_locations
-#
-#embed_test_locations()
-#embed_test_quizzes()

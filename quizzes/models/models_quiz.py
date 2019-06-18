@@ -17,18 +17,10 @@ from core.exceptions import duplicationException
 
 
 class Source(models.Model):
-    name = models.CharField(max_length=50)
+    name = models.CharField(max_length=50 , unique = True)
 
     def __str__(self):
         return u'{0}'.format(self.name)
-
-    def save_or_get(self,*args,**kwargs):
-        try:
-            checkDuplicate(Source,self,name = self.name)
-        except duplicationException :
-            return Source.objects.get(name = self.name)
-        self.save()
-        return self
 
 
 class Answer(models.Model):
