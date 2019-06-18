@@ -8,8 +8,8 @@ from django.urls import reverse
 from django.utils.translation import ugettext as _
 from django.views.decorators.http import require_http_methods
 from django.views.generic import CreateView, ListView, DetailView
-
-from qa.models import Answer , Question
+from .forms import QuestionForm
+from .models import Answer, Question
 
 
 class QuestionsIndexListView(LoginRequiredMixin, ListView):
@@ -28,6 +28,7 @@ class QuestionsIndexListView(LoginRequiredMixin, ListView):
 class QuestionAnsListView(QuestionsIndexListView):
     """CBV to render a list view with all question which have been already
     marked as answered."""
+
     def get_queryset(self, **kwargs):
         return Question.objects.get_answered()
 
@@ -40,6 +41,7 @@ class QuestionAnsListView(QuestionsIndexListView):
 class QuestionListView(QuestionsIndexListView):
     """CBV to render a list view with all question which haven't been marked
     as answered."""
+
     def get_queryset(self, **kwargs):
         return Question.objects.get_unanswered()
 
@@ -91,3 +93,7 @@ class CreateAnswerView(LoginRequiredMixin, CreateView):
         return reverse(
             "qa:question_detail", kwargs={"pk": self.kwargs["question_id"]})
 
+    def get_context_data(self, *args, **kwargs):
+        data = super().get_context_data(*args, **kwargs)
+        data['question_id'] = self.kwargs["question_id"]
+        return data

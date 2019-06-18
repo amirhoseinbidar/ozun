@@ -1,21 +1,29 @@
 {% extends "admin/base.html" %}
+{% block extrahead %} 
+    <script type="text/x-mathjax-config">
+        MathJax.Hub.Config({
+            tex2jax: {inlineMath: [["$","$"],["\\(","\\)"]]}
+        });
+    </script>
+    <!-- <script type="text/javascript" src="/static/mathJax/MathJax.js?config=TeX-AMS_HTML-full"></script> -->
+    <script type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS_HTML-full"></script>
+    {{ block.super }}
+{% endblock %}
+
 
 {% load staticfiles %} 
 
-{% block title %}
- 
-    {{ title }} | {{ site_title|default:_('Django siteadmin') }}
 
+{% block title %}
+    {{ title }} | {{ site_title|default:_('Django siteadmin') }}
 {% endblock %}
 
 {% block branding %}
-
-<h1 id="site-name">
-    <a href="{% url 'admin:index' %}">
-        <img src="{% static 'umsra_logo.png' %}" height="40px" />
-    </a>
-</h1>
-
+    <h1 id="site-name">
+        <a href="{% url 'admin:index' %}">
+            <img src="{% static 'umsra_logo.png' %}" height="40px" />
+        </a>
+    </h1>
 {% endblock %} 
 
 {% block nav-global %}{% endblock %}

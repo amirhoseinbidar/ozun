@@ -1,6 +1,4 @@
-django.jQuery( function(){
-    var $ = django.jQuery;
-
+$( function(){
     $('.markdownx-open-math-editor').on('click',function () {
         var inputer_id = $(this).attr('markdownx-inputer-id');
         openEditor(inputer_id);
@@ -14,6 +12,11 @@ django.jQuery( function(){
         );
         win.focus();
     }
+
+    //for handel markdownx preview refresh 
+    $('.markdownx-editor').on('keyup'  , function(){
+        MathJax.Hub.Queue(['Typeset',MathJax.Hub]);
+    })
 });
 
 

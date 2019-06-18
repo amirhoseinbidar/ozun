@@ -3,7 +3,6 @@ from django.contrib.sites.shortcuts import get_current_site
 from django.utils.encoding import force_bytes, force_text
 from django.template.loader import render_to_string
 from django.core.mail import EmailMessage
-from users.utils.token import account_activation_token
 from ozun.settings import DEBUG
 #from users.models import Email_auth ,Profile
 
@@ -14,7 +13,6 @@ def sendAuthEmail(request,user,to_email):
         'user': user,
         'domain': current_site.domain,
         'uid':urlsafe_base64_encode(force_bytes(user.pk)).decode(),
-        'token': account_activation_token.make_token(user),
     }
 
     message = render_to_string('acc_active_email.html', context= context , request=request )

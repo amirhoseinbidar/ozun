@@ -21,12 +21,16 @@ from ozun import settings
 from django.views.generic import TemplateView
 from quizzes.admin import quizzesAdminSite
 
+app_name = 'ozun'
+
 urlpatterns = [
+    url(r'^$' , TemplateView.as_view(template_name = 'index.html'),name = 'index'),
     url(r'^admin/users/', admin.site.urls),
     url(r'^admin/quizzes/',quizzesAdminSite.urls),
+    url(r'^api/',include('restAPI.urls')),
     url(r'^accounts/', include('users.urls')),  
     url(r'^quizzes/',include('quizzes.urls')),
-    url(r'^api/',include('restAPI.urls')),
+    url(r'qa/',include('qa.urls')),
     url(r'^accounts/', include('allauth.urls')),
     url(r'^markdownx/', include('markdownx.urls')),
 ]
@@ -34,3 +38,10 @@ urlpatterns = [
 urlpatterns += staticfiles_urlpatterns()
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
+### for embed test queries (just run them once )
+#
+#from quizzes.tests.test_embed import embed_test_quizzes
+#from core.tests.test_embed import embed_test_locations
+#
+#embed_test_locations()
+#embed_test_quizzes()

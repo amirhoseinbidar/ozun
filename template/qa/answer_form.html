@@ -1,21 +1,36 @@
 {% extends 'base.html' %}
 {% load static i18n %}
-{% load crispy_forms_tags %}
+
 
 {% block title %}{% trans 'Answer a question' %}{% endblock %}
 
-{% block content %}
+{% block extrahead %} 
+    <script type="text/x-mathjax-config">
+        MathJax.Hub.Config({
+            tex2jax: {inlineMath: [["$","$"],["\\(","\\)"]]}
+        });
+    </script>
+    <script type="text/javascript" src="/static/mathJax/MathJax.js?config=TeX-AMS_HTML-full"></script>
+    {{ block.super }}
+    <script type="text/javascript" src="/static/markdownx/js/markdownx-jquery-3.3.1.min.js"></script>
+    <script type="text/javascript" src="/static/markdownx/js/markdownx.js"></script>
+    <script type="text/javascript" src="/static/markdownx/js/math-editor-connector.js"></script>
+    <script src="{% static 'js/qa/qa.js' %}"></script>
+{% endblock %}
+
+{% block body %}
 
   <nav aria-label="breadcrumb">
     <ol class="breadcrumb">
-      <li class="breadcrumb-item"><a href="{% url 'news:list' %}">{% trans 'Home' %}</a></li>
+      <li class="breadcrumb-item"><a href="">{% trans 'Home' %}</a></li>
       <li class="breadcrumb-item"><a href="{% url 'qa:index_all' %}">{% trans 'Q&A' %}</a></li>
       <li class="breadcrumb-item active" aria-current="page">{% trans 'Answer a question' %}</li>
     </ol>
   </nav>
-  <form action="{% url 'qa:propose_answer' view.kwargs.question_id %}" id="answerForm" method="post" role="form">
+  
+  <form action="{% url 'qa:propose_answer' question_id %}" id="answerForm" method="post" role="form">
     {% csrf_token %}
-    {{ form|crispy }}
+    {{ form }}
     <div class="form-group">
       <button id="answer" type="submit" class="btn btn-primary">{% trans 'Answer' %}</button>
       <a href="{% url 'qa:index_all' %}" class="btn btn-default">{% trans 'Cancel' %}</a>
@@ -23,4 +38,4 @@
   </form>
   {{ form.media }}
 
-{% endblock content %}
+{% endblock body %}

@@ -1,31 +1,22 @@
-<html>
+{% extends 'base.html' %}
 
-<head>
+{% block extrahead %}
+    {{ block.super }}
+    <script type="text/javascript" src="/static/markdownx/js/markdownx-jquery-3.3.1.min.js"></script>
+    <script type="text/javascript" src="/static/js/users/profile_edit.js" ></script>
+{% endblock%}
 
-</head>
-
-<body>
+{% block body %}
     <div id = "errors">
     </div>
+    
     {% for obj in object %}
         <img src='{{ obj.image.url }}' height="300px" width="500px" id = 'user-image'>
-        <input type="file" id = 'image-upload' />
-        <label for="first-name">first name</label>
-        <input type="text" value="{{obj.user.first_name}}" id = 'first-name' />
-        <input type="text" value="{{obj.user.last_name}}" id = 'last-name' />
-        <input type="text" value="{{obj.bio}}" id = 'bio' />
-        <input type="date" value="{{obj.brith_day.isoformat}}" id = 'brith-day' />
-        <input type="text" value="{{obj.grade.content.name}}" id = 'grade' />
-        <input type="text" value="{{obj.interest_lesson.content.name}}" id = 'interest-lesson'>
-        <input type="text" value="{{obj.location.city.county.province.name}}" id = 'location-province' />
-        <input type="text" value="{{obj.location.city.county.name}}" id = 'location-county' />
-        <input type="text" value="{{obj.location.city.name}}" id = 'location-city'/>
         <input type="hidden" value="{{obj.user.username}}" id='username' />
-        <input type="button" value="submit" id="submit"  />
     {% endfor %}
-    <div id="editing-succ-container">
-    </div>
+    {{ form.as_p }}
+    
+    <input type="button" value="submit" id="submit"  />
+    <div id="editing-succ-container"></div>
 
-</body>
-
-</html>
+{% endblock %}

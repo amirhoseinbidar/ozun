@@ -6,12 +6,14 @@ from django.urls import reverse
 from quizzes.tests.test_embed import embed_test_quizzes
 from quizzes.models import Exam
 from json import dumps , loads
+from users.models import Profile
 
 class ExamTest(BaseAPITest):
     def setUp(self):
         super().setUp()
         embed_test_quizzes()
         self.client.login(username= 'test',password= 'test')
+        Profile.objects.create(user = self.user)
         self.exam_response = self.start_an_exam()
     
     def start_an_exam(self):

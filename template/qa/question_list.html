@@ -1,4 +1,4 @@
-{% extends 'base.html' %}
+url(r'qa/'include)
 {% load static i18n %}
 
 {% block title %}{% trans "Questions" %}{% endblock %}
@@ -7,10 +7,10 @@
   <link href="{% static 'css/qa.css' %}" rel="stylesheet">
 {% endblock head %}
 
-{% block content %}
+{% block body %}
   <nav aria-label="breadcrumb">
     <ol class="breadcrumb">
-      <li class="breadcrumb-item"><a href="{% url 'news:list' %}">{% trans 'Home' %}</a></li>
+     <!--- <li class="breadcrumb-item"><a href="">{% trans 'Home' %}</a></li> -->
       <li class="breadcrumb-item active" aria-current="page">{% trans 'Q.A' %}</li>
     </ol>
   </nav>
@@ -74,7 +74,7 @@
       </ul>
     {% endif %}
   </div>
-{% endblock content %}
+{% endblock body %}
 
 
 {% block modal %}

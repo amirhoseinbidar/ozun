@@ -1,6 +1,5 @@
-from test_plus.test import TestCase
-
-from bootcamp.qa.models import Question, Answer
+from qa.models import Question, Answer
+from django.test import TestCase
 
 
 class QAModelsTest(TestCase):
@@ -32,34 +31,34 @@ class QAModelsTest(TestCase):
 
     def test_can_vote_question(self):
         self.question_one.votes.update_or_create(
-            user=self.user, defaults={"value": True}, )
+            user=self.user, defaults={"feedback_type": 'U'}, )
         self.question_one.votes.update_or_create(
-            user=self.other_user, defaults={"value": True})
+            user=self.other_user, defaults={"feedback_type": 'U'})
         self.question_one.count_votes()
         assert self.question_one.total_votes == 2
 
     def test_can_vote_answer(self):
         self.answer.votes.update_or_create(
-            user=self.user, defaults={"value": True}, )
+            user=self.user, defaults={"feedback_type": "U"}, )
         self.answer.votes.update_or_create(
-            user=self.other_user, defaults={"value": True}, )
+            user=self.other_user, defaults={"feedback_type": "U"}, )
         self.answer.count_votes()
         assert self.answer.total_votes == 2
 
     def test_get_question_voters(self):
         self.question_one.votes.update_or_create(
-            user=self.user, defaults={"value": True}, )
+            user=self.user, defaults={"feedback_type": 'U'}, )
         self.question_one.votes.update_or_create(
-            user=self.other_user, defaults={"value": False})
+            user=self.other_user, defaults={"feedback_type": 'D'})
         self.question_one.count_votes()
         assert self.user in self.question_one.get_upvoters()
         assert self.other_user in self.question_one.get_downvoters()
 
     def test_get_answern_voters(self):
         self.answer.votes.update_or_create(
-            user=self.user, defaults={"value": True}, )
+            user=self.user, defaults={"feedback_type": "U"}, )
         self.answer.votes.update_or_create(
-            user=self.other_user, defaults={"value": False})
+            user=self.other_user, defaults={"feedback_type": "D"})
         self.answer.count_votes()
         assert self.user in self.answer.get_upvoters()
         assert self.other_user in self.answer.get_downvoters()

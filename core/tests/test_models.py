@@ -4,6 +4,9 @@ from __future__ import unicode_literals
 from django.test import TestCase
 from core.models.lessonTree import LessonTree ,TreeContent , GRADE ,LESSON ,TOPIC,CHAPTER
 from core.exceptions import duplicationException , ValidationError , overDepthException
+from core.models import Location
+from .test_embed import embed_test_locations
+
 
 class TreeContentTest(TestCase):
     def test_Duplicate(self):
@@ -81,3 +84,19 @@ class LessonTreeTest(TestCase):
             lesson , pos = 'sorted-sibling' )  #RULE 1 
         self.assertRaises(duplicationException , self.lesson.move,
             grade2 , pos = 'sorted-child') #RULE 1
+
+
+class LocationTest(TestCase):
+    def setUp(self):
+        embed_test_locations()
+
+    def test_get_children(self):
+        children = Location.get_children('آذربایجان-شرقی' , True)
+        assert 'اسکو' in children
+        assert 'تبریز' in children
+        children = Location.get_children('آذربایجان-غربی/ارومیه' ,True)
+        assert 'ارومیه' in children
+        
+        #children = Location.get_children('آذربایجان-غربی/ارومیه/ارومیه' , True)
+        #assert children == []
+        

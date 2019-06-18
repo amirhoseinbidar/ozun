@@ -5,9 +5,9 @@ from django.db import models
 from django.utils.translation import ugettext_lazy as _
 from django.conf import settings
 from django.db.models import Count
-from users.models import FeedBack
+from core.models import FeedBack
 from django.contrib.contenttypes.fields import GenericRelation
-from markdownx.models import MarkdownxField  
+from markdownx.models import MarkdownxField
 
 from django.utils.text import slugify
 
@@ -43,6 +43,7 @@ class QuestionQuerySet(models.query.QuerySet):
 
         return tag_dict.items()
 
+
 class Question(models.Model):
     """Model class to contain every question in the forum."""
     OPEN = "O"
@@ -51,7 +52,8 @@ class Question(models.Model):
         (OPEN, _("Open")),
         (CLOSED, _("Closed")),
     )
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL,
+                             on_delete=models.CASCADE)
     title = models.CharField(max_length=200, unique=True, blank=False)
     timestamp = models.DateTimeField(auto_now_add=True)
     slug = models.SlugField(max_length=80, null=True, blank=True)
@@ -70,7 +72,7 @@ class Question(models.Model):
 
     def save(self, *args, **kwargs):
         if not self.slug:
-            self.slug = slugify("{}-{}".format(self.title,self.id) , True)
+            self.slug = slugify("{}-{}".format(self.title, self.id), True)
 
         super().save(*args, **kwargs)
 
@@ -84,17 +86,18 @@ class Question(models.Model):
     def count_votes(self):
         """Method to update the sum of the total votes. Uses this complex query
         to avoid race conditions at database level."""
-        dic = Counter(self.votes.values_list("value", flat=True))
-        Question.objects.filter(id=self.id).update(total_votes=dic[True] - dic[False])
+        dic = Counter(self.votes.values_list("feedback_type", flat=True))
+        Question.objects.filter(id=self.id).update(
+            total_votes=dic['U'] - dic['D'])
         self.refresh_from_db()
 
     def get_upvoters(self):
         """Returns a list containing the users who upvoted the instance."""
-        return [vote.user for vote in self.votes.filter(value=True)]
+        return [vote.user for vote in self.votes.filter(feedback_type='U')]
 
     def get_downvoters(self):
         """Returns a list containing the users who downvoted the instance."""
-        return [vote.user for vote in self.votes.filter(value=False)]
+        return [vote.user for vote in self.votes.filter(feedback_type='D')]
 
     def get_answers(self):
         return Answer.objects.filter(question=self)
@@ -110,10 +113,12 @@ class Answer(models.Model):
     """Model class to contain every answer in the forum and to link it
     to its respective question."""
     question = models.ForeignKey(Question, on_delete=models.CASCADE)
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL,
+                             on_delete=models.CASCADE)
     content = MarkdownxField()
+    # NOTE raise ""OverflowError: Python int too large to convert to SQLite INTEGE"" in sqlite3
     uuid_id = models.UUIDField(
-        primary_key=True, default=uuid.uuid4, editable=False)
+        primary_key=True, default=uuid.uuid4, editable=False, max_length=16)
     total_votes = models.IntegerField(default=0)
     timestamp = models.DateTimeField(auto_now_add=True)
     is_answer = models.BooleanField(default=False)
@@ -133,17 +138,18 @@ class Answer(models.Model):
     def count_votes(self):
         """Method to update the sum of the total votes. Uses this complex query
         to avoid race conditions at database level."""
-        dic = Counter(self.votes.values_list("value", flat=True))
-        Answer.objects.filter(uuid_id=self.uuid_id).update(total_votes=dic[True] - dic[False])
+        dic = Counter(self.votes.values_list("feedback_type", flat=True))
+        Answer.objects.filter(id=self.id).update(
+            total_votes=dic['U'] - dic['D'])
         self.refresh_from_db()
 
     def get_upvoters(self):
         """Returns a list containing the users who upvoted the instance."""
-        return [vote.user for vote in self.votes.filter(value=True)]
+        return [vote.user for vote in self.votes.filter(feedback_type="U")]
 
     def get_downvoters(self):
         """Returns a list containing the users who downvoted the instance."""
-        return [vote.user for vote in self.votes.filter(value=False)]
+        return [vote.user for vote in self.votes.filter(feedback_type='D')]
 
     def accept_answer(self):
         answer_set = Answer.objects.filter(question=self.question)

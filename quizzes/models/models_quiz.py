@@ -8,17 +8,18 @@ from django.contrib.auth.models import User
 from django.contrib.contenttypes.fields import GenericRelation
 from core.checks import checkDuplicate
 from quizzes.utils import getTimeByLevel
-from users.models import FeedBack
+from core.models import FeedBack
 from core.models.lessonTree import(allowed_types ,LESSON 
                     ,TOPIC ,CHAPTER ,LessonTree)
 from markdownx.models import MarkdownxField
 from markdownx.utils import markdownify
 from core.exceptions import duplicationException
 
+
 class Source(models.Model):
     name = models.CharField(max_length=50)
 
-    def __unicode__(self):
+    def __str__(self):
         return u'{0}'.format(self.name)
 
     def save_or_get(self,*args,**kwargs):
@@ -72,7 +73,7 @@ class Quiz(models.Model):
     content = MarkdownxField()
     votes = GenericRelation(FeedBack)
     total_votes = models.IntegerField(default=0)
-    exponential_answer = MarkdownxField()
+    exponential_answer = MarkdownxField(blank=True)
     source = models.ForeignKey(Source ,null = True, blank=True, on_delete=models.SET_NULL)
     level = models.CharField(max_length = 2,choices =LEVEL_TYPE )
     lesson = models.ForeignKey(LessonTree,null = True, blank = True , on_delete=models.SET_NULL) 
@@ -89,17 +90,15 @@ class Quiz(models.Model):
     @staticmethod
     def get_mostVotes(_from,to):
         """ return a list of most Voted quizzes by area"""
-        if not ( to > _from and to >=1 and _from >= 1 ):
-            raise  ValidationError(''''one of argomants are negative or
-                zero or "to <= _from" ''')
+        if not ( to > _from and to >=0 and _from >= 0 ):
+            raise  ValidationError(''''one of argomants are negative or "to <= _from" ''')
         return Quiz.objects.order_by('-total_votes')[_from:to] 
 
     @staticmethod
-    def get_by_path(lesson_path):
-        branch = LessonTree.find_by_path(lesson_path)
+    def get_by_path(lesson_path,get_by_slug =True):
+        branch = LessonTree.find_by_path(lesson_path , get_by_slug)
         lessons = list(branch.get_descendants())+[branch]
-        quizzes =Quiz.objects.filter( 
-            lesson__in = lessons )
+        quizzes =Quiz.objects.filter( lesson__in = lessons )
             
         return quizzes
 
@@ -110,8 +109,6 @@ class Quiz(models.Model):
             self.time_for_out = getTimeByLevel(self.level)
         super(Quiz,self).save(*args,**kwargs)
         
-        self.count_votes()    
-    
     def __unicode__(self):
         return u'{0}'.format(self.pk)
     

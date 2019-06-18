@@ -3,7 +3,7 @@ from __future__ import unicode_literals
 
 from django.db import models
 from .models_quiz import Answer , User,Quiz ,Source
-from users.models import BaseTemporaryKey
+from core.models import BaseTemporaryKey
 from django.utils import timezone
 from django.utils.timezone import timedelta
 from core.exceptions import ValidationError , duplicationException ,membershipException
@@ -11,8 +11,9 @@ from django.utils.crypto import get_random_string
 from django.db.models import Sum
 from ..utils import turn_second_to_time , choice_without_repead ,calculate_score
 from django.core.exceptions import ObjectDoesNotExist
-from core.utils import find_in_dict
+from core.utils import find_in_dict 
 
+from ozun.settings import DIFAULT_SEND_QUIZ
 import datetime
 
 
@@ -99,11 +100,6 @@ class Exam(BaseTemporaryKey):
         if self.is_active:
             return super().check_out_of_date()
         
-    def __unicode__(self):
-        if timezone.now() > self.close_date :
-            return u'key {0} is out of date'.format(self.key)
-        return u'key: {0} ;;; {1} later will delete'.format(self.key,self.close_date - timezone.now() )
-    
     @staticmethod
     def get_total_time(quizzes):
         forward_time = timedelta(0) 
@@ -121,8 +117,7 @@ class Exam(BaseTemporaryKey):
 
         exam = Exam().create_record(user = user , total_time = total_time  
             , forward_time=forward_time.total_seconds())
-        
-
+         
         statuses_data = [ QuizStatus(quiz = quiz , 
             user_answer = None,exam = exam) for quiz in quizzes ]
         
@@ -131,25 +126,23 @@ class Exam(BaseTemporaryKey):
         return exam
 
     @staticmethod
-    def start_random_exam( lesson_path , user , level=None , source =None, number=None):
+    def start_random_exam( lesson_path , user ,is_path_slug =True, level=None , source =None, number=None):
         data = Exam.__order_optional_args(level,source,number)
         number = data.pop('number')
 
-        quizzes = Quiz.get_by_path(lesson_path).filter(**data )
+        quizzes = Quiz.get_by_path(lesson_path,is_path_slug).filter(**data )
         quizzes = choice_without_repead(quizzes,number,False)
-
         
         exam = Exam.create_exam(quizzes,user)
-        
         return Exam.objects.filter(pk = exam.pk)
     
     @staticmethod
     def __order_optional_args(level,source , number): 
         data = {}   
         if level : 
-            if not find_in_dict(level, Quiz.LEVEL_TYPE):
+            if not find_in_dict(level, Quiz.LEVEL_TYPE) or not find_in_dict(level,Quiz.REVERS_LEVEL_TYPE):
                 raise ValidationError('uncorrect level')
-
+            
             data['level'] = dict(Quiz.REVERS_LEVEL_TYPE)[level]
 
         if source :
@@ -159,7 +152,7 @@ class Exam(BaseTemporaryKey):
                 raise ValidationError('source does not exits')
         
         if not number:   
-            number = 15
+            number = DIFAULT_SEND_QUIZ
         data['number'] = number
 
         return data

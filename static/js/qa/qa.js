@@ -14,7 +14,7 @@ $(function () {
             }
         }
         return cookieValue;
-    };
+    }
 
     function csrfSafeMethod(method) {
         // These HTTP methods do not require CSRF protection
@@ -25,7 +25,7 @@ $(function () {
     var page_title = $(document).attr("title");
     // This sets up every ajax call with proper headers.
     $.ajaxSetup({
-        beforeSend: function(xhr, settings) {
+        beforeSend: function (xhr, settings) {
             if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
                 xhr.setRequestHeader("X-CSRFToken", csrftoken);
             }
@@ -36,13 +36,6 @@ $(function () {
         // function to operate the Publish button in the question form, marking
         // the question status as published.
         $("input[name='status']").val("O");
-        $("#question-form").submit();
-    });
-
-    $("#draft").click(function () {
-        // Function to operate the Draft button in the question form, marking
-        // the question status as draft.
-        $("input[name='status']").val("D");
         $("#question-form").submit();
     });
 
@@ -59,17 +52,17 @@ $(function () {
         $.ajax({
             url: '/qa/question/vote/',
             data: {
-              'question': question,
-              'value': vote
+                'question': question,
+                'value': vote
             },
             type: 'post',
             cache: false,
             success: function (data) {
-              $('.vote', span).removeClass('voted');
-              if (vote === "U") {
-                $(span).addClass('voted');
-              }
-              $("#questionVotes").text(data.votes);
+                $('.vote', span).removeClass('voted');
+                if (vote === "U") {
+                    $(span).addClass('voted');
+                }
+                $("#questionVotes").text(data.votes);
             }
         });
     });
@@ -87,17 +80,17 @@ $(function () {
         $.ajax({
             url: '/qa/answer/vote/',
             data: {
-              'answer': answer,
-              'value': vote
+                'answer': answer,
+                'value': vote
             },
             type: 'post',
             cache: false,
             success: function (data) {
-              $('.vote', span).removeClass('voted');
-              if (vote === "U") {
-                $(span).addClass('voted');
-              }
-              $("#answerVotes").text(data.votes);
+                $('.vote', span).removeClass('voted');
+                if (vote === "U") {
+                    $(span).addClass('voted');
+                }
+                $("#answerVotes").text(data.votes);
             }
         });
     });
@@ -107,7 +100,7 @@ $(function () {
         var span = $(this);
         var answer = $(this).closest(".answer").attr("answer-id");
         $.ajax({
-            url: '/qa/accept-answer/',
+            url: 'api/qa/accept-answer/',
             data: {
                 'answer': answer
             },

@@ -29,3 +29,4 @@ class MarkdownxFormField(forms.CharField):
 
         elif not issubclass(self.widget.__class__, MarkdownxWidget):
             self.widget = MarkdownxWidget()
+
