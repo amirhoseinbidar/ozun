@@ -48,7 +48,7 @@ EXTRA_APPS = [
     'taggit',
     'rest_auth',
     'django_webtest',
-    'ckeditor'
+    #'ckeditor'
     
     'allauth',
     'allauth.account',
