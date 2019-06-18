@@ -51,8 +51,8 @@
             reload_markdownx_js();
         });
 
-        init();
 
+        init();
         function init() {
             $.ajax({
                 url: '/api/quiz/get/' + quiz_id + '/',
@@ -89,7 +89,6 @@
             $(deleteBtn).on('click', function (event) {
                 deleteRow(event.target);
             }).appendTo(newrow);
-
         }
 
         function getEditor(name, content) {

@@ -16,16 +16,16 @@ urlpatterns = [
         views.userProfileList.as_view(),
         name='user_profile_list'
     ),
-    url(
-        r'^socialaccounts/$',
-        SocialAccountListView.as_view(),
-        name='social_account_list'
-    ),
-    url(
-        r'^socialaccounts/(?P<pk>\d+)/disconnect/$',
-        SocialAccountDisconnectView.as_view(),
-        name='social_account_disconnect'
-    ),
+    #url(
+    #    r'^socialaccounts/$',
+    #    SocialAccountListView.as_view(),
+    #    name='social_account_list'
+    #),
+    #url(
+    #    r'^socialaccounts/(?P<pk>\d+)/disconnect/$',
+    #    SocialAccountDisconnectView.as_view(),
+    #    name='social_account_disconnect'
+    #),
 
     url(r'^quiz-manage/create/$', views.QuizCreate.as_view(), name='quiz_create'),
     url(r'^quiz-manage/update/(?P<pk>\d+)/$',

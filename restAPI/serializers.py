@@ -74,7 +74,7 @@ class  CourseSerializer(serializers.ModelSerializer):
 class AnswerSerializer(serializers.ModelSerializer):
     class Meta:
         model = Answer
-        exclude = ('quiz',)
+        exclude = ('quiz','is_correct_answer')
 
 
 class SourceSerializer(serializers.ModelSerializer):

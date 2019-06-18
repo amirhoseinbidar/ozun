@@ -30,12 +30,11 @@ class Answer(models.Model):
     
     def __unicode__(self):
         return u'answer id: {0}'.format(self.pk)
-   
-    def save(self,*args,**kwargs):
+    
+    def clean(self):
         if self.is_correct_answer:
             checkDuplicate(Answer,self, is_correct_answer=True , quiz = self.quiz)
 
-        super(Answer,self).save(*args,**kwargs)    
 
     def get_markdownify(self):
         return markdownify(self.content)
@@ -73,6 +72,9 @@ class Quiz(models.Model):
     added_by = models.ForeignKey(User,null = True , blank = True , on_delete = models.SET_NULL)
     timestamp = models.DateTimeField(auto_now_add=True)
     
+    def check(self):
+        allowed_types([LESSON ,CHAPTER ,TOPIC ],self.lesson ,'lesson' )
+
     def count_votes(self):
         dic = Counter(self.votes.values_list("feedback_type", flat=True)) 
         Quiz.objects.filter(id=self.id).update(
@@ -91,12 +93,9 @@ class Quiz(models.Model):
         branch = LessonTree.find_by_path(lesson_path , get_by_slug)
         lessons = list(branch.get_descendants())+[branch]
         quizzes =Quiz.objects.filter( lesson__in = lessons )
-            
         return quizzes
 
     def save(self,*args,**kwargs): 
-        allowed_types([LESSON ,CHAPTER ,TOPIC ],self.lesson ,'lesson' )
-       
         if not self.time_for_out:
             self.time_for_out = getTimeByLevel(self.level)
         super(Quiz,self).save(*args,**kwargs)

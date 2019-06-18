@@ -21,70 +21,11 @@ class quizAdminRules(admin.ModelAdmin):
         obj.added_by = request.user
         super(quizAdminRules, self).save_model(request, obj, form, change)
 
+class AnswerAdmin(admin.StackedInline):
+    model = Answer
 
-class quizzesAdmin(quizAdminRules):
-
-    readonly_fields = ['total_votes', ]  # 'added_by'
-    # def address(self,obj):
-    #    base = '{}/{}'.format(obj.grade.name , obj.lesson.name)
-    #    data = ''
-    #    if not obj.topics.all().exists():
-    #        return base
-    #    for topic in obj.topics.all():
-    #        data += base+'/{}/{} \n '.format(topic.chapter.name ,topic.name)
-    #
-    #    return data
-
-    # def answersJson(self , quiz):
-    #    data = []
-    #    for answer in quiz.answers_set.all():
-    #        data.append( {
-    #            'text': answer.text,
-    #            'pk' : answer.pk
-    #        })
-    #
-    #    return dumps(data,ensure_ascii=False)
-
-    # TODO:the value of Dict should be safe this method dont check data is clear or not
-    def answersController(self, Dict, quiz):
-        for i in Dict:
-            # answer-info-$$ is hidden input that have information about a answer in json format see /static/scripts/quizzes/admin-change_form.js
-            if isinstance(i, str) and i.find('answer-info') != -1:
-                info = loads(Dict[i])
-                txt = Dict[info['connect_to']]
-                if not txt:
-                    raise ValidationError('empety field error0')
-                if info['is_new']:
-                    Answer(text=txt, quiz=quiz).save()
-                else:
-                    answer = Answer.objects.get(info['pk'])
-                    answer.text = txt
-                    answer.save()
-
-    def add_view(self, request, form_url='', extra_context=None):
-        extra_context = extra_context or {}
-        #extra_context['is_quiz_admin'] = True
-
-        return super(quizzesAdmin, self).add_view(
-            request, form_url, extra_context
-        )
-
-    def change_view(self, request, object_id, form_url='', extra_context=None):
-
-        extra_context = extra_context or {}
-        #extra_context['answersJson'] = self.answersJson( Quiz.objects.get(id = object_id) )
-        extra_context['is_quiz_admin'] = True
-        extra_context['quiz_id'] = object_id
-        return super(quizzesAdmin, self).change_view(
-            request, object_id, form_url, extra_context=extra_context,
-        )
-
-    def save_model(self, request, obj, form, change):
-        model = super(self.__class__, self).save_model(
-            request, obj, form, change)
-
-    list_display = ('level', 'timestamp', 'total_votes')
-
+class QuizAdmin(quizAdminRules):
+    inlines = [ AnswerAdmin, ]
 
 class topicAdmin(quizAdminRules):
     filter_horizontal = ('grades',)
@@ -110,7 +51,7 @@ class QuizzesAdminSite(admin.AdminSite):
 quizzesAdminSite = QuizzesAdminSite(name='quizzes_admin')
 
 # Register your models here.
-quizzesAdminSite.register(models.Quiz, quizzesAdmin)
+quizzesAdminSite.register(models.Quiz, QuizAdmin)
 quizzesAdminSite.register(models.Source)
 quizzesAdminSite.register(models.Answer)
 quizzesAdminSite.register(models.QuizStatus)
