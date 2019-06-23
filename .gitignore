@@ -3,3 +3,5 @@
 settings.json
 media/
 *.sqlite3
+
+env
