@@ -45,8 +45,6 @@ urlpatterns = [
 
     url(r'^lesson/children/(?P<LessonPath>[\w/-]+)',
         views.LessonPathView.as_view(), name='lesson_path_view'),
-    url(r'^location/children/(?P<LocationPath>[\w/-]+)',
-        views.LocationPathView.as_view(), name='location_path_view'),
     url(r'^sources/', views.SourceView.as_view(), name='source_view'),
 
     url(r'^exam/update/$', views.UpdateExam.as_view(), name='update_exam'),

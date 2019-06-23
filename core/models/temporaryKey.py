@@ -8,16 +8,13 @@ class BTKQuerySet(models.QuerySet):
     """ Base Temporary Key Query Set
         every time we want to get object(s) this class check query(s) for ensure
         they are not out of date  """
-    def filter(self,*args,**kwargs):
-        queries = super().filter(*args,**kwargs)
-        for q in queries:
+    
+    def check_out_of_date(self):
+        for q in self.query:
             q.check_out_of_date()
-        return queries
-    def get(self,*args,**kwargs):
-        query = super().get(*args,**kwargs)
-        query.check_out_of_date()
-        return query
-        
+        return self.query
+
+
 
 class BaseTemporaryKey(models.Model):
     """ base class for all model classes that want be temporary , mean 
@@ -42,11 +39,6 @@ class BaseTemporaryKey(models.Model):
     def check_out_of_date(self):
         if timezone.now()>self.close_date:
             self.close_action()
-
-    
-    def save(self,*args,**kwargs):
-        self.check_out_of_date()
-        super().save(*args,**kwargs)
 
     objects = BTKQuerySet.as_manager()
 

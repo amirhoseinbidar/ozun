@@ -2,18 +2,17 @@ from rest_framework import serializers
 from quizzes.models import Answer ,Quiz , QuizStatus , Exam , Source 
 from core.models import FeedBack , LessonTree ,TreeContent
 from studypost.models import  magazine , course
-from core.models import LessonTree ,allowed_types , GRADE , LESSON  , Location
+from core.models import LessonTree ,allowed_types , GRADE , LESSON 
 from rest_framework.exceptions import NotFound , NotAcceptable , ParseError
 from django.core.exceptions import ObjectDoesNotExist , ValidationError
 from rest_auth.serializers import UserDetailsSerializer ,LoginSerializer
 from ozun.settings import TIME_ZONE
 from users.forms import ProfileForm
-from .utils import checkLessonTreeContent , checkLocationContent , checkSourceContent
+from .utils import checkLessonTreeContent , checkSourceContent
 
 
 
 class UserSerializer(UserDetailsSerializer):
-    location = serializers.CharField(source = 'profile.location.path',required = False)
     grade = serializers.CharField(source = 'profile.grade.full_path',required = False)
     interest_lesson = serializers.CharField(source = 'profile.interest_lesson.full_path',required = False)
     score = serializers.IntegerField(source = 'profile.score',read_only = True,required = False)
@@ -23,9 +22,12 @@ class UserSerializer(UserDetailsSerializer):
 
     class Meta(UserDetailsSerializer.Meta):
         fields = UserDetailsSerializer.Meta.fields + (
-            'location', 'grade' , 'interest_lesson' , 
+            'grade' , 'interest_lesson' , 
             'score' , 'bio' , 'image' , 'brith_day' ,
         )
+        extra_kwargs ={
+            'username' : { 'read_only': True }
+        }
 
     def update(self,instance,validated_data):
         profile_data = validated_data.pop('profile' , {})
@@ -33,7 +35,6 @@ class UserSerializer(UserDetailsSerializer):
         grade = profile_data.pop('grade',{}).pop('full_path' ,None)
         interest_lesson = profile_data.pop(
                 'interest_lesson',{}).pop('full_path' ,None)
-        location =  profile_data.pop('location',{}).pop('path' ,None)
         
         instance = super(UserSerializer, self).update(instance, validated_data)
         profile = instance.profile
@@ -43,10 +44,7 @@ class UserSerializer(UserDetailsSerializer):
             profile_data['grade'] = checkLessonTreeContent(grade , GRADE , 'grade' ,False).pk
         if interest_lesson:
             profile_data['interest_lesson'] = checkLessonTreeContent(interest_lesson , LESSON , 'interest_lesson',  False).pk
-
-        if location:
-            profile_data['location'] = checkLocationContent(location).pk
-            
+    
         if 'image' in profile_data:
             form = ProfileForm( profile_data ,
                 {'image': profile_data['image']} , instance = profile ) 
@@ -120,7 +118,7 @@ class QuizManagerSerializer(serializers.ModelSerializer):
         validated_data['source'] = checkSourceContent(validated_data['source'])
         
         Quiz.objects.filter(pk = instance.pk).update(**validated_data)
-        answers = Answer.objects.filter(quiz = instance).delete()# delete all previous answers 
+        Answer.objects.filter(quiz = instance).delete()# delete all previous answers 
         instance.refresh_from_db()
 
         for answer in answer_set: # add new answers
@@ -131,7 +129,10 @@ class QuizManagerSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = Quiz
-        fields = '__all__'
+        fields = [
+            'content'  ,'answer_set' , 'exponential_answer' ,  'lesson' , 'source' ,
+            'level', 'time_for_out' , 'added_by' 
+        ]
         extra_kwargs = {
             'added_by' : {'required' : True},
         }

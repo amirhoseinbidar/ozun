@@ -20,7 +20,7 @@ class StartExam(generics.ListAPIView):
         data = self.request.query_params
         level = data.get('level' , None)
         source = data.get('source' , None)
-      
+
         try:
             number = data.get('number' ,None)
             if number:
@@ -31,6 +31,8 @@ class StartExam(generics.ListAPIView):
 
         except (duplicationException, ValidationError) as e:
             raise ParseError(e,400)
+        except  ObjectDoesNotExist :
+            raise ParseError('matching lesson path does not exists')
         except ValueError:
             raise ParseError('number parametr must be digit')
 

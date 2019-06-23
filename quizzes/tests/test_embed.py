@@ -4,7 +4,6 @@ from core.models import LessonTree
 from quizzes.models import Quiz, Answer, Source
 from core.tests.test_embed import create_documents
 
-
 def embed_test_quizzes():  # TODO:this can be smaller
     documents = create_documents('quizzes.yaml')
 
@@ -20,9 +19,10 @@ def embed_test_quizzes():  # TODO:this can be smaller
                 dic = data[key]
                 answers = dic.pop('answers', None)
 
-                dic['source'] = Source(name=dic['source'])
-                dic['source'] = dic['source'].save_or_get()
-
+                dic['source'] = Source.objects.update_or_create( 
+                    name=dic['source'],
+                )[0]
+                
                 dic['lesson'] = LessonTree.find_by_path(dic['lesson'])
                 quiz = Quiz(**dic)
                 quiz.save()

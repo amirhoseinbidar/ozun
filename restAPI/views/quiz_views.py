@@ -6,8 +6,7 @@ from restAPI.serializers import (
     QuizSerializer , Quiz ,ExamSerializer , 
     QuizStatusSerializer, QuizManagerSerializer ,
     SourceSerializer ,  LessonSeializer) 
-from core.models import LessonTree  , Location 
-from core.models.countries import Country_province
+from core.models import LessonTree
 from rest_framework.exceptions import ParseError 
 from core.exceptions import duplicationException
 from django.core.exceptions import ObjectDoesNotExist , ValidationError
@@ -18,10 +17,17 @@ from rest_framework import status
 from json import dumps
 from quizzes.models import Source
 from users.models import User
+from core.checks import APIExceptionHandler
+from rest_framework.pagination import LimitOffsetPagination
 
-class QuizSearchList(generics.ListAPIView): # need test
+class QuizPagination(LimitOffsetPagination):
+    default_limit = 10
+
+class QuizSearchList(APIExceptionHandler, generics.ListAPIView): # need test
     allowed_actions = ['most-voteds','lasts','path' ,'get']
+    pagination_class = QuizPagination
     serializer_class = QuizSerializer
+    
     def get_queryset(self):
         action = self.kwargs['action'] 
         if not action in self.allowed_actions:
@@ -39,28 +45,23 @@ class QuizSearchList(generics.ListAPIView): # need test
 
     
     def most_votedsHandler(self,**kwargs):
-        if not ('from' in kwargs and 'to' in kwargs):
-            return Quiz.get_mostVotes(0,49)
-         
-        From = int(kwargs.get('from'))
-        To = int(kwargs.get('to'))  
-        
-        return Quiz.get_mostVotes(From,To)
+        return Quiz.get_mostVotes()
 
     def lastsHandler(self,**kwargs):
-        if not ('from' in kwargs and 'to' in kwargs):
-            return Quiz.objects.all()[:50]#Quizzes orderd by Time in default
-        
-        From = int(kwargs.get('from'))
-        To = int(kwargs.get('to'))
-        return Quiz.objects.all()[From:To]
+        return Quiz.objects.all()
   
     def pathHandler(self ,LessonPath):
-        return Quiz.get_by_path(LessonPath)
-    
+        try:
+            return Quiz.get_by_path(LessonPath)
+        except ObjectDoesNotExist:
+            raise ParseError('matching lesson path does not exist')
+
     def getHandler(self,**kwargs):
-        return Quiz.objects.filter(pk = kwargs['pk'])
-        
+        try:
+            return Quiz.objects.filter(pk = kwargs['pk'])
+        except :
+            raise ParseError('matching quiz id does not exist')
+
         
 class QuizFeedBack(generics.views.APIView):
     def post(self,request,quiz_pk):
@@ -89,6 +90,7 @@ class QuizFeedBack(generics.views.APIView):
 
 class QuizCreate(generics.CreateAPIView):
     serializer_class = QuizManagerSerializer
+
     def post(self,*args,**kwargs):
         # if 'added_by' is not exists let this go on parent method will raise error
         user_pk = self.request.data.get('added_by' , None)
@@ -128,25 +130,7 @@ class LessonPathView(generics.ListAPIView):
                 return LessonTree.find_by_path(self.kwargs['LessonPath'],True).get_children()
             except ObjectDoesNotExist:
                 raise ParseError('uncorrect path')
-
-class LocationPathView(generics.views.APIView):
-    def get(self,request,LocationPath):
-        if LocationPath == 'root':
-            children = Country_province.objects.all().values_list('name')
-            children = [ child[0] for child in children]
-        else:
-            try:
-                children = Location.get_children(LocationPath,True)
-
-            except ObjectDoesNotExist:
-                raise ParseError('uncorrect path')
-        
-        data = {
-            'children' : children ,
-            'children count' : len(children) ,
-        }
-        return Response(data = dumps(data),status = status.HTTP_200_OK)
-                
+ 
 class SourceView(generics.ListAPIView):
     serializer_class = SourceSerializer
     def get_queryset(self):

@@ -84,14 +84,12 @@ class Quiz(models.Model):
     @staticmethod
     def get_mostVotes(_from,to):
         """ return a list of most Voted quizzes by area"""
-        if not ( to > _from and to >=0 and _from >= 0 ):
-            raise  ValidationError(''''one of argomants are negative or "to <= _from" ''')
-        return Quiz.objects.order_by('-total_votes')[_from:to] 
+        return Quiz.objects.order_by('-total_votes') 
 
     @staticmethod
     def get_by_path(lesson_path,get_by_slug =True):
         branch = LessonTree.find_by_path(lesson_path , get_by_slug)
-        lessons = list(branch.get_descendants())+[branch]
+        lessons = list(branch.get_descendants())+[branch,]
         quizzes =Quiz.objects.filter( lesson__in = lessons )
         return quizzes
 

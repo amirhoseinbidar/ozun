@@ -5,7 +5,7 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.fields import ContentType, GenericForeignKey
 from core.models.temporaryKey import BaseTemporaryKey
-from core.models import LESSON, GRADE, allowed_types, LessonTree, Location
+from core.models import LESSON, GRADE, allowed_types, LessonTree
 from django.urls import reverse
 from datetime import datetime
 from allauth.socialaccount import default_app_config
@@ -34,8 +34,6 @@ def score_update(instance, **kwargs):
 
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-    location = models.ForeignKey(
-        Location, null=True, blank=True, on_delete=models.SET_NULL)
     bio = models.TextField(blank=True)
     image = models.ImageField(blank=True, upload_to='users/images')
     brith_day = models.DateField(null=True, blank=True)
@@ -45,12 +43,13 @@ class Profile(models.Model):
                                         null=True, related_name='interest_lesson', on_delete=models.SET_NULL)
     score = models.IntegerField(blank=True, null=True)
 
-    def save(self, *args, **kwargs):
+    def clean(self):
         allowed_types(GRADE, self.grade, 'grade')
         allowed_types(LESSON, self.interest_lesson, 'interest_lesson')
+        
+    def save(self, *args, **kwargs):
         if not self.score:
             self.score = 0
-
         super(Profile, self).save(*args, **kwargs)
 
     def get_absolute_url(self):
@@ -70,7 +69,6 @@ class Profile(models.Model):
             deffrence = datetime.today() - brith_day
             age_year = deffrence.days // (365.25)
             age_month = (deffrence.days - age_year * 365.25)//(365.25/12)
-
         else:
             age_year = age_month = 0
 
