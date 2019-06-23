@@ -114,3 +114,6 @@ settings.json
 media/
 *.sqlite3
 env_var.json
+migrations/
+
+!__init__.py
