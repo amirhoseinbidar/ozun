@@ -51,6 +51,7 @@ EXTRA_APPS = [
     'treebeard',
     'taggit',
     'rest_auth',
+    'ckeditor',
     'ckeditor_uploader',
     
     'allauth',
@@ -77,7 +78,58 @@ INSTALLED_APPS = DJANGO_APPS + EXTRA_APPS + LOCAL_APPS
 CKEDITOR_UPLOAD_PATH = 'editor_images/'
 CKEDITOR_IMAGE_BACKEND = 'pillow'
 CKEDITOR_RESTRICT_BY_USER = True
-
+CKEDITOR_CONFIGS = {
+    'default': {
+        'toolbar': 'full',
+        'toolbar_Basic': [
+            ['Source', '-', 'Bold', 'Italic']
+        ],
+        'toolbar_CustomToolbarConfig': [
+            {'name': 'document', 'items': ['Source', '-', 'Save', 'NewPage', 'Preview', 'Print', '-', 'Templates']},
+            {'name': 'clipboard', 'items': ['Cut', 'Copy', 'Paste', 'PasteText','PasteFromWord', '-', 'Undo', 'Redo']},
+            {'name': 'editing', 'items': ['Find', 'Replace', '-', 'SelectAll']},
+            {'name': 'forms','items': ['Form', 'Checkbox', 'Radio', 'TextField', 'Textarea', 'Select','Button', 'ImageButton','HiddenField']},
+            '/',
+            {'name': 'basicstyles','items': ['Bold', 'Italic', 'Underline', 'Strike', 'Subscript','Superscript', '-', 'RemoveFormat']},
+            {'name': 'paragraph','items': ['NumberedList', 'BulletedList', '-', 'Outdent', 'Indent', '-','Blockquote', 'CreateDiv', '-','JustifyLeft', 'JustifyCenter', 'JustifyRight', 'JustifyBlock','-', 'BidiLtr', 'BidiRtl','Language']},
+            {'name': 'links', 'items': ['Link', 'Unlink', 'Anchor']},
+            {'name': 'insert','items': ['Image', 'Flash', 'Table', 'HorizontalRule', 'Smiley','SpecialChar', 'PageBreak', 'Iframe']},
+            '/',
+            {'name': 'styles', 'items': ['Styles', 'Format', 'Font', 'FontSize']},
+            {'name': 'colors', 'items': ['TextColor', 'BGColor']},
+            {'name': 'tools', 'items': ['Maximize', 'ShowBlocks']},
+            {'name': 'about', 'items': ['About']},
+            '/', # put this to force next toolbar on new line
+            {'name': 'yourcustomtools', 'items': [
+            # put the name of your editor.ui.addButton here
+                'Preview',
+                'Maximize',
+                'Mathjax',
+            ]},
+        ] ,
+        'tabSpaces': 4,
+        'mathJaxLib': '//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS_HTML',
+        'extraPlugins': ','.join([
+            'uploadimage', # the upload image feature
+            # your extra plugins here
+            'div',
+            'autolink',
+            'autoembed',
+            'embedsemantic',
+            'autogrow',
+            'mathjax',
+            #'devtools',
+            'widget',
+            'lineutils',
+            'clipboard',
+            'dialog',
+            'dialogui',
+            'elementspath'
+        ]),
+        'defaultLanguage':'en',
+        'toolbar': 'CustomToolbarConfig',
+    },
+}
 ### MIDDLEWARE SETTING #################################
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -87,6 +139,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'django.middleware.locale.LocaleMiddleware',
 ]
 
 ROOT_URLCONF = 'ozun.urls'
@@ -169,10 +222,10 @@ AUTH_PASSWORD_VALIDATORS = [
 # Provide a lists of languages which your site supports.
 LANGUAGES = (
     ('fa', _('Farsi')),
-    # ('en', _('English')),
+    ('en', _('English')),
 )
 
-LANGUAGE_CODE = 'fa'
+LANGUAGE_CODE = 'en'
 
 TIME_ZONE = 'Asia/Tehran'
 

@@ -13,20 +13,23 @@ Including another URLconf
     1. Import the include() function: from django.conf.urls import url, include
     2. Add a URL to urlpatterns:  url(r'^blog/', include('blog.urls'))
 """
+
 from django.conf.urls import url,include
 from django.contrib import admin
+from django.conf.urls.i18n import i18n_patterns
 from django.contrib.staticfiles.urls import static
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns
-from ozun import settings
+
 from django.views.generic import TemplateView
+from ozun import settings
 from quizzes.admin import quizzesAdminSite
+
 
 app_name = 'ozun'
 
 urlpatterns = [
     url(r'^$' , TemplateView.as_view(template_name = 'index.html'),name = 'index'),
-    url(r'^admin/users/', admin.site.urls),
-    url(r'^admin/quizzes/',quizzesAdminSite.urls),
+   
     url(r'^api/',include('restAPI.urls')),
     #url(r'^accounts/', include('users.urls')),  
     #url(r'^quizzes/',include('quizzes.urls')),
@@ -35,5 +38,9 @@ urlpatterns = [
     url(r'^ckeditor/', include('ckeditor_uploader.urls')),
 ]
 
+urlpatterns += i18n_patterns(
+    url(r'^admin/users/', admin.site.urls),
+    url(r'^admin/quizzes/',quizzesAdminSite.urls),
+)
 urlpatterns += staticfiles_urlpatterns()
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

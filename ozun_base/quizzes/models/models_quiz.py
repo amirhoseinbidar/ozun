@@ -33,11 +33,6 @@ class Answer(models.Model):
         if self.is_correct_answer:
             checkDuplicate(Answer,self, is_correct_answer=True , quiz = self.quiz)
 
-
-    def get_markdownify(self):
-        return markdownify(self.content)
-
-
 class Quiz(models.Model):
     VERY_HARD = 'VH'
     HARD = 'H'
@@ -98,12 +93,6 @@ class Quiz(models.Model):
         
     def __unicode__(self):
         return u'{0}'.format(self.pk)
-    
-    def get_markdownify_content(self):
-        return markdownify(self.content)
-    
-    def get_markdownify_EA(self):
-        return markdownify(self.exponential_answer)
 
     class Meta:
         ordering = ['-timestamp']
