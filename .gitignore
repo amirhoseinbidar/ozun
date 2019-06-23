@@ -1,5 +1,0 @@
-*.py[co]
-.vscode/
-settings.json
-media/
-*.sqlite3
