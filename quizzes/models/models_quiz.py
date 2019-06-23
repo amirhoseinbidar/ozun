@@ -72,7 +72,7 @@ class Quiz(models.Model):
     added_by = models.ForeignKey(User,null = True , blank = True , on_delete = models.SET_NULL)
     timestamp = models.DateTimeField(auto_now_add=True)
     
-    def check(self):
+    def clean(self):
         allowed_types([LESSON ,CHAPTER ,TOPIC ],self.lesson ,'lesson' )
 
     def count_votes(self):
