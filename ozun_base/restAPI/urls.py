@@ -6,6 +6,12 @@ from rest_auth.registration.views import (
 from . import views
 from rest_auth.registration.urls import urlpatterns
 from rest_auth.urls import urlpatterns
+from rest_framework.routers import SimpleRouter
+
+router = SimpleRouter()
+
+router.register(r'qa/answer' , views.AnswerViewSet , basename= 'qa_answer')
+router.register(r'qa/question' , views.QuestionViewSet , basename= 'qa_question' ) 
 
 app_name = 'api'
 urlpatterns = [
@@ -54,14 +60,16 @@ urlpatterns = [
     url(r'^exam/start/(?P<LessonPath>[\w/-]+)',
         views.StartExam.as_view(), name='start_exam'),
 
-    url(r'^qa/$', views.QuestionListView.as_view(), name='index_noans'),
-    url(r'^qa/answered/$', views.QuestionAnsListView.as_view(), name='index_ans'),
-    url(r'^qa/lasts/$', views.LastQuestionsView.as_view(), name='index_all'),
-    url(r'^qa/question-detail/(?P<pk>\d+)/$',
-        views.QuestionDetailView.as_view(), name='question_detail'),
-    url(r'^qa/ask-question/$', views.CreateQuestionView.as_view(), name='ask_question'),
-    url(r'^qa/propose-answer/$',
-        views.CreateAnswerView.as_view(), name='propose_answer'),
+    
+    url(r'^qa/question/answered/$', views.QuestionListView.as_view(),
+        {'state': 'answered'} , name='qa_quistions_ans'),
+    url(r'^qa/question/id/(?P<id>)/$', views.QuestionListView.as_view(),
+        {'state': 'id' },  name='qa_quistion_id'),
+    url(r'^qa/question/unanswered/$', views.QuestionListView.as_view(),
+        {'state': 'unanswered' } , name = 'qa_quistions_unans' ),
+    url(r'^qa/answer/id/(?P<id>)/$' , views.AnswerListView.as_view() , name= 'qa_ansswer_id'),
+
+    
     url(r'^qa/question/vote/$', views.QAHandler.as_view(),
         {'_type': 'question'}, name='question_vote'),
     url(r'^qa/answer/vote/$', views.QAHandler.as_view(),
@@ -71,6 +79,9 @@ urlpatterns = [
 
     url(r'^magzin/(?P<LessonPath>[\w/-]+)',
         views.StudyPostList.as_view(), name='magazine'),
+    
     url(r'^source/(?P<LessonPath>[\w/-]+)',
         views.StudyPostList.as_view(), name='source'),
 ]
+
+urlpatterns += router.urls

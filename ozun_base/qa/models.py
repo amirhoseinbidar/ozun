@@ -5,7 +5,7 @@ from django.db import models
 from django.utils.translation import ugettext_lazy as _
 from django.conf import settings
 from django.db.models import Count
-from core.models import FeedBack
+from core.models import FeedBack , MediaConnect
 from django.contrib.contenttypes.fields import GenericRelation
 
 from django.utils.text import slugify
@@ -49,8 +49,7 @@ class Question(models.Model):
         (OPEN, _("Open")),
         (CLOSED, _("Closed")),
     )
-    user = models.ForeignKey(settings.AUTH_USER_MODEL,
-                             on_delete=models.CASCADE)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL,on_delete=models.CASCADE)
     title = models.CharField(max_length=200, unique=True, blank=False)
     timestamp = models.DateTimeField(auto_now_add=True)
     slug = models.SlugField(max_length=80, null=True, blank=True)
@@ -60,6 +59,7 @@ class Question(models.Model):
     total_votes = models.IntegerField(default=0)
     votes = GenericRelation(FeedBack)
     tags = TaggableManager()
+    media = GenericRelation(MediaConnect)
     objects = QuestionQuerySet.as_manager()
 
     class Meta:
@@ -110,15 +110,12 @@ class Answer(models.Model):
     """Model class to contain every answer in the forum and to link it
     to its respective question."""
     question = models.ForeignKey(Question, on_delete=models.CASCADE)
-    user = models.ForeignKey(settings.AUTH_USER_MODEL,
-                             on_delete=models.CASCADE)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL,on_delete=models.CASCADE)
     content = RichTextUploadingField()
-    # NOTE raise ""OverflowError: Python int too large to convert to SQLite INTEGE"" in sqlite3
-    uuid_id = models.UUIDField(
-        primary_key=True, default=uuid.uuid4, editable=False, max_length=16)
     total_votes = models.IntegerField(default=0)
     timestamp = models.DateTimeField(auto_now_add=True)
     is_answer = models.BooleanField(default=False)
+    media = GenericRelation(MediaConnect)
     votes = GenericRelation(FeedBack)
 
     class Meta:

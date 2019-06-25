@@ -8,7 +8,7 @@ from django.contrib.auth.models import User
 from django.contrib.contenttypes.fields import GenericRelation
 from core.checks import checkDuplicate
 from quizzes.utils import getTimeByLevel
-from core.models import FeedBack
+from core.models import FeedBack , MediaConnect
 from core.models.lessonTree import(allowed_types ,LESSON 
                     ,TOPIC ,CHAPTER ,LessonTree)
 from core.exceptions import duplicationException
@@ -23,7 +23,8 @@ class Source(models.Model):
 
 class Answer(models.Model):
     content = RichTextUploadingField()
-    is_correct_answer = models.BooleanField()
+    media = GenericRelation(MediaConnect)
+    is_correct_answer = models.BooleanField(default=False)
     quiz = models.ForeignKey('Quiz', on_delete=models.CASCADE)
     
     def __unicode__(self):
@@ -56,6 +57,7 @@ class Quiz(models.Model):
 
     content = RichTextUploadingField()
     votes = GenericRelation(FeedBack)
+    media = GenericRelation(MediaConnect)
     total_votes = models.IntegerField(default=0)
     exponential_answer = RichTextUploadingField(blank=True)
     source = models.ForeignKey(Source ,null = True, blank=True, on_delete=models.SET_NULL)
@@ -64,7 +66,8 @@ class Quiz(models.Model):
     time_for_out = models.TimeField(blank = True , null = True)
     added_by = models.ForeignKey(User,null = True , blank = True , on_delete = models.SET_NULL)
     timestamp = models.DateTimeField(auto_now_add=True)
-    
+   
+
     def clean(self):
         allowed_types([LESSON ,CHAPTER ,TOPIC ],self.lesson ,'lesson' )
 
@@ -75,7 +78,7 @@ class Quiz(models.Model):
         self.refresh_from_db()
     
     @staticmethod
-    def get_mostVotes(_from,to):
+    def get_mostVotes():
         """ return a list of most Voted quizzes by area"""
         return Quiz.objects.order_by('-total_votes') 
 
