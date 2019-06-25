@@ -2,7 +2,6 @@
 from __future__ import unicode_literals
 import yaml
 from ozun.settings import PROJECT_DIR
-from core.models import Location
 
 def strip_invalid(s):
     res = ''
@@ -19,11 +18,6 @@ def create_documents(file_name):
         file_str = file.read()
         data = yaml.load_all( strip_invalid(file_str) )
     return data
-
-def embed_test_locations():
-    data = next(create_documents('locations.yaml'))
-    for key in data:
-        Location().create_by_path(data[key])
     
 def get_test_image_path():
     return PROJECT_DIR+'/equipments/tests/test_image.jpg'

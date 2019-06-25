@@ -126,7 +126,6 @@ CKEDITOR_CONFIGS = {
             'dialogui',
             'elementspath'
         ]),
-        'defaultLanguage':'en',
         'toolbar': 'CustomToolbarConfig',
     },
 }
@@ -270,7 +269,7 @@ if ENV['REAL_SERVER']:
     EMAIL_HOST_USER = ENV['EMAIL_HOST_USER']
     EMAIL_HOST_PASSWORD =  ENV['EMAIL_HOST_PASSWORD']
     EMAIL_PORT = 587
-
+    
 ##### Rest framework authentication setting #####
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
