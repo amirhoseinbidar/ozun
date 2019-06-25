@@ -23,8 +23,11 @@ from rest_framework.pagination import LimitOffsetPagination
 class QuizPagination(LimitOffsetPagination):
     default_limit = 10
 
+class SourcePagination(LimitOffsetPagination):
+    default_limit = 50
+
 class QuizSearchList(APIExceptionHandler, generics.ListAPIView): # need test
-    allowed_actions = ['most-voteds','lasts','path' ,'get']
+    allowed_actions = ['most-voteds','lasts','path']
     pagination_class = QuizPagination
     serializer_class = QuizSerializer
     
@@ -38,8 +41,6 @@ class QuizSearchList(APIExceptionHandler, generics.ListAPIView): # need test
             return self.most_votedsHandler(**self.kwargs)
         elif action == "lasts":
             return self.lastsHandler(**self.kwargs)
-        elif action == 'get':
-            return self.getHandler(**self.kwargs)    
         elif action == 'path':
             return self.pathHandler(self.kwargs.get('LessonPath'))
 
@@ -55,12 +56,6 @@ class QuizSearchList(APIExceptionHandler, generics.ListAPIView): # need test
             return Quiz.get_by_path(LessonPath)
         except ObjectDoesNotExist:
             raise ParseError('matching lesson path does not exist')
-
-    def getHandler(self,**kwargs):
-        try:
-            return Quiz.objects.filter(pk = kwargs['pk'])
-        except :
-            raise ParseError('matching quiz id does not exist')
 
         
 class QuizFeedBack(generics.views.APIView):
@@ -133,6 +128,7 @@ class LessonPathView(generics.ListAPIView):
  
 class SourceView(generics.ListAPIView):
     serializer_class = SourceSerializer
+    pagination_class = SourcePagination
     def get_queryset(self):
         return Source.objects.all()
             

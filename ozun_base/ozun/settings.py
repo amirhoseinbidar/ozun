@@ -126,7 +126,6 @@ CKEDITOR_CONFIGS = {
             'dialogui',
             'elementspath'
         ]),
-        'defaultLanguage':'en',
         'toolbar': 'CustomToolbarConfig',
     },
 }
