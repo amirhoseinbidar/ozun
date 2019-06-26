@@ -211,14 +211,14 @@ url : /api/qa/question/<id>/
 ```
 
   {
-    "content" : "WHAT the fuck did you do with my phone , I WILL KILL YOOOOOOU",
+    "content" : "WHAT the fuck did you do with my phone?!! , I WILL KILL YOOOOOOU",
     "question" : 3
   }
   
   response: 
   {
     "id": 1,
-    "content": "WHAT the fuck did you do with my phone , I WILL KILL YOOOOOOU",
+    "content": "WHAT the fuck did you do with my phone?!! , I WILL KILL YOOOOOOU",
     "total_votes": 0,
     "timestamp": "2019-06-26T19:53:11.316598+04:30",
     "is_answer": false, <-- این فیلد از طرف فرستنده سوال تایید میشود
@@ -242,7 +242,7 @@ url : /api/qa/answer/<id>/
 url : /api/qa/accept-answer/
 ```
 
-در صورت صحیح بودن آیدی ارسالی دیگر جوابی  که انتخاب شده (اگر جوابی قبلا انتخاب شده باشد )  ـ 
+در صورت صحیح بودن آیدی ارسالی دیگر جوابی  که انتخاب شده اگر جوابی قبلا انتخاب شده باشد  
 is_answer = false  
 میشود و جواب درخواستی  
 is_answer = true   
@@ -340,7 +340,7 @@ url : /api/magazine/
 مثال :
 ```
 {
-  "title": "about a eminem"
+  "title": "about a eminem",
   "content" : "a raper who say everyone is asshole and he is better then 2pac :/"
 }
 
@@ -374,7 +374,7 @@ url : /api/magazine/<id>/
 مثال :
 ```
 {
-  "title": "about eminem"
+  "title": "about eminem",
   "content" : "a raper who say everyone is asshole and he is better then 2pac :/
                (sorry ,who say everyone is motherfu*** asshole) "
 }
@@ -409,7 +409,7 @@ url : /api/course/
 مثال :
 ```
 {
-  "title": "about cryptography"
+  "title": "about cryptography",
   "content" : "I dont know what is it but seems good :D"
 }
 
@@ -443,7 +443,7 @@ url : /api/course/<id>/
 مثال :
 ```
 {
-  "title": "about cryptography"
+  "title": "about cryptography",
   "content" : "I dont know what is it but seems good :D ... after 3 month:  noooo hellllllll 
   cryptography is a fu*** hard my mind shit when I want solve its questions :( "
 }
