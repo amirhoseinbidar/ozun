@@ -263,14 +263,15 @@ MEDIA_URL = '/media/'
 
 
 ##### Email setting #####
+EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+
 if ENV['REAL_SERVER']:
     EMAIL_USE_TLS = True
     EMAIL_HOST = ENV['EMAIL_HOST']
     EMAIL_HOST_USER = ENV['EMAIL_HOST_USER']
     EMAIL_HOST_PASSWORD =  ENV['EMAIL_HOST_PASSWORD']
     EMAIL_PORT = 587
-else :
-    EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+    
     
 ##### Rest framework authentication setting ####################
 REST_FRAMEWORK = {
