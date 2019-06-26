@@ -16,7 +16,7 @@ router.register(r'magazine' , views.MagazineViewSet, basename= 'mag' )
 router.register(r'course', views.CourseViewSet , basename= 'cor' )
 router.register(r'qa/answer' , views.AnswerViewSet , basename= 'qa_answer')
 
-app_name = 'api'
+#app_name = 'api'
 urlpatterns = [
     url(r'^rest-auth/', include('rest_auth.urls')),
     url(r'^rest-auth/registration/', include('rest_auth.registration.urls')),
