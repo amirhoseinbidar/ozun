@@ -264,12 +264,14 @@ MEDIA_URL = '/media/'
 
 ##### Email setting #####
 if ENV['REAL_SERVER']:
+   
     EMAIL_USE_TLS = True
     EMAIL_HOST = ENV['EMAIL_HOST']
     EMAIL_HOST_USER = ENV['EMAIL_HOST_USER']
     EMAIL_HOST_PASSWORD =  ENV['EMAIL_HOST_PASSWORD']
     EMAIL_PORT = 587
-    
+else:
+    EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 ##### Rest framework authentication setting ####################
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
@@ -279,12 +281,12 @@ REST_FRAMEWORK = {
         'rest_framework.permissions.IsAuthenticated',
     ],
 }
-# this make life easier 
-if not ENV['REAL_SERVER']:
-    REST_FRAMEWORK['DEFAULT_AUTHENTICATION_CLASSES'].append(
-        'rest_framework.authentication.SessionAuthentication'
-    )
-
+## this make life easier 
+#if not ENV['REAL_SERVER']:
+#    REST_FRAMEWORK['DEFAULT_AUTHENTICATION_CLASSES'].append(
+#        'rest_framework.authentication.SessionAuthentication'
+#    )
+#
 ##### allauth setting ###########################################
 ACCOUNT_USERNAME_MIN_LENGTH = 6
 ACCOUNT_AUTHENTICATION_METHOD = 'username_email'
