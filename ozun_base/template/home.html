@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>اوزون - سایت آموزشی</title>
+<meta name="viewport" content="initial-scale=1.0, width=device-width">
+<link rel="stylesheet" href="css/fonticon.css">
+<link rel="stylesheet" href="css/font.css">
+<link rel="stylesheet" href="css/Style.css">
+<link rel="stylesheet" href="css/swiper.css">
+</head>
+<body>
+<header id="header">
+  <div class="wrapper">
+    <div class="navbar">
+      <div class="menu item-header"><i class="lnr lnr-menu"></i></div>
+      <div class="logo item-header">سایت آموزشی اوزون</div>
+      <div class="notification item-header"><i class="lnr lnr-alarm"></i></div>
+    </div>
+    <div class="swiper-container">
+      <div class="swiper-wrapper">
+        <div class="swiper-slide">
+          <figure>
+            <img src="image/ic_3.png" alt="">
+          </figure>
+          <h3>همه چی رایگان !</h3>
+        </div>
+        <div class="swiper-slide">
+          <figure>
+            <img src="image/ic_1.png" alt="">
+          </figure>
+          <h3>علم با معرفت میچسبه</h3>
+        </div>
+        <div class="swiper-slide">
+          <figure>
+            <img src="image/ic_2.png" alt="">
+          </figure>
+          <h3>هر روز تکرار و تکرار</h3>
+        </div>
+        <div class="swiper-slide">
+          <figure>
+            <img src="image/ic_3.png" alt="">
+          </figure>
+          <h3>عاشق درس خوندن میشی</h3>
+        </div>
+        <div class="swiper-slide">
+          <figure>
+            <img src="image/ic_1.png" alt="">
+          </figure>
+          <h3>خدا هست و هیچ</h3>
+        </div>
+        <div class="swiper-slide">
+          <figure>
+            <img src="image/ic_2.png" alt="">
+          </figure>
+          <h3>همینجا بیا دیگه هیچی نخون</h3>
+        </div>
+      </div>
+      <div class="swiper-pagination"></div>
+    </div>
+    <div class="cover"></div>
+  </div>
+</header>
+
+<script src="js/swiper.min.js"></script>
+<script>
+var swiper = new Swiper('.swiper-container', {
+  effect: 'coverflow',
+  grabCursor: true,
+  centeredSlides: true,
+  slidesPerView: 'auto',
+  coverflowEffect: {
+    rotate: 0,
+    stretch: 0,
+    depth: 20,
+    modifier: 5,
+    slideShadows : false,
+  },
+  pagination: {
+    el: '.swiper-pagination',
+    dynamicBullets: true,
+  },
+});
+</script>
+</body>
+</html>
