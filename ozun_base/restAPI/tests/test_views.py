@@ -40,8 +40,7 @@ class QAViewsTest(BaseAPITest):
     def test_index_questions(self):
         response = self.client.get(reverse("api:index_all"))
         assert response.status_code == 200
-        title = loads(response.content.decode())[1]['title']
-        print(loads(response.content.decode()))
+        title = loads(response.content.decode())[0]['title']
         assert "A Short Title" in title
 
     def test_create_question_view(self):
@@ -100,20 +99,20 @@ class QAViewsTest(BaseAPITest):
     def test_answer_upvote(self):
         url =  reverse("api:answer_vote")
         response_one = self.client.post(
-            url, {"feedback_type": "U", "answer": self.answer.uuid_id},
+            url, {"feedback_type": "U", "answer": self.answer.id},
             HTTP_X_REQUESTED_WITH="XMLHttpRequest")
         assert response_one.status_code == 200
 
     def test_answer_downvote(self):
         response_one = self.client.post(
             reverse("api:answer_vote"),
-            {"feedback_type": "D", "answer": self.answer.uuid_id},
+            {"feedback_type": "D", "answer": self.answer.id},
             HTTP_X_REQUESTED_WITH="XMLHttpRequest")
         assert response_one.status_code == 200
 
     def test_accept_answer(self):
         url = reverse("api:accept_answer")
-        params = {"answer": self.answer.uuid_id}
+        params = {"answer": self.answer.id}
 
         response_one = self.client.post(url , params,
             HTTP_X_REQUESTED_WITH="XMLHttpRequest")

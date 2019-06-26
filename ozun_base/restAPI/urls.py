@@ -6,6 +6,15 @@ from rest_auth.registration.views import (
 from . import views
 from rest_auth.registration.urls import urlpatterns
 from rest_auth.urls import urlpatterns
+from rest_framework.routers import SimpleRouter
+
+router = SimpleRouter()
+
+
+router.register(r'qa/question' , views.QuestionViewSet , basename= 'qa_question' ) 
+router.register(r'magazine' , views.MagazineViewSet, basename= 'mag' )
+router.register(r'course', views.CourseViewSet , basename= 'cor' )
+router.register(r'qa/answer' , views.AnswerViewSet , basename= 'qa_answer')
 
 app_name = 'api'
 urlpatterns = [
@@ -54,14 +63,19 @@ urlpatterns = [
     url(r'^exam/start/(?P<LessonPath>[\w/-]+)',
         views.StartExam.as_view(), name='start_exam'),
 
-    url(r'^qa/$', views.QuestionListView.as_view(), name='index_noans'),
-    url(r'^qa/answered/$', views.QuestionAnsListView.as_view(), name='index_ans'),
-    url(r'^qa/lasts/$', views.LastQuestionsView.as_view(), name='index_all'),
-    url(r'^qa/question-detail/(?P<pk>\d+)/$',
-        views.QuestionDetailView.as_view(), name='question_detail'),
-    url(r'^qa/ask-question/$', views.CreateQuestionView.as_view(), name='ask_question'),
-    url(r'^qa/propose-answer/$',
-        views.CreateAnswerView.as_view(), name='propose_answer'),
+    
+    ###### tested #####
+    
+    url(r'^qa/question/answered/$', views.QuestionListView.as_view(),
+        {'state': 'answered'} , name='qa_questions_ans'),
+    #url(r'^qa/question/title/(?P<title>)/$',views.QuestionListView.as_view(),
+    #    {'state': 'title'}, name='qa_question_title'),
+    url(r'^qa/question/unanswered/$', views.QuestionListView.as_view(),
+        {'state': 'unanswered' } , name = 'qa_questions_unans' ),
+    
+    url(r'^qa/answer/id/(?P<id>)/$' , views.AnswerListView.as_view() , name= 'qa_ansswer_id'),
+
+    
     url(r'^qa/question/vote/$', views.QAHandler.as_view(),
         {'_type': 'question'}, name='question_vote'),
     url(r'^qa/answer/vote/$', views.QAHandler.as_view(),
@@ -69,8 +83,17 @@ urlpatterns = [
     url(r'^qa/accept-answer/$', views.QAHandler.as_view(),
         {'_type': 'accept_answer'}, name='accept_answer'),
 
-    url(r'^magzin/(?P<LessonPath>[\w/-]+)',
-        views.StudyPostList.as_view(), name='magazine'),
-    url(r'^source/(?P<LessonPath>[\w/-]+)',
-        views.StudyPostList.as_view(), name='source'),
+    #url(r'^magzin/(?P<LessonPath>[\w/-]+)',
+    #    views.StudyPostList.as_view(), name='magazine'),
+    #url(r'^source/(?P<LessonPath>[\w/-]+)',
+    #    views.StudyPostList.as_view(), name='source'),
+    #url(r'^magazine/title/(?P<title>[\w-]+)/$' , views.MagazineViewList.as_view() ,
+    #    kwargs={'state' : 'title'} , name = 'mag_search_title'),
+    #
+    #url(r'^course/title/(?P<title>[\w-]+)/$' , views.CourseListView.as_view() ,
+    #    kwargs={'state' : 'title'} , name = 'cor_search_title'),
+
+    #### tested ######
 ]
+
+urlpatterns += router.urls

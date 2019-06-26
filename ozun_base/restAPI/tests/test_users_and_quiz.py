@@ -8,7 +8,7 @@ from users.models import Profile
 from django.urls import reverse
 from quizzes.tests.test_embed import embed_test_quizzes
 from quizzes.models import Quiz
-from core.tests.test_embed import embed_test_locations , get_test_image_path
+from core.tests.test_embed import get_test_image_path
 import json
 from PIL import Image         
 
