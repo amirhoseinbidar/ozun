@@ -10,8 +10,11 @@ from rest_framework.routers import SimpleRouter
 
 router = SimpleRouter()
 
-router.register(r'qa/answer' , views.AnswerViewSet , basename= 'qa_answer')
+
 router.register(r'qa/question' , views.QuestionViewSet , basename= 'qa_question' ) 
+router.register(r'magazine' , views.MagazineViewSet, basename= 'mag' )
+router.register(r'course', views.CourseViewSet , basename= 'cor' )
+router.register(r'qa/answer' , views.AnswerViewSet , basename= 'qa_answer')
 
 app_name = 'api'
 urlpatterns = [
@@ -61,12 +64,15 @@ urlpatterns = [
         views.StartExam.as_view(), name='start_exam'),
 
     
+    ###### tested #####
+    
     url(r'^qa/question/answered/$', views.QuestionListView.as_view(),
-        {'state': 'answered'} , name='qa_quistions_ans'),
-    url(r'^qa/question/id/(?P<id>)/$', views.QuestionListView.as_view(),
-        {'state': 'id' },  name='qa_quistion_id'),
+        {'state': 'answered'} , name='qa_questions_ans'),
+    #url(r'^qa/question/title/(?P<title>)/$',views.QuestionListView.as_view(),
+    #    {'state': 'title'}, name='qa_question_title'),
     url(r'^qa/question/unanswered/$', views.QuestionListView.as_view(),
-        {'state': 'unanswered' } , name = 'qa_quistions_unans' ),
+        {'state': 'unanswered' } , name = 'qa_questions_unans' ),
+    
     url(r'^qa/answer/id/(?P<id>)/$' , views.AnswerListView.as_view() , name= 'qa_ansswer_id'),
 
     
@@ -77,11 +83,17 @@ urlpatterns = [
     url(r'^qa/accept-answer/$', views.QAHandler.as_view(),
         {'_type': 'accept_answer'}, name='accept_answer'),
 
-    url(r'^magzin/(?P<LessonPath>[\w/-]+)',
-        views.StudyPostList.as_view(), name='magazine'),
-    
-    url(r'^source/(?P<LessonPath>[\w/-]+)',
-        views.StudyPostList.as_view(), name='source'),
+    #url(r'^magzin/(?P<LessonPath>[\w/-]+)',
+    #    views.StudyPostList.as_view(), name='magazine'),
+    #url(r'^source/(?P<LessonPath>[\w/-]+)',
+    #    views.StudyPostList.as_view(), name='source'),
+    #url(r'^magazine/title/(?P<title>[\w-]+)/$' , views.MagazineViewList.as_view() ,
+    #    kwargs={'state' : 'title'} , name = 'mag_search_title'),
+    #
+    #url(r'^course/title/(?P<title>[\w-]+)/$' , views.CourseListView.as_view() ,
+    #    kwargs={'state' : 'title'} , name = 'cor_search_title'),
+
+    #### tested ######
 ]
 
 urlpatterns += router.urls

@@ -1,12 +1,10 @@
+
 from rest_framework import serializers
-from qa.models import Answer , Question 
-from core.exceptions import ValidationError
-from rest_framework.exceptions import ParseError
-from rest_framework.fields import CurrentUserDefault
 from django.contrib.sites.shortcuts import get_current_site
+from rest_framework.exceptions import ParseError
+from core.exceptions import ValidationError
 
 import re
-
 
 class MediaGiverMixin(serializers.Serializer):
     media = serializers.ListField(write_only = True,required = False , 
@@ -36,6 +34,7 @@ class MediaGiverMixin(serializers.Serializer):
             obj = super().create(validated_data) 
 
         if not media_buf:
+            obj.save()
             return obj
 
         
@@ -98,26 +97,3 @@ class MediaGiverMixin(serializers.Serializer):
                 raise ParseError('uncorrect pattern: {} is out of media range'.format(num))
 
         return data
-
-
-class AnswerSerializer(MediaGiverMixin , serializers.ModelSerializer):
-    class Meta:
-        model = Answer
-        fields = '__all__'
-        extra_kwargs = {
-            'user' :{'read_only':True},
-            'total_votes' :{'read_only':True},
-        }  
-
-class QuestionSerializer(MediaGiverMixin , serializers.ModelSerializer ):
-    answer_set = AnswerSerializer(many = True ,required = False ,read_only = True)
-    
-    class Meta:
-        model = Question
-        fields = '__all__'
-        extra_kwargs = {
-            'slug' :{'read_only':True},
-            'user' :{'read_only':True},
-            'has_answer':{'read_only':True},
-            'total_votes' :{'read_only':True},
-        }  

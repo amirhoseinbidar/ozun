@@ -6,7 +6,11 @@ from .quiz_views import (
 
 from .exam import StartExam , FinishExam ,ExamInfo ,UpdateExam 
 
-from .studyPost import StudyPostList , userProfileList
+from .studyPost import (
+    MagazineViewList , MagazineViewSet ,
+    CourseListView ,CourseViewSet ,
+    userProfileList ,  
+)
 
 from restAPI.views.qa import (
     QuestionListView , QuestionViewSet ,

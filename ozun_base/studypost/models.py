@@ -6,18 +6,24 @@ from django.contrib.auth.models import User
 from core.models import LessonTree 
 from ckeditor_uploader.fields import RichTextUploadingField
 from django.contrib.contenttypes.fields import GenericRelation
-from core.models import MediaConnect
+from core.models import MediaConnect , SlugModel 
+from core.models import FeedBack , MediaConnect
+from taggit.managers import TaggableManager
+from django.contrib.contenttypes.fields import GenericRelation
 
-class StudyPost(models.Model):
+class StudyPost(SlugModel):
+    title = models.CharField(unique=True , max_length = 255 , blank=False) 
     content = RichTextUploadingField()
-    
     media = GenericRelation(MediaConnect)
     
     timestamp = models.DateTimeField(auto_now_add=True)
-    add_by = models.ForeignKey(
-        User, blank=True, null=True, on_delete=models.SET_NULL)
+    user = models.ForeignKey(User, blank=True, null=True, on_delete=models.SET_NULL)
     lesson = models.ForeignKey(LessonTree, null=True,
                                blank=True, on_delete=models.SET_NULL)
+    
+    votes = GenericRelation(FeedBack)
+    tags = TaggableManager()
+    media = GenericRelation(MediaConnect)
 
     class Meta:
         abstract = True
@@ -26,9 +32,9 @@ class StudyPost(models.Model):
 #       magazine is often long text talk about two or more same thing
 #       course is a short content talk about a subject
 
-class magazine(StudyPost):
+class Magazine(StudyPost):
     pass
 
 
-class course(StudyPost):
+class Course(StudyPost):
     pass

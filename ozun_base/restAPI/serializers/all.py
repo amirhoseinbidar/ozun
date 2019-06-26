@@ -1,14 +1,13 @@
 from rest_framework import serializers
 from quizzes.models import Answer ,Quiz , QuizStatus , Exam , Source 
 from core.models import FeedBack , LessonTree ,TreeContent
-from studypost.models import  magazine , course
 from core.models import LessonTree ,allowed_types , GRADE , LESSON 
 from rest_framework.exceptions import NotFound , NotAcceptable , ParseError
 from django.core.exceptions import ObjectDoesNotExist , ValidationError
 from rest_auth.serializers import UserDetailsSerializer ,LoginSerializer
 from ozun.settings import TIME_ZONE
 from users.forms import ProfileForm
-from .utils import checkLessonTreeContent , checkSourceContent
+from ..utils import checkLessonTreeContent , checkSourceContent
 
 
 
@@ -57,17 +56,6 @@ class UserSerializer(UserDetailsSerializer):
         return instance    
 
 
-class magazineSerializer(serializers.ModelSerializer):
-    lesson = serializers.CharField(source = 'magazine.lesson.full_path_slug')
-    class Meta:
-        fields = '__all__'
-        model = magazine
-
-class  CourseSerializer(serializers.ModelSerializer):
-    lesson = serializers.CharField(source = 'magazine.lesson.full_path_slug')
-    class Meta:
-        fields = '__all__'
-        model = course
 
 class AnswerSerializer(serializers.ModelSerializer):
     class Meta:

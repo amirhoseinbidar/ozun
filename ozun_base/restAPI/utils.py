@@ -3,6 +3,9 @@ from rest_framework.exceptions import NotFound , NotAcceptable
 from quizzes.models import Source 
 from django.core.exceptions import  ValidationError , ObjectDoesNotExist
 from rest_framework.permissions import BasePermission , SAFE_METHODS
+from rest_framework import viewsets , mixins
+from rest_framework.pagination import LimitOffsetPagination
+
 def checkLessonTreeContent(content , _type , field_name ,is_slug =True):
     try:
         obj = LessonTree.find_by_path(content , is_slug)
@@ -35,3 +38,18 @@ class IsOwnerMixin(object):
         permissions = super().get_permissions()
         permissions.append(IsOwner())
         return permissions
+
+
+class WriteOnlyViewSetMixin(
+    mixins.CreateModelMixin,
+    mixins.UpdateModelMixin,
+    mixins.DestroyModelMixin,
+    mixins.RetrieveModelMixin,
+    viewsets.GenericViewSet ):
+        pass
+
+
+def LimitOffsetPaginationWrapper(default_limit = 10):
+    lop = LimitOffsetPagination
+    lop.default_limit = 10
+    return lop

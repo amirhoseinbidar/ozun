@@ -8,7 +8,7 @@ from .fileConnect import (
 from .socialMedia import FeedBack
 from .temporaryKey import BaseTemporaryKey
 
-
+from .utils import SlugModel  
 
 
 
