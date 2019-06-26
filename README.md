@@ -1,7 +1,7 @@
 # OZUN REST API 0.1.0
 
 آدرس ای پی آی تست ازون: 
- * https://amirhoseinbidar.pythonanywhere.com
+ * https://amirhoseinbidar.pythonanywhere.com  
 یوزر تست : 
  * username = root
  * password = h2oso2co2
