@@ -3,7 +3,8 @@ from rest_framework import serializers
 from django.contrib.sites.shortcuts import get_current_site
 from rest_framework.exceptions import ParseError
 from core.exceptions import ValidationError
-
+from ..utils import checkLessonTreeContent
+from core.models import LESSON ,TOPIC , GRADE , CHAPTER 
 import re
 
 class MediaGiverMixin(serializers.Serializer):
@@ -97,3 +98,52 @@ class MediaGiverMixin(serializers.Serializer):
                 raise ParseError('uncorrect pattern: {} is out of media range'.format(num))
 
         return data
+
+
+class LessonPathMixin(serializers.Serializer) :
+    lesson_tree_field = 'lesson'
+    fetch_source = 'get_lesson'
+    lesson_tree_field_required = False
+    allowed_types = [ GRADE , LESSON , CHAPTER , TOPIC]
+
+    def __init__(self,*args,**kwargs):
+        super().__init__(*args,**kwargs)
+        kw = { 
+            'source' : self.fetch_source ,
+            'required' : self.lesson_tree_field_required
+        }
+        self.fields[self.lesson_tree_field] = serializers.CharField( **kw ) 
+    
+    
+    def create(self,validated_data):
+        field = self.lesson_tree_field
+
+        if field in validated_data:
+            fetch = field
+        else :
+            fetch = self.fetch_source
+        
+        data = checkLessonTreeContent(
+            validated_data[fetch], self.allowed_types , field ,False)
+        
+        del validated_data[fetch]
+        validated_data[field] = data
+        
+        return super().create(validated_data)
+
+    def update(self,instance,validated_data):
+        
+        field = self.lesson_tree_field
+
+        if field in validated_data:
+            fetch = field
+        else :
+            fetch = self.fetch_source
+        
+        data = checkLessonTreeContent(
+            validated_data[fetch], self.allowed_types , field ,False)
+        
+        del validated_data[fetch]
+        validated_data[field] = data
+        
+        return super().update(instance,validated_data) 

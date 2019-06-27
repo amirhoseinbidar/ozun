@@ -106,7 +106,7 @@ class QAHandler(generics.views.APIView):
         answer_id = self.request.data["answer"]
         answer = Answer.objects.get(id=answer_id)
         answer.accept_answer()
-        return JsonResponse({'status': 'true'}, status=200)
+        return JsonResponse({'status': 'OK'}, status=200)
 
 
 

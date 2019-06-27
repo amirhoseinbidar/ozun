@@ -122,6 +122,7 @@ class LessonPathView(generics.ListAPIView):
             return LessonTree.get_root_nodes() 
         else:
             try :
+                print(self.kwargs['LessonPath'])
                 return LessonTree.find_by_path(self.kwargs['LessonPath'],True).get_children()
             except ObjectDoesNotExist:
                 raise ParseError('uncorrect path')

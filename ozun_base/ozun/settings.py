@@ -273,7 +273,7 @@ else:
     EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 
 
-##### Rest framework authentication setting ####################
+##### Rest framework authentication setting #######################
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework.authentication.TokenAuthentication',
@@ -288,12 +288,12 @@ REST_FRAMEWORK = {
 #        'rest_framework.authentication.SessionAuthentication'
 #    )
 #
-##### allauth setting ###########################################
+##### allauth setting #############################################
 ACCOUNT_USERNAME_MIN_LENGTH = 6
 ACCOUNT_AUTHENTICATION_METHOD = 'username_email'
 
 
-##### allauth rest setting #######################################
+##### allauth rest setting ########################################
 SITE_ID = 1
 REST_AUTH_SERIALIZERS = {
     'USER_DETAILS_SERIALIZER': 'restAPI.serializers.UserSerializer'

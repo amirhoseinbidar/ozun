@@ -13,6 +13,7 @@ from core.models.lessonTree import(allowed_types ,LESSON
                     ,TOPIC ,CHAPTER ,LessonTree)
 from core.exceptions import duplicationException
 from ckeditor_uploader.fields import RichTextUploadingField 
+from core.utils import get_all_related_lessonTree
 
 class Source(models.Model):
     name = models.CharField(max_length=50 , unique = True)
@@ -84,10 +85,7 @@ class Quiz(models.Model):
 
     @staticmethod
     def get_by_path(lesson_path,get_by_slug =True):
-        branch = LessonTree.find_by_path(lesson_path , get_by_slug)
-        lessons = list(branch.get_descendants())+[branch,]
-        quizzes =Quiz.objects.filter( lesson__in = lessons )
-        return quizzes
+        return get_all_related_lessonTree(Quiz, 'lesson' , lesson_path , get_by_slug )
 
     def save(self,*args,**kwargs): 
         if not self.time_for_out:

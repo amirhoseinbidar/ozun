@@ -21,9 +21,16 @@ class StudyPost(SlugModel):
     lesson = models.ForeignKey(LessonTree, null=True,
                                blank=True, on_delete=models.SET_NULL)
     
+
     votes = GenericRelation(FeedBack)
     tags = TaggableManager()
     media = GenericRelation(MediaConnect)
+    
+    @property
+    def get_lesson(self):
+        if self.lesson:
+            return self.lesson.full_path
+        return ''
 
     class Meta:
         abstract = True
@@ -33,8 +40,16 @@ class StudyPost(SlugModel):
 #       course is a short content talk about a subject
 
 class Magazine(StudyPost):
-    pass
+    
+    @staticmethod
+    def get_by_path(lesson_path,get_by_slug =True):
+        return get_all_related_lessonTree( Magazine, 'lesson' , lesson_path , get_by_slug )
+
 
 
 class Course(StudyPost):
-    pass
+
+    @staticmethod
+    def get_by_path(lesson_path,get_by_slug =True):
+        return get_all_related_lessonTree(Course, 'lesson' , lesson_path , get_by_slug )
+
