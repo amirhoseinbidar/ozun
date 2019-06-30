@@ -18,7 +18,8 @@ from rest_framework.exceptions import ParseError
 from ..serializers.qa import QuestionSerializer ,AnswerSerializer
 from users.models import User
 from ..utils import IsOwnerMixin , WriteOnlyViewSetMixin
-
+from rest_framework.generics import GenericAPIView 
+from .base import GenericSearchView
 
 class QuestionListView(generics.ListAPIView):
     serializer_class = QuestionSerializer
@@ -45,6 +46,15 @@ class AnswerListView(generics.ListAPIView):
 class QuestionViewSet(IsOwnerMixin ,viewsets.ModelViewSet ):
     serializer_class = QuestionSerializer
     queryset = Question.objects.all()
+
+
+class QuestionSearch(GenericSearchView):
+    active_field = ['text' , 'tag']
+    text_fields_search = ['title' , 'content']
+    serializer_class = QuestionSerializer 
+    model = Question
+
+
 
 
 class AnswerViewSet(

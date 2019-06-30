@@ -7,12 +7,14 @@ from .quiz_views import (
 from .exam import StartExam , FinishExam ,ExamInfo ,UpdateExam 
 
 from .studyPost import (
-    MagazineViewList , MagazineViewSet ,
-    CourseListView ,CourseViewSet ,
-    userProfileList ,  
+    MagazineViewSet ,CourseViewSet ,
+    userProfileList , CourseSearch  ,
+    MagazineSearch , CourseFeedback , 
+    MagzineFeedback,
 )
 
 from restAPI.views.qa import (
     QuestionListView , QuestionViewSet ,
-    QAHandler , AnswerViewSet, AnswerListView
+    QAHandler , AnswerViewSet, AnswerListView,
+    QuestionSearch 
 )

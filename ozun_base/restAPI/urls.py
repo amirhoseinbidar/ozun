@@ -16,25 +16,9 @@ router.register(r'magazine' , views.MagazineViewSet, basename= 'mag' )
 router.register(r'course', views.CourseViewSet , basename= 'cor' )
 router.register(r'qa/answer' , views.AnswerViewSet , basename= 'qa_answer')
 
-#app_name = 'api'
+app_name = 'api'
 urlpatterns = [
-    url(r'^rest-auth/', include('rest_auth.urls')),
-    url(r'^rest-auth/registration/', include('rest_auth.registration.urls')),
-    url(
-        r'^rest-auth/user/(?P<pk>\d+)/',
-        views.userProfileList.as_view(),
-        name='user_profile_list'
-    ),
-    #url(
-    #    r'^socialaccounts/$',
-    #    SocialAccountListView.as_view(),
-    #    name='social_account_list'
-    #),
-    #url(
-    #    r'^socialaccounts/(?P<pk>\d+)/disconnect/$',
-    #    SocialAccountDisconnectView.as_view(),
-    #    name='social_account_disconnect'
-    #),
+
 
     url(r'^quiz-manage/create/$', views.QuizCreate.as_view(), name='quiz_create'),
     url(r'^quiz-manage/update/(?P<pk>\d+)/$',
@@ -52,7 +36,7 @@ urlpatterns = [
         views.QuizSearchList.as_view(), name='search_lesson_path'),
 
 
-    url(r'^lesson/children/(?P<LessonPath>.+)',
+    url(r'^lesson/children/',
         views.LessonPathView.as_view(), name='lesson_path_view'),
     url(r'^sources/', views.SourceView.as_view(), name='source_view'),
 
@@ -79,8 +63,13 @@ urlpatterns = [
     url(r'^qa/accept-answer/$', views.QAHandler.as_view(),
         {'_type': 'accept_answer'}, name='accept_answer'),
 
+    url(r'qa/question/search/',views.QuestionSearch.as_view()),
 
-
+    url(r"magazine/search/", views.MagazineSearch.as_view() ),
+    url(r"magazine/feedback/" , views.MagzineFeedback.as_view() ).
+    
+    url(r"course/search/" ,views.CourseSearch.as_view() ),
+    url(r"course/feedback/" ,views.CourseFeedback.as_view() ),
     #### tested ######
 ]
 

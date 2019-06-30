@@ -19,6 +19,9 @@ from quizzes.models import Source
 from users.models import User
 from core.checks import APIExceptionHandler
 from rest_framework.pagination import LimitOffsetPagination
+from rest_framework.response import Response
+
+
 
 class QuizPagination(LimitOffsetPagination):
     default_limit = 10
@@ -115,18 +118,25 @@ class QuizUpdate(generics.UpdateAPIView):
         return super().patch(*args,**kwargs)
         
 
-class LessonPathView(generics.ListAPIView):
-    serializer_class = LessonSeializer
-    def get_queryset(self):
-        if self.kwargs['LessonPath'] == 'root':
-            return LessonTree.get_root_nodes() 
+class LessonPathView(generics.GenericAPIView):
+    def post(self , request):
+        if 'path' in self.request.data:
+            path = self.request.data['path']
+        else:
+            raise ParseError('path is required')
+        
+    
+        if path == 'root':
+            objs = LessonTree.get_root_nodes() 
         else:
             try :
-                print(self.kwargs['LessonPath'])
-                return LessonTree.find_by_path(self.kwargs['LessonPath'],True).get_children()
+                objs = LessonTree.find_by_path(path).get_children()
+               
             except ObjectDoesNotExist:
                 raise ParseError('uncorrect path')
- 
+        
+        return Response( LessonSeializer(objs , many=True).data )
+
 class SourceView(generics.ListAPIView):
     serializer_class = SourceSerializer
     pagination_class = SourcePagination

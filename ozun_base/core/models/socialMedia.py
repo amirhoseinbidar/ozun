@@ -7,7 +7,6 @@ from django.contrib.auth.models import User
 
 
 class FeedBack(models.Model):
-
     FAVORITE = 'F'
     UP_VOTE = 'U'
     DOWN_VOTE = 'D'
@@ -25,3 +24,7 @@ class FeedBack(models.Model):
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
     object_id = models.PositiveIntegerField()
     content_object = GenericForeignKey()
+
+UP_VOTE = FeedBack.UP_VOTE
+DOWN_VOTE = FeedBack.DOWN_VOTE
+FAVORITE = FeedBack.FAVORITE

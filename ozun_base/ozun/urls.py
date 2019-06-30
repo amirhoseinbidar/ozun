@@ -23,13 +23,30 @@ from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 from django.views.generic import TemplateView
 from ozun import settings
 from quizzes.admin import quizzesAdminSite
-
+from restAPI.views import userProfileList
 
 app_name = 'ozun'
 
 urlpatterns = [
     url(r'^$' , TemplateView.as_view(template_name = 'index.html'),name = 'index'),
-   
+    url(r'^rest-auth/', include('rest_auth.urls')),
+    url(r'^rest-auth/registration/', include('rest_auth.registration.urls')),
+    url(
+        r'^rest-auth/user/(?P<pk>\d+)/',
+        userProfileList.as_view(),
+        name='user_profile_list'
+    ),
+    #url(
+    #    r'^socialaccounts/$',
+    #    SocialAccountListView.as_view(),
+    #    name='social_account_list'
+    #),
+    #url(
+    #    r'^socialaccounts/(?P<pk>\d+)/disconnect/$',
+    #    SocialAccountDisconnectView.as_view(),
+    #    name='social_account_disconnect'
+    #),
+    
     url(r'^api/',include('restAPI.urls')),
     #url(r'^accounts/', include('users.urls')),  
     #url(r'^quizzes/',include('quizzes.urls')),

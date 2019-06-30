@@ -114,36 +114,34 @@ class LessonPathMixin(serializers.Serializer) :
         }
         self.fields[self.lesson_tree_field] = serializers.CharField( **kw ) 
     
-    
-    def create(self,validated_data):
+    def turn_lesson_field(self,validated_data):
         field = self.lesson_tree_field
-
         if field in validated_data:
             fetch = field
-        else :
+        elif self.fetch_source in validated_data:
             fetch = self.fetch_source
+        else:
+            return validated_data 
+
         
         data = checkLessonTreeContent(
-            validated_data[fetch], self.allowed_types , field ,False)
+            validated_data[fetch], self.allowed_types , field ,True)
         
         del validated_data[fetch]
         validated_data[field] = data
-        
+        return validated_data
+
+    def create(self,validated_data):
+        validated_data = self.turn_lesson_field(validated_data)
         return super().create(validated_data)
 
     def update(self,instance,validated_data):
-        
-        field = self.lesson_tree_field
-
-        if field in validated_data:
-            fetch = field
-        else :
-            fetch = self.fetch_source
-        
-        data = checkLessonTreeContent(
-            validated_data[fetch], self.allowed_types , field ,False)
-        
-        del validated_data[fetch]
-        validated_data[field] = data
-        
+        validated_data = self.turn_lesson_field(validated_data)
         return super().update(instance,validated_data) 
+
+
+class SearchSerializer(serializers.Serializer):
+    text = serializers.CharField(required = False)
+    path = serializers.CharField(required = False)
+    tag = serializers.ListField(
+        child = serializers.CharField() , required = False )

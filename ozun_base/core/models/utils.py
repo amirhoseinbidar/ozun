@@ -10,8 +10,7 @@ class SlugModel(models.Model):
         return slugify(getattr(self,self.slug_field),True)
     
     def save(self,*args,**kwargs):
-        if not self.slug:
-            self.slug = self.get_slug()
+        self.slug = self.get_slug()
         return super().save(*args,**kwargs)
 
     class Meta:

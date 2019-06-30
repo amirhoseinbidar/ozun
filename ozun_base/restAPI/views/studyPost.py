@@ -6,8 +6,9 @@ from ..serializers import MagazineSerializer , CourseSerializer , UserSerializer
 from core.models import LessonTree 
 from users.models import User
 from ..utils import IsOwnerMixin ,LimitOffsetPaginationWrapper
+from .base import GenericSearchView ,GenericFeedbackView , GenericFeedbackView
 
-class userProfileList(generics.ListAPIView):
+class userProfileList(generics.RetrieveAPIView):
     serializer_class = UserSerializer
     def get_queryset(self):
         pk = self.kwargs['pk']
@@ -16,14 +17,6 @@ class userProfileList(generics.ListAPIView):
         else:
             return User.objects.filter(username = pk)
 
-class MagazineViewList(generics.ListAPIView):
-    serializer_class = MagazineSerializer
-    def get_queryset(self):
-        #if self.kwargs['state'] == 'path':
-        #   return Quiz.get_by_path(self.kwargs.get('LessonPath'))
-        if self.kwargs['state'] == 'title':
-            return Magazine.objects.filter(slug = self.kwargs['title'])
-
 class MagazineViewSet( IsOwnerMixin,
                        viewsets.ModelViewSet ):
     
@@ -31,19 +24,27 @@ class MagazineViewSet( IsOwnerMixin,
     queryset = Magazine.objects.all()
     pagination_class = LimitOffsetPaginationWrapper(20)
 
-class CourseListView(generics.ListAPIView):
-    serializer_class = CourseSerializer
-    def get_queryset(self):
-        ## TODO :: add a path
-        #if self.kwargs['state'] == 'path':
-        #    return Quiz.get_by_path(self.kwargs.get('LessonPath'))
-        
-        if self.kwargs['state'] == 'title':
-            return Course.objects.filter(slug = self.kwargs['title'])
-        
+class MagazineSearch(GenericSearchView):
+    text_fields_search = ['title' , 'content']
+    serializer_class = MagazineSerializer
+    model = Magazine
+
+class MagzineFeedback(GenericFeedbackView):
+    model = Magazine
+
+
 
 class CourseViewSet( IsOwnerMixin,
                      viewsets.ModelViewSet):
     serializer_class = CourseSerializer
     queryset = Course.objects.all()
-    #pagination_class = LimitOffsetPaginationWrapper(50)
+    pagination_class = LimitOffsetPaginationWrapper(50)
+
+
+class CourseSearch(GenericSearchView):
+    text_fields_search = ['title' , 'content']
+    serializer_class = CourseSerializer
+    model = Course
+
+class CourseFeedback(GenericFeedbackView):
+    model =  Course

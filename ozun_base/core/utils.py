@@ -13,4 +13,4 @@ def get_all_related_lessonTree(model,model_field,lesson_path,get_by_slug):
         lessons = list(branch.get_descendants())+[branch,]
         kwargs =  {'{}__in'.format(model_field) : lessons }
         obj = model.objects.filter( **kwargs )
-        return quizzes
+        return obj
