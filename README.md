@@ -450,7 +450,7 @@ url: /api/magazine/search/
 ```
 {
   "text": "eminem",
-  "lesson": "rapers/personality" 
+  "path": "rapers/personality" 
 }
 
 result:
@@ -566,7 +566,7 @@ url: /api/magazine/search/
 مثال :
 ```
 {
-  "lesson": "math/cryptography" 
+  "path": "math/cryptography" 
 }
 
 result:
