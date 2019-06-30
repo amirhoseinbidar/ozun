@@ -53,7 +53,7 @@ form-data/multipart
 
 ### ورود از طریق لاگین
 ```
-url : /api/rest-auth/login/
+url : /rest-auth/login/
 ```
 متد های قابل قبول :  [ POST, ]
 
@@ -89,7 +89,7 @@ url : /api/rest-auth/login/
 ### ورود از طریق ثبت نام
 نکته: ایمیل تایید هنوز فرستاده نمیشود
 ```
-url : /api/rest-auth/registration/
+url : /rest-auth/registration/
 ```
 
 متد های قابل قبول :  [ POST, ]
@@ -131,25 +131,34 @@ url : /api/qa/question/
 پارامتر های قابل قبول :
   * title : عنوان سوال 
   * content : محتوای سوال دارای قابلیت دریافت مدیا 
-  
+  * tags : تگهای مرتبط به سوال
+
 مثال:
 ```
   {
     "title": "Repair Phone" ,
-    "content" : "I break my brother phone how can I repair it?" 
+    "content" : "I break my brother phone how can I repair it?" ,
+    "tags" : [ "phone" , "mistake" , "breake" ]
   }
   
   پاسخ :
   {
     "id": 3,
     "answer_set": [], <-- مجموعه آیدی جواب های مرتبط به سوال  در ابتدا خالی است  
+    "tags" :  [
+      "phone",
+      "mistake",
+      "break"
+    ]
     "title": "Repair Phone", 
     "timestamp": "2019-06-26T17:40:58.354320+04:30", <-- زمان ثبت سوال
     "slug": "Repair-Phone", <-- برای استفاده در وبسایت 
     "status": "O" , <-- وضعیت سوال  
     "content": "I break my brother phone how can I repair it?",
     "has_answer": false,
-    "total_votes": 0, 
+    "total_votes": 0, <-- امتیاز سوال -به این صورت محاسبه میشود
+    total_vote = UpVotes - DownVotes
+    
     "user": 8 <-- آیدی کاریری که سوال را پرسیده است
   }
   NOTE : O mean question is OPEN and C mean question is Closed 
@@ -321,6 +330,37 @@ url : /api/qa/question/unanswered/
 ```
 متد های قابل قبول :  [ Get, ]
 
+### جستوجو در سوالات
+
+```
+url : /api/qa/question/search/
+```
+
+متد های قابل قبول :  [ POST, ]
+
+پارامتر های قابل قبول :
+  * text 
+  * tag
+
+نکته: حداقل یکی از پارامتر ها باید فرستاده شود
+متن ارسالی در عنوان و متن جستوجو میشود
+
+مثال:
+```
+{
+  "text" : "ozun"
+  "tag" : ["website" , "education" , "app"]
+}
+
+result :
+{
+  < question 1> ,
+  < question2 > , 
+  ...
+}
+```
+
+
 
 ## Magazine و  Course :
 
@@ -336,12 +376,14 @@ url : /api/magazine/
 پارامتر های قابل قبول :
   * title 
   * content : دارای قابلیت گرفتن مدیا
-
+  * lesson : درس مرتبط با مجله - اختیاری
+  
 مثال :
 ```
 {
   "title": "about a eminem",
-  "content" : "a raper who say everyone is asshole and he is better then 2pac :/"
+  "content" : "a raper who say everyone is asshole and he is better than 2pac :/" ,
+  "lesson" : "rapers/personality"
 }
 
 respons:
@@ -349,10 +391,10 @@ respons:
     "id": 1,
     "slug": "about-a-eminem",
     "title": "about a eminem",
-    "content": "a rapper who say everyone is asshole and he is better then 2pac :/",
+    "content": "a raper who say everyone is asshole and he is better than 2pac :/",
     "timestamp": "2019-06-26T21:29:36.111120+04:30",
     "user": 8,
-    "lesson": null <-- Under develop ignore it
+    "lesson" : "rapers/personality"
 }
 ```
 
@@ -370,13 +412,16 @@ url : /api/magazine/<id>/
 پارامتر های قابل قبول :
   * title 
   * content : دارای قابلیت گرفتن مدیا
-
+  * lesson : درس مرتبط با مجله - اختیاری
+  
+  
 مثال :
 ```
 {
   "title": "about eminem",
-  "content" : "a raper who say everyone is asshole and he is better then 2pac :/
-               (sorry ,who say everyone is motherfu*** asshole) "
+  "content" : "a raper who say everyone is asshole and he is better than 2pac :/
+               (sorry ,who say everyone is motherfu*** asshole) " ,
+  "lesson" : "rapers/personality"  
 }
 
 respons:
@@ -384,15 +429,59 @@ respons:
     "id": 1,
     "slug": "about-eminem",
     "title": "about eminem",
-    "content": "a raper who say everyone is asshole and he is better then 2pac :/
+    "content": "a raper who say everyone is asshole and he is better than 2pac :/
                (sorry ,who say everyone is motherfu*** asshole) ",
     "timestamp": "2019-06-26T21:29:36.111120+04:30",
     "user": 8,
-    "lesson": null <-- Under develop ignore it
+    "lesson": "rapers/personality"  
 }
 ```
 
+### جستوجو در مجله ها
+```
+url: /api/magazine/search/
+```
 
+پارامتر های قابل قبول :
+  * text 
+  * path : درس مرتبط با مجله
+  
+مثال :
+```
+{
+  "text": "eminem",
+  "lesson": "rapers/personality" 
+}
+
+result:
+{
+  <magazine about eminem>,
+  <magazine about eminem>,
+  ...
+}
+```
+
+### بازخورد به مجله 
+```
+url: /api/magazine/feedback/<id>/
+```
+پارامتر های مورد نیاز :
+  * feedback_type : [ "U"(UpVote)  or "D"(DownVote) or "F"(Favorite) ]
+  مقدار فیویریت برابر با امتیاز مثبت  است و نشانه گذاری مجله برای دسترسی بعدی 
+  استفاده میشود - این قابلیت تحت توسعه است آن را نادیده بگیرید
+  
+مثال:
+```
+{
+  "feedback_type" : "U" ,
+}
+
+result:
+"feedback recorded"
+
+```
+  
+ 
 #### ساختن و لیست کردن تمام کرس ها بر اساس زمان ایجاد شدن
 ```
 url : /api/course/
@@ -405,12 +494,14 @@ url : /api/course/
 پارامتر های قابل قبول :
   * title 
   * content : دارای قابلیت گرفتن مدیا
-
+  * lesson : درس مرتبط با با کورس - اختیاری
+  
 مثال :
 ```
 {
   "title": "about cryptography",
-  "content" : "I dont know what is it but seems good :D"
+  "content" : "I dont know what is it but seems good :D",
+  "lesson" : "math/cryptography/view" 
 }
 
 respons:
@@ -421,7 +512,7 @@ respons:
     "content": "I dont know what is it but seems good :D",
     "timestamp": "2019-06-26T21:29:36.111120+04:30",
     "user": 8,
-    "lesson": null <-- Under develop ignore it
+   "lesson" : "math/cryptography/view"
 }
 ```
 
@@ -439,13 +530,15 @@ url : /api/course/<id>/
 پارامتر های قابل قبول :
   * title 
   * content : دارای قابلیت گرفتن مدیا
-
+  * lesson : درس مرتبط با با کورس - اختیاری
+  
 مثال :
 ```
 {
   "title": "about cryptography",
   "content" : "I dont know what is it but seems good :D ... after 3 month:  noooo hellllllll 
-  cryptography is a fu*** hard my mind shit when I want solve its questions :( "
+  cryptography is a fu*** hard my mind shit when I want solve its questions :( ",
+  "lesson" : "math/cryptography/view" 
 }
 
 respons:
@@ -457,10 +550,52 @@ respons:
   cryptography is a fu*** hard my mind shit when I want solve its questions :( ",
     "timestamp": "2019-06-26T21:29:36.111120+04:30",
     "user": 8,
-    "lesson": null <-- Under develop ignore it
+    "lesson" : "math/cryptography/view"
 }
 ```
  
+ ### جستوجو در مجله ها
+```
+url: /api/magazine/search/
+```
+
+پارامتر های قابل قبول :
+  * text 
+  * path : درس مرتبط با مجله
+  
+مثال :
+```
+{
+  "lesson": "math/cryptography" 
+}
+
+result:
+{
+  <course about cryptography>,
+  <course about cryptography>,
+  ...
+}
+```
+
+### بازخورد به مجله 
+```
+url: /api/course/feedback/<id>/
+```
+پارامتر های مورد نیاز :
+  * feedback_type : [ "U"(UpVote)  or "D"(DownVote) or "F"(Favorite) ]
+  مقدار فیویریت برابر با امتیاز مثبت  است و نشانه گذاری مجله برای دسترسی بعدی 
+  استفاده میشود - این قابلیت تحت توسعه است آن را نادیده بگیرید
+  
+مثال:
+```
+{
+  "feedback_type" : "D" ,
+}
+
+result:
+"feedback recorded"
+
+```
   
 
   
