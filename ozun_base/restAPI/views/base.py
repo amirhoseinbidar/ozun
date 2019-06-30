@@ -7,7 +7,10 @@ from django.db.models import Q
 from ..utils import LimitOffsetPaginationWrapper
 from ..serializers.base import SearchSerializer
 from rest_framework.views import APIView
-from core.models.socialMedia import UP_VOTE , DOWN_VOTE ,FAVORITE
+from core.models.socialMedia import UP_VOTE , DOWN_VOTE ,FAVORITE , FeedBack
+from core.utils import find_in_dict
+from django.core.exceptions import ObjectDoesNotExist 
+from rest_framework import status
 
 class GenericSearchView(ListModelMixin , GenericAPIView):
     """ 
@@ -74,16 +77,17 @@ class GenericSearchView(ListModelMixin , GenericAPIView):
         return obj.filter(**kwarg)
 
 
-class GenericFeedbackView(APIView): 
+class GenericFeedbackView(GenericAPIView): 
     """ 
     generic feedback view for append voting futhure to models that use
     core.FeedBack as a vote save
+    NOTE : url must have a pattern named pk
     """
     allow_feedbacks = [UP_VOTE,DOWN_VOTE,FAVORITE]
     model = None
     feedback_field = 'votes'
     
-    def post(self,request,quiz_pk):
+    def post(self,request,pk):
         feedback_data = request.data.get('feedback_type',None)
         feedback_data = find_in_dict(feedback_data , FeedBack.FEEDBACK_TYPES)
         
@@ -93,17 +97,22 @@ class GenericFeedbackView(APIView):
             ))
         
         try:
-            obj = model.objects.get(pk = quiz_pk)
+            obj = self.model.objects.get(pk = pk)
         except ObjectDoesNotExist:
-            raise ParseError('Quiz does not exist')
+            raise ParseError('requested object does not exist')
         
         try:# if user voted before , update it
             feedback = getattr(obj , self.feedback_field).get(user = request.user)
         except ObjectDoesNotExist:# if not create new 
-            feedback = FeedBack(user = request.user, content_object = model) 
+            feedback = FeedBack(
+                user = request.user,
+                content_object = obj,
+                feedback_type = feedback_data
+            ) 
 
-        feedback.feedback_type = feedback_data
         feedback.save()
-        quiz.count_votes()
+        count = getattr(obj ,"count_votes" , None)
+        if count:
+            count()
      
         return Response(data = 'feedback recoreded' , status = status.HTTP_200_OK)

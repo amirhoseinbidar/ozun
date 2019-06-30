@@ -11,7 +11,7 @@ class MagazineSerializer(LessonPathMixin,MediaGiverMixin , serializers.ModelSeri
             'user' :{'read_only':True},
             'timestamp' :{'read_only':True},
             'slug' : {'read_only':True},
-            'votes' : {'read_only':True}
+            'total_votes' : {'read_only':True}
         }  
 
 class CourseSerializer(LessonPathMixin, MediaGiverMixin ,serializers.ModelSerializer ):
@@ -22,5 +22,5 @@ class CourseSerializer(LessonPathMixin, MediaGiverMixin ,serializers.ModelSerial
             'user' :{'read_only':True},
             'timestamp' :{'read_only':True},
             'slug' : {'read_only':True},
-            'votes' : {'read_only':True}
+            'total_votes' : {'read_only':True}
         }  

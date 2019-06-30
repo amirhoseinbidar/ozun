@@ -25,6 +25,7 @@ class FeedBack(models.Model):
     object_id = models.PositiveIntegerField()
     content_object = GenericForeignKey()
 
+
 UP_VOTE = FeedBack.UP_VOTE
 DOWN_VOTE = FeedBack.DOWN_VOTE
 FAVORITE = FeedBack.FAVORITE

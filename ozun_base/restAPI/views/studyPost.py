@@ -6,7 +6,7 @@ from ..serializers import MagazineSerializer , CourseSerializer , UserSerializer
 from core.models import LessonTree 
 from users.models import User
 from ..utils import IsOwnerMixin ,LimitOffsetPaginationWrapper
-from .base import GenericSearchView ,GenericFeedbackView , GenericFeedbackView
+from .base import GenericSearchView ,GenericFeedbackView
 
 class userProfileList(generics.RetrieveAPIView):
     serializer_class = UserSerializer

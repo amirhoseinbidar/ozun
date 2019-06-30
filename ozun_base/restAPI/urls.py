@@ -66,10 +66,10 @@ urlpatterns = [
     url(r'qa/question/search/',views.QuestionSearch.as_view()),
 
     url(r"magazine/search/", views.MagazineSearch.as_view() ),
-    url(r"magazine/feedback/" , views.MagzineFeedback.as_view() ).
+    url(r"magazine/feedback/(?P<pk>\d+)/"  , views.MagzineFeedback.as_view() ),
     
     url(r"course/search/" ,views.CourseSearch.as_view() ),
-    url(r"course/feedback/" ,views.CourseFeedback.as_view() ),
+    url(r"course/feedback/(?P<pk>\d+)/" ,views.CourseFeedback.as_view() ),
     #### tested ######
 ]
 
