@@ -38,8 +38,6 @@ class MediaGiverMixin(serializers.Serializer):
             obj.save()
             return obj
 
-        
-
         for me in media_buf:
             media.append(
                 obj.media.create(file = me , mime = me.content_type)
@@ -57,12 +55,9 @@ class MediaGiverMixin(serializers.Serializer):
             for i in range(len(media_place)):
                 ##get number
                 n = int(re.findall('\d+',media_place[i])[0])
-                
-                # replace founded number with that media 
-                print(media[n].file.url , '\n' ,media_place[i] )
-
                 site = get_current_site(self.context['request'])
-                
+
+                # replace founded number with that media 
                 txt = txt.replace(media_place[i] , site.domain+media[n].file.url )
                 
             setattr(obj,container , txt)
@@ -92,9 +87,9 @@ class MediaGiverMixin(serializers.Serializer):
         if numbers and 'media' not in data:
             raise ParseError('uncorrect pattern: there is no matching media')
 
-        for num in numbers:# is there a number that is not is media range?
+        for num in numbers:# is there a number that is not in media range?
             num  =  int(num)
-            if num <= -1 or num >= len(data['media']):
+            if num <= -1 or num >= len(data['media']): #if yes raise a error
                 raise ParseError('uncorrect pattern: {} is out of media range'.format(num))
 
         return data
@@ -120,7 +115,9 @@ class LessonPathMixin(serializers.Serializer) :
             fetch = field
         elif self.fetch_source in validated_data:
             fetch = self.fetch_source
-        else:
+        else: 
+            # if there is not any fetch data 
+            # so no need to turn lesson and pass it  
             return validated_data 
 
         

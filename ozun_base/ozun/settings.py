@@ -22,10 +22,6 @@ with open(BASE_DIR+'/env_var.json','r') as file:
     ENV = json.loads(file.read())
     
 
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/1.11/howto/deployment/checklist/
-
-
 SECRET_KEY =  ENV['SECRET_KEY']  
 DEBUG = ENV['DEBUG']
 ALLOWED_HOSTS = ENV['ALLOWED_HOSTS'].split(',')

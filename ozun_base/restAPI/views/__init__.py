@@ -1,7 +1,8 @@
 from .quiz_views import (
-    QuizSearchList , QuizFeedBack ,
+    QuizFeedBack , QuizMostVote ,
     LessonPathView ,SourceView ,
-    QuizCreate , QuizUpdate
+    QuizManagerViewSet ,
+    QuizSearchContent
 )
 
 from .exam import StartExam , FinishExam ,ExamInfo ,UpdateExam 
@@ -16,5 +17,5 @@ from .studyPost import (
 from restAPI.views.qa import (
     QuestionListView , QuestionViewSet ,
     QAHandler , AnswerViewSet, AnswerListView,
-    QuestionSearch 
+    QuestionSearch ,
 )

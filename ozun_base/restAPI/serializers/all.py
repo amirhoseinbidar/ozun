@@ -4,11 +4,10 @@ from core.models import FeedBack , LessonTree ,TreeContent
 from core.models import LessonTree ,allowed_types , GRADE , LESSON 
 from rest_framework.exceptions import NotFound , NotAcceptable , ParseError
 from django.core.exceptions import ObjectDoesNotExist , ValidationError
-from rest_auth.serializers import UserDetailsSerializer ,LoginSerializer
-from ozun.settings import TIME_ZONE
+from rest_auth.serializers import UserDetailsSerializer 
+
 from users.forms import ProfileForm
 from ..utils import checkLessonTreeContent , checkSourceContent
-
 
 
 class UserSerializer(UserDetailsSerializer):
@@ -56,125 +55,3 @@ class UserSerializer(UserDetailsSerializer):
         return instance    
 
 
-
-class AnswerSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Answer
-        exclude = ('quiz','is_correct_answer')
-
-
-class SourceSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Source
-        fields = '__all__'
-
-class QuizSerializer(serializers.ModelSerializer):
-    answer_set = AnswerSerializer(many = True )
-    added_by = UserDetailsSerializer(many = False )
-    lesson = serializers.CharField(source = 'lesson.full_path_slug')
-    source = SourceSerializer(required = True)
-
-    class Meta:
-        model = Quiz
-        fields = '__all__'
-      
-
-class QuizManagerSerializer(serializers.ModelSerializer):
-    answer_set = AnswerSerializer(many = True ,required=True)
-    lesson = serializers.CharField(source = 'lesson.full_path_slug' ,required = True)
-    source = serializers.CharField(source = 'source.name', required = True)
-
-    def create(self,validated_data):
-        answer_set = validated_data.pop('answer_set' , None)
-        validated_data['lesson'] = validated_data.pop('lesson',{}).pop('full_path_slug',None)
-        validated_data['lesson'] = checkLessonTreeContent(validated_data['lesson'],LESSON , 'lesson' )
-        validated_data['source'] = validated_data.pop('source',{}).pop('name',None)
-        validated_data['source'] = checkSourceContent(validated_data['source'])
-        quiz = Quiz.objects.create(**validated_data)
-
-        for answer in answer_set:
-            answer['quiz'] = quiz
-            Answer.objects.create(**answer)
-        
-        return quiz
-
-    def update(self,instance,validated_data): #TODO Update is very slow i should think about it 
-        answer_set = validated_data.pop('answer_set' , None)
-        validated_data['lesson'] = validated_data.pop('lesson',{}).pop('full_path_slug',None)
-        validated_data['lesson'] = checkLessonTreeContent(validated_data['lesson'],LESSON , 'lesson' )
-        validated_data['source'] = validated_data.pop('source',{}).pop('name',None)
-        validated_data['source'] = checkSourceContent(validated_data['source'])
-        
-        Quiz.objects.filter(pk = instance.pk).update(**validated_data)
-        Answer.objects.filter(quiz = instance).delete()# delete all previous answers 
-        instance.refresh_from_db()
-
-        for answer in answer_set: # add new answers
-            answer['quiz'] = instance
-            Answer.objects.create(**answer)
-        
-        return instance
-    
-    class Meta:
-        model = Quiz
-        fields = [
-            'content'  ,'answer_set' , 'exponential_answer' ,  'lesson' , 'source' ,
-            'level', 'time_for_out' , 'added_by' 
-        ]
-        extra_kwargs = {
-            'added_by' : {'required' : True},
-        }
-
-class FeedBackSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = FeedBack
-        fields = '__all__'
-
-class QuizStatusSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = QuizStatus
-        exclude = ('exam',)
-
-class QuizStatusListSerializer(QuizStatusSerializer):
-    quiz = QuizSerializer()
-        
-class ExamSerializer(serializers.ModelSerializer):
-    quizstatus_set = QuizStatusSerializer( many = True )
-    time_zone = serializers.SerializerMethodField()
-
-    def get_time_zone(self,obj):
-        return TIME_ZONE
-    
-    class Meta:
-        model= Exam
-        fields = ('id','close_date','add_date','time_zone' ,'quizstatus_set')
-        extra_kwargs = {
-            'close_date':{'read_only':True},
-            'add_date':{'read_only':True},
-        }
-        
-    def update(self,instance,validated_data):
-        for status in  validated_data.pop('quizstatus_set'):
-            #only one quiz_status is exist for each quiz in a exam
-            quizStatus = instance.quizstatus_set.get(quiz = status['quiz']) 
-            quizStatus.user_answer = status['user_answer']
-            quizStatus.save()
-        
-        Exam.objects.filter(pk = instance.pk).update(**validated_data)
-        instance.refresh_from_db()
-
-        return instance
-
-class ExamListSerializer(ExamSerializer):
-    quizstatus_set = QuizStatusListSerializer(many =True)
-
-class LessonContentSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = TreeContent
-        fields = '__all__'
-
-class LessonSeializer(serializers.ModelSerializer):
-    content = LessonContentSerializer()
-    class Meta:
-        model = LessonTree
-        fields = ('content',)

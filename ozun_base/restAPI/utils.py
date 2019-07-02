@@ -52,5 +52,5 @@ class WriteOnlyViewSetMixin(
 
 def LimitOffsetPaginationWrapper(default_limit = 10):
     lop = LimitOffsetPagination
-    lop.default_limit = 10
+    lop.default_limit = default_limit
     return lop

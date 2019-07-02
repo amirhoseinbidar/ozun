@@ -15,9 +15,10 @@ from rest_framework import status
 class GenericSearchView(ListModelMixin , GenericAPIView):
     """ 
         generic search view for models that need search available fields are 
-        [ text , path , tag ] for path search model must have a generic relations
+        [ text , path , tag ] but [text and path] are active by default
+        for path search , model must have a generic relations
         to core.LessonTree  and also a "get_by_path" method that handel path searching
-        for tag search it should have a connection to taggit 
+        for tag search it should have a connection to taggit model
     """
     text_fields_search = []
     tag_field = 'tags'

@@ -2,35 +2,44 @@
 from __future__ import unicode_literals
 
 from rest_framework import generics 
-from restAPI.serializers import  Quiz , ExamSerializer,ExamListSerializer , QuizStatusSerializer  
+from restAPI.serializers import  (
+    ExamSerializer,
+    ExamListSerializer , 
+    ExamStartSerializer  
+)  
 from quizzes.models import Exam,Source ,Quiz
 from quizzes import utils
 from core.exceptions import duplicationException
-from rest_framework.exceptions import UnsupportedMediaType , NotFound , ParseError , NotAuthenticated ,APIException
+from rest_framework.exceptions import (
+    UnsupportedMediaType , NotFound ,
+    ParseError , NotAuthenticated 
+)
 from core.utils import find_in_dict
-from rest_framework import status
+from rest_framework import status , mixins 
 from rest_framework.response import Response
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.exceptions import ValidationError
 
-#I must do it in post
-class StartExam(generics.ListAPIView):
+
+class StartExam(mixins.ListModelMixin , generics.GenericAPIView):
     serializer_class = ExamListSerializer
+    
+    def post(self,*args,**kwargs):
+        return self.list(*args,**kwargs)
+
     def get_queryset(self):
-        data = self.request.query_params
-        level = data.get('level' , None)
-        source = data.get('source' , None)
+        serializer = ExamStartSerializer(self.request.data)
+        if not data.is_valid():
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)             
+        data = data.serializer
 
         try:
-            number = data.get('number' ,None)
-            if number:
-                number = int(number)
-            return Exam.start_random_exam(self.kwargs["LessonPath"], 
-                        user = self.request.user , level = level , 
-                        source = source ,number = number  )
-
+            return Exam.start_random_exam(data["path"], 
+                        user = self.request.user , level = data["level"] , 
+                        source = data["source"] ,number = data["number"]  )
+                        
         except (duplicationException, ValidationError) as e:
-            raise ParseError(e,400)
+            raise ParseError(e.message)
         except  ObjectDoesNotExist :
             raise ParseError('matching lesson path does not exists')
         except ValueError:
@@ -53,17 +62,16 @@ class UpdateExam(  CheckHaveOpenExamMixin,
         return Exam.objects.filter(user = self.request.user , is_active = True)
     def get_object(self):
         return Exam.objects.get(user = self.request.user , is_active = True)
-    
-    def check_content_type(self,*args,**kwargs):
-        if self.request.content_type != 'application/json':
-            raise UnsupportedMediaType('only "application/json" content_type allowed ') 
-    
+        
     serializer_class = ExamSerializer
 
     def put(self,request,*args,**kwargs):
-        self.check_content_type()
         self.check_exam()
-        return self.update(request, paritial = True ,  *args,**kwargs)
+        return super().update(request,*args,**kwargs)
+    
+    def patch(self,request,*args,**kwargs):
+        self.check_exam()
+        return super().patch(request,*args,**kwargs)
     
     
 class FinishExam(CheckHaveOpenExamMixin ,generics.views.APIView ):

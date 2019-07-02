@@ -65,7 +65,7 @@ class Quiz(models.Model):
     level = models.CharField(max_length = 2,choices =LEVEL_TYPE )
     lesson = models.ForeignKey(LessonTree,null = True, blank = True , on_delete=models.SET_NULL) 
     time_for_out = models.TimeField(blank = True , null = True)
-    added_by = models.ForeignKey(User,null = True , blank = True , on_delete = models.SET_NULL)
+    user = models.ForeignKey(User,null = True , blank = True , on_delete = models.SET_NULL)
     timestamp = models.DateTimeField(auto_now_add=True)
    
 
@@ -78,9 +78,15 @@ class Quiz(models.Model):
             total_votes=dic[FeedBack.UP_VOTE] - dic[FeedBack.DOWN_VOTE])
         self.refresh_from_db()
     
+    @property
+    def get_lesson(self):
+        if self.lesson:
+            return self.lesson.full_path_slug
+        return ''
+ 
     @staticmethod
     def get_mostVotes():
-        """ return a list of most Voted quizzes by area"""
+        """ return a list of most Voted quizzes """
         return Quiz.objects.order_by('-total_votes') 
 
     @staticmethod
