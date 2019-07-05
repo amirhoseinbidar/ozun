@@ -12,8 +12,7 @@ def checkLessonTreeContent(content , _type , field_name ,is_slug =True):
         allowed_types(_type , obj , field_name )
         return obj
     except ObjectDoesNotExist :
-        
-        raise NotFound('lesson path is not exist in this levels {}'.format( _type ) )
+        raise NotFound('lesson path is not exist ' )
     except ValidationError as e:
         raise NotAcceptable(e.message)
 

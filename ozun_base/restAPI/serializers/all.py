@@ -55,3 +55,8 @@ class UserSerializer(UserDetailsSerializer):
         return instance    
 
 
+class LessonSeializer(serializers.ModelSerializer):
+    content = serializers.CharField(source = 'content.slug')
+    class Meta:
+        exclude = ("path",)
+        model = LessonTree

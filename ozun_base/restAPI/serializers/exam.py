@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from quizzes.models import Answer ,Quiz , QuizStatus , Exam
 from ozun.settings import TIME_ZONE
-from . import QuizManagerSerializer
+from . import QuizForExamSerializer
 
 class QuizStatusSerializer(serializers.ModelSerializer):
     class Meta:
@@ -9,13 +9,13 @@ class QuizStatusSerializer(serializers.ModelSerializer):
         exclude = ('exam',)
 
 class QuizStatusListSerializer(QuizStatusSerializer):
-    quiz = QuizManagerSerializer()
+    quiz = QuizForExamSerializer()
       
 
 class ExamStartSerializer(serializers.Serializer):
-    level = serializers.ChoiceField(choices = Quiz.LEVEL_TYPE)
-    source = serializers.CharField()
-    number = serializers.IntegerField()
+    level = serializers.ChoiceField(choices = Quiz.LEVEL_TYPE ,default=None, required = False)
+    source = serializers.CharField(required = False ,default = None)
+    number = serializers.IntegerField(required = False , default = None )
     path = serializers.CharField()
 
 class ExamSerializer(serializers.ModelSerializer):
@@ -35,8 +35,7 @@ class ExamSerializer(serializers.ModelSerializer):
         
     def update(self,instance,validated_data):
         for status in  validated_data.pop('quizstatus_set'):
-            #only one quiz_status is exist for each quiz in a exam
-            quizStatus = instance.quizstatus_set.get(quiz = status['quiz']) 
+            quizStatus = instance.quizstatus_set.get(id = status['status_id']) 
             quizStatus.user_answer = status['user_answer']
             quizStatus.save()
 

@@ -15,7 +15,7 @@ router.register(r'qa/question' , views.QuestionViewSet , basename= 'qa-question'
 router.register(r'qa/answer' , views.AnswerViewSet , basename= 'qa-answer')
 router.register(r'magazine' , views.MagazineViewSet, basename= 'mag' )
 router.register(r'course', views.CourseViewSet , basename= 'cor' )
-router.register(r'quiz-manage' ,views.QuizManagerViewSet ,basename= 'quiz-manage' )
+router.register(r'quiz' ,views.QuizManagerViewSet ,basename= 'quiz-manage' )
 
 urlpatterns = [
     url(r'^lesson/children/',
@@ -27,7 +27,7 @@ urlpatterns = [
     url(r"quiz/search/", views.QuizSearchContent.as_view() ),
     url(r"quiz/most-vote/", views.QuizMostVote.as_view() ),
 
-    url(r'^exam/start/(?P<LessonPath>[\w/-]+)',
+    url(r'^exam/start/',
         views.StartExam.as_view(), name='start_exam'),
     url(r'^exam/update/$', views.UpdateExam.as_view(), name='update_exam'),
     url(r'^exam/finish/$', views.FinishExam.as_view(), name='finish_exam'),

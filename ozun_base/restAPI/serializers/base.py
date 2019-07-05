@@ -5,6 +5,7 @@ from rest_framework.exceptions import ParseError
 from core.exceptions import ValidationError
 from ..utils import checkLessonTreeContent
 from core.models import LESSON ,TOPIC , GRADE , CHAPTER 
+
 import re
 
 class MediaGiverMixin(serializers.Serializer):
@@ -142,3 +143,4 @@ class SearchSerializer(serializers.Serializer):
     path = serializers.CharField(required = False)
     tag = serializers.ListField(
         child = serializers.CharField() , required = False )
+

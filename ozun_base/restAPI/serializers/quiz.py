@@ -2,18 +2,37 @@ from quizzes.models import Answer ,Quiz , QuizStatus , Source
 from rest_framework import serializers
 from .base import LessonPathMixin , MediaGiverMixin 
 from quizzes.models.models_quiz import  CHAPTER ,TOPIC ,LESSON
+from ..utils import checkSourceContent
 
 class AnswerSerializer(serializers.ModelSerializer):
     class Meta:
         model = Answer
-        exclude = ('quiz')
+        exclude = ('quiz',)
+
+class AnswerForExamSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Answer
+        exclude = ('quiz' , 'is_correct_answer' )
 
 class SourceSerializer(serializers.ModelSerializer):
     class Meta:
         model = Source
         fields = '__all__'
 
-class QuizManagerSerializer(LessonPathMixin , MediaGiverMixin , serializers.ModelSerializer):
+class QuizForExamSerializer(serializers.ModelSerializer):
+    answer_set = AnswerForExamSerializer( many = True )
+    source = serializers.CharField(source = 'source.name')
+    class Meta:
+        model = Quiz
+        fields = [
+            'content' , "answer_set"  ,  'lesson' , 
+            'source' ,'level', 'time_for_out' , 'user' ,
+        ]
+
+class QuizManagerSerializer(
+        LessonPathMixin ,
+        MediaGiverMixin ,
+        serializers.ModelSerializer):
     answer_set = AnswerSerializer( many = True ,required=True )
     source = serializers.CharField(source = 'source.name', required = True)
     allowed_types = [ LESSON , CHAPTER , TOPIC ]
@@ -50,6 +69,6 @@ class QuizManagerSerializer(LessonPathMixin , MediaGiverMixin , serializers.Mode
     class Meta:
         model = Quiz
         fields = [
-            'content'  ,'answer_set' , 'exponential_answer' ,  'lesson' , 'source' ,
-            'level', 'time_for_out' , 'user' 
+            'id' , 'content'  ,'answer_set' , 'exponential_answer' ,  'lesson' , 'source' ,
+            'level', 'time_for_out' , 'user' , 'total_votes' ,
         ]

@@ -4,18 +4,6 @@ from __future__ import unicode_literals
 from django.db import models
 from django.utils import timezone
 
-class BTKQuerySet(models.QuerySet):
-    """ Base Temporary Key Query Set
-        every time we want to get object(s) this class check query(s) for ensure
-        they are not out of date  """
-    
-    def check_out_of_date(self):
-        for q in self.query:
-            q.check_out_of_date()
-        return self.query
-
-
-
 class BaseTemporaryKey(models.Model):
     """ base class for all model classes that want be temporary , mean 
         after a determined time something happen for them
@@ -36,11 +24,6 @@ class BaseTemporaryKey(models.Model):
         """ how behaive with object if he get out of date """
         self.delete()
 
-    def check_out_of_date(self):
-        if timezone.now()>self.close_date:
-            self.close_action()
-
-    objects = BTKQuerySet.as_manager()
 
     class Meta:
         abstract = True

@@ -4,6 +4,7 @@ from .quiz import (
     QuizManagerSerializer ,
     SourceSerializer ,
     AnswerSerializer ,
+    QuizForExamSerializer ,
 )
 from .all import *
 from .exam import (

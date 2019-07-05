@@ -4,7 +4,7 @@ from __future__ import unicode_literals
 from rest_framework import generics , mixins , viewsets 
 from restAPI.serializers import ( 
     QuizStatusSerializer, QuizManagerSerializer ,
-    SourceSerializer ,   Quiz  
+    SourceSerializer ,   Quiz  , LessonSeializer
 ) 
 from core.models import LessonTree
 from rest_framework.exceptions import ParseError 
@@ -48,8 +48,7 @@ class LessonPathView(generics.GenericAPIView):
         else:
             raise ParseError('path is required')
         
-    
-        if path == 'root':
+        if path == '/':
             objs = LessonTree.get_root_nodes() 
         else:
             try :
@@ -61,6 +60,9 @@ class LessonPathView(generics.GenericAPIView):
 
 class QuizManagerViewSet(IsOwnerMixin , viewsets.ModelViewSet ):
     serializer_class = QuizManagerSerializer 
+    pagination_class = LimitOffsetPaginationWrapper()
+    def get_queryset(self):
+        return Quiz.objects.all()
 
 class SourceView(generics.ListAPIView):
     serializer_class = SourceSerializer

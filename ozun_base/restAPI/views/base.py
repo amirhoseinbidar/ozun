@@ -28,6 +28,11 @@ class GenericSearchView(ListModelMixin , GenericAPIView):
     pagination_class = LimitOffsetPaginationWrapper(20)
 
     def post(self,*args,**kwargs):
+        serializer = SearchSerializer(data = self.request.data)
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        self.data = serializer.data
+
         return self.list(*args,**kwargs)
 
     def get_queryset(self): # data should serialize to check if thay are valid
@@ -35,10 +40,8 @@ class GenericSearchView(ListModelMixin , GenericAPIView):
         request = self.request
 
         ### checking data 
-        serializer = SearchSerializer(data = self.request.data)
-        if not serializer.is_valid():
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        data_buf = serializer.data
+        
+        data_buf = self.data
         data = {}
 
         for field in self.active_field :

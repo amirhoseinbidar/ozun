@@ -7,7 +7,7 @@ from restAPI.serializers import  (
     ExamListSerializer , 
     ExamStartSerializer  
 )  
-from quizzes.models import Exam,Source ,Quiz
+from quizzes.models import Exam , Source ,Quiz
 from quizzes import utils
 from core.exceptions import duplicationException
 from rest_framework.exceptions import (
@@ -25,20 +25,20 @@ class StartExam(mixins.ListModelMixin , generics.GenericAPIView):
     serializer_class = ExamListSerializer
     
     def post(self,*args,**kwargs):
+        serializer = ExamStartSerializer(data =self.request.data)
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)             
+        self.data =serializer.data
         return self.list(*args,**kwargs)
 
     def get_queryset(self):
-        serializer = ExamStartSerializer(self.request.data)
-        if not data.is_valid():
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)             
-        data = data.serializer
-
+        if Exam.has_user_active_exam(self.request.user):
+            raise ParseError('a active exam alredy exist first close it')
         try:
-            return Exam.start_random_exam(data["path"], 
-                        user = self.request.user , level = data["level"] , 
-                        source = data["source"] ,number = data["number"]  )
-                        
-        except (duplicationException, ValidationError) as e:
+            return Exam.start_random_exam(self.data["path"], 
+                        user = self.request.user , level = self.data["level"] , 
+                        source = self.data["source"] ,number = self.data["number"]  )
+        except  ValidationError as e:
             raise ParseError(e.message)
         except  ObjectDoesNotExist :
             raise ParseError('matching lesson path does not exists')
@@ -89,19 +89,21 @@ class FinishExam(CheckHaveOpenExamMixin ,generics.views.APIView ):
         }
         return Response(data , status.HTTP_200_OK )
 
-class ExamInfo(generics.ListAPIView):#TODO: ExamStatistics
+class ExamInfo(generics.RetrieveAPIView):#TODO: ExamStatistics
     serializer_class = ExamListSerializer
     
-    def get_queryset(self):
+    def get_object(self):
         pk = self.kwargs.get('exam_id')
         if pk == 'active':
-            return Exam.objects.filter(user = self.request.user , is_active = True)
+            return Exam.objects.get(user = self.request.user , is_active = True)
         
         if pk.isdigit():
-            exam = Exam.objects.filter(pk =pk)
+            exam = Exam.objects.get(pk =pk)
             if exam.exists():
                 if exam[0].user.pk == self.request.user.pk:
                     return exam
                 raise NotAuthenticated('you cant access to this exam , this is not for you ')
     
         raise ParseError('uncorrect arguments')
+
+class FullExamInfoView()

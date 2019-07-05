@@ -47,26 +47,38 @@ class QuizStatus(models.Model):#RULE: user_answer  must be one of the quiz answe
 
 
 
-class Exam(BaseTemporaryKey):
-    
+class Exam(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     is_active = models.BooleanField() 
-    total_time = models.TimeField()
-    
-    def clean(self):
-        if Exam.objects.filter(user = self.user , is_active = True).exists():
-            raise duplicationException('a active exam alredy exist first close it')
+    total_time = models.TimeField()        
+    add_date = models.DateTimeField(auto_now_add=True)
+    close_date = models.DateTimeField()
+    FORWARD_TIME = 600 # by second # 00:10:00
 
+    def create_record(self,user,total_time, forward_time = 0,is_active = True,*args,**kwargs ): 
 
-    def create_record(self,user,total_time,ignore_key_exception =True
-            , forward_time = 0,is_active = True,*args,**kwargs ): 
-        super(Exam,self).create_record(forward_time,*args,**kwargs)
+        if forward_time == 0:
+            forward_time =self.FORWARD_TIME
+        time = timezone.now()
+        self.close_date = time + timezone.timedelta(0,forward_time)
         self.is_active = is_active
         self.user = user
         self.total_time = total_time
-        self.save()
+        self.save(*args,**kwargs)
         return self
 
+    @staticmethod
+    def has_user_active_exam(user):
+        exams = Exam.objects.filter(user = user , is_active = True)
+        if len(exams) != 0:
+            flag = True
+            for exam in exams:
+                if exam.isOutOfDate():
+                    exam.close_action()
+                    flag = False
+            return flag
+        return False
+        
     def isOutOfDate(self):
         if timezone.now() >= self.close_date:
             return True   
@@ -144,7 +156,7 @@ class Exam(BaseTemporaryKey):
 
 
 class ExamStatistic(models.Model):
-    exam = models.OneToOneField(Exam,on_delete = models.CASCADE)
+    exam = models.ForeignKey(Exam,on_delete = models.CASCADE)
     negative_score = models.PositiveIntegerField()
     positive_score = models.PositiveIntegerField()
     total_score = models.IntegerField()

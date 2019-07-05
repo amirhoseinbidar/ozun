@@ -201,9 +201,8 @@ def allowed_types(_type, field, field_name):
         _type = [_type, ]
 
     if field and not field.content.type in _type:
-        types = dict(TreeContent.CONTENT_TYPE)
-        error_text = 'unallowed type of content for field %s allowed types are %s' % (
-            field_name, types)
+        error_text = 'unallowed depth of content for field %s allowed depth are %s' % (
+            field_name, _type)
         raise ValidationError(error_text)
 
 
