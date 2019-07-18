@@ -105,5 +105,3 @@ class ExamInfo(generics.RetrieveAPIView):#TODO: ExamStatistics
                 raise NotAuthenticated('you cant access to this exam , this is not for you ')
     
         raise ParseError('uncorrect arguments')
-
-class FullExamInfoView()

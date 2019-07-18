@@ -13,13 +13,14 @@ app_name = 'api'
 router = DefaultRouter()
 router.register(r'qa/question' , views.QuestionViewSet , basename= 'qa-question' ) 
 router.register(r'qa/answer' , views.AnswerViewSet , basename= 'qa-answer')
-router.register(r'magazine' , views.MagazineViewSet, basename= 'mag' )
+router.register(r'magazine', views.MagazineViewSet, basename= 'mag' )
 router.register(r'course', views.CourseViewSet , basename= 'cor' )
-router.register(r'quiz' ,views.QuizManagerViewSet ,basename= 'quiz-manage' )
+router.register(r'quiz', views.QuizManagerViewSet ,basename= 'quiz-manage' )
 
 urlpatterns = [
     url(r'^lesson/children/',
         views.LessonPathView.as_view(), name='lesson_path_view'),
+
     url(r'^sources/', views.SourceView.as_view(), name='source_view'),
 
     url(r'^quiz/feed-back/(?P<pk>\d)/$',
@@ -35,7 +36,6 @@ urlpatterns = [
         views.ExamInfo.as_view(), name='exam_info'),
    
     
-    ###### tested #####
     url(r'^qa/question/answered/$', views.QuestionListView.as_view(),
         {'state': 'answered'} , name='qa_questions_ans'),
     url(r'^qa/question/unanswered/$', views.QuestionListView.as_view(),
@@ -55,7 +55,8 @@ urlpatterns = [
     
     url(r"course/search/" ,views.CourseSearch.as_view() ),
     url(r"course/feedback/(?P<pk>\d+)/" ,views.CourseFeedback.as_view() ),
-    #### tested ######
+    
+
 ]
 
 urlpatterns += router.urls

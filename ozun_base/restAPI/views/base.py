@@ -84,7 +84,7 @@ class GenericSearchView(ListModelMixin , GenericAPIView):
 class GenericFeedbackView(GenericAPIView): 
     """ 
     generic feedback view for append voting futhure to models that use
-    core.FeedBack as a vote save
+    core.FeedBack as a vote saver
     NOTE : url must have a pattern named pk
     """
     allow_feedbacks = [UP_VOTE,DOWN_VOTE,FAVORITE]
