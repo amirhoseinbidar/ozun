@@ -879,9 +879,9 @@ url : /api/quiz/search/
  
 
 پارامتر های مورد نیاز : 
-	* حداقل یکی از پارامتر های زیر باید فرستاده شود
-	* text : کلمات موجود در عنوان و محتوا جستوجو میشوند 
-	* path : مسیر سوال
+  * حداقل یکی از پارامتر های زیر باید فرستاده شود
+  * text : کلمات موجود در عنوان و محتوا جستوجو میشوند 
+  * path : مسیر سوال
 
 مثال :
 ```
@@ -918,13 +918,11 @@ result :
  
 
 پارامتر های مورد نیاز :
-	* feedback_type : U or D --- U:UP_VOTE , D:DOWNVOTE  
+   *  feedback_type : U or D --- U:UP_VOTE , D:DOWNVOTE  
 	
 مثال 
 ```
-{
-	"feedback_type" : "U" 
-}
+{ "feedback_type" : "U" }
 
 result:
 "feedback recorded"
