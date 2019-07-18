@@ -796,11 +796,137 @@ result:
       .
     ]
 ```
-  
-  
-  
+
+#### ادیت , حذف و گرفتن اطلاعات یک کوییز
+
+متد های قابل قبول :  [ GET, PUT ,PATCH , DELETE ]
+
+```
+	url : /api/quiz/<id>/
+```
+
+##### DELETE 
+respnse 204 
+
+##### PUT , PATCH
+
+مثال:
+```
+{
+	"content" : "how much average time take  for a girl to dress and ready for going out ? " ,
+	"answer_set" : [
+			{ "content" : "1 hour" , "is_correct_answer" : false } ,
+			{ "content" : "3 hour" , "is_correct_answer" : false } ,
+			{ "content" : "more than 1 day" , "is_correct_answer" : true } ,
+			{ "content" : "infinite " , "is_correct_answer" : false }
+	],
+	"exponential_answer" : " well of course it depend on girl but between 1 day and 1 week is good \n for whom tick first answer I should say joke with yourself pls :| , for third answer it is close but there is handful girls who can do it and for tick fourth answer be careful we said average !!! ",
+	"lesson" : "girls/behavior/understanding" ,
+	"source" : "strange girls !" ,
+	"level" : "VH" <-- choices are VE:very easy , E:easy , M:medium , H:hard , VH:very hard
+	"time_for_out" : "01:00:00"
+}
+
+result:
+
+{
+    "id": 6,
+    "content": "how much average time take  for a girl to dress and ready for going out ?",
+    "answer_set": [
+        {
+            "id": 21,
+            "content": "1 hour",
+            "is_correct_answer": false
+        },
+        {
+            "id": 22,
+            "content": "3 hour",
+            "is_correct_answer": false
+        },
+        {
+            "id": 23,
+            "content": "more than 1 day",
+            "is_correct_answer": true
+        },
+        {
+            "id": 24,
+            "content": "infinite",
+            "is_correct_answer": false
+        }
+    ],
+    "exponential_answer" : "  well of course it depend on girl but between 1 day and 1 week is good \n for whom tick first answer I should say joke with yourself pls :| , for third answer it is close but there is handful girls who can do it and for tick fourth answer be careful we said average !!!" ,
+	  "source" : "strange girls !" ,
+    "level": "VH",
+    "time_for_out": "01:00:00",
+    "user": 3, <-- user that write this question
+    "total_votes": 0 
+}
+```
 
 
+##### GET 
+```
+	{ < quiz> }
+```
 
-  
-  
+#### جستوجو در کوییز ها
+```
+url : /api/quiz/search/
+```
+
+
+متد های قابل قبول :  [  POST, ]
+ 
+
+پارامتر های مورد نیاز : 
+	* حداقل یکی از پارامتر های زیر باید فرستاده شود
+	* text : کلمات موجود در عنوان و محتوا جستوجو میشوند 
+	* path : مسیر سوال
+
+مثال :
+```
+{
+	"text" : "tricks for attract a girl" , 
+	"path" : "girl/attention" , 
+}
+
+result : 
+{
+	<quiz 1> ,
+	<quiz 2> , 
+	.
+	.
+	.
+}
+```
+
+
+#### گرفتن  تمام کوییز ها به ترتیب بیشترین امتیاز
+```
+	url: /api/quiz/most-vote/
+```
+
+متد های قابل قبول :  [  GET, ]
+ 
+
+#### بازخورد به یک کوییز
+```
+	url: /api/quiz/feed-back/<id>/
+```
+
+متد های قابل قبول :  [  POST, ]
+ 
+
+پارامتر های مورد نیاز :
+	* feedback_type : U or D --- U:UP_VOTE , D:DOWNVOTE  
+	
+مثال 
+```
+{
+	"feedback_type" : "U" 
+}
+
+result:
+"feedback recorded"
+
+```
