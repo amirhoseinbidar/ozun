@@ -45,44 +45,6 @@ form-data/multipart
 
 
 ```
-
-نکته ۲:
-
-اکثرا محتواهای سایت برای ارتباط با یکدیگر از یک گراف درخت استفاده میکنند 
-اینکار دسترسی به محتوا های و جستوجو و پیدا کردن نمونه های مرتبط را آسان میکند
-نحوه کار آسان است یک درخت از محتوا های موجود در کتاب های درسی موجود است که اشیای مختلف اما با هدف یکسان میتوانند به یکدیگر وصل شوند  و یا در آنها جستوجو کرد به عنوان 
-```
-/(root): 
-  اول :
-     ریاضی : ...
-     بخوانیم: ...
-  دوم : ..
-   .
-   .
-   .
- 
-   دوازدهم-ریاضی :
-      عربی : ... 
-      فارسی : ... 
-```
-بعد دیگر اشیاء میتوانند به یک گره از درخت وصل شوند
-```
-
-یک ازمون آمار ---> دوازدهم ریاضی/آمار
-دوره آمار و احتمال ---> دوازدهم ریاضی/آمار
-
-
-مجله زیست ---> دوازدهم تجربی/زیست
-
-```
-
-این کار پیمایش و پیشنهاد را راحت تر میکند مسلما 
-شاخه های پایین تر به معنی اختصاصی تر شدن مباحث است
-
-      
-
-
-
 ## ورود به ازون 
 شما میتوانید از طریق لاگین یا ثبت نام وارد شوید 
 
@@ -153,6 +115,107 @@ url : /rest-auth/registration/
   
 ```
 
+
+
+# درخت درس !!!
+
+اکثرا محتواهای سایت برای ارتباط با یکدیگر از یک گراف درخت استفاده میکنند 
+اینکار دسترسی به محتوا های و جستوجو و پیدا کردن نمونه های مرتبط را آسان میکند
+نحوه کار آسان است یک درخت از محتوا های موجود در کتاب های درسی موجود است که اشیای مختلف اما با هدف یکسان میتوانند به یکدیگر وصل شوند  و یا در آنها جستوجو کرد به عنوان 
+```
+/(root): 
+  اول :
+     ریاضی : ...
+     بخوانیم: ...
+  دوم : ..
+   .
+   .
+   .
+ 
+   دوازدهم-ریاضی :
+      عربی : ... 
+      فارسی : ... 
+```
+بعد دیگر اشیاء میتوانند به یک گره از درخت وصل شوند
+```
+
+یک ازمون آمار ---> دوازدهم ریاضی/آمار
+دوره آمار و احتمال ---> دوازدهم ریاضی/آمار
+
+
+مجله زیست ---> دوازدهم تجربی/زیست
+
+```
+
+این کار پیمایش و پیشنهاد را راحت تر میکند مسلما 
+شاخه های پایین تر به معنی اختصاصی تر شدن مباحث است
+
+#### نحوه پیمایش در درخت درس موجود در سرویس
+```
+url : /api/lesson/children/
+```
+
+متد های قابل قبول :  [ POST , ]
+
+##### متد POST:
+
+لیستی از زیر شاخه ها را بر میگرداند 
+
+پارامتر های قابل قبول :
+  * path : اجباری   , مسیر گره والد , در صورت ارسال / زیر شاخه های اصلی فرستاده میشود
+ 
+مثال :
+```
+{
+  "path" : "/"
+}
+
+result:
+[
+    {
+        "id": 1,
+        "content": "دهم",
+        "depth": 1,
+        "numchild": 2
+    },
+    {
+        "id": 3,
+        "content": "یازدهم-ریاضی",
+        "depth": 1, <-- عمق گره
+        "numchild": 1 <-- (در صورت 0 بودن تعداد فرزند دیگر ریکویست نزنید برای کم شدن ترافیک سرویس)
+    },
+    ...
+    ...
+    ...
+]
+
+or
+
+{
+  "path" : "دهم" ,
+}
+
+result:
+[
+    {
+        "id": 2,
+        "content": "ریاضی",
+        "depth": 2,
+        "numchild": 0
+    },
+    {
+        "id": 7,
+        "content": "فیزیک",
+        "depth": 2,
+        "numchild": 0
+    }
+]
+
+```
+
+
+
+
 ## سیستم پرسش و پاسخ
 
 #### ایجاد یک پرسش و گرفتن سوالات بر اساس آخرین  سوال پرسیده شده
@@ -194,7 +257,7 @@ url : /api/qa/question/
     "content": "I break my brother phone how can I repair it?",
     "has_answer": false,
     "total_votes": 0, <-- امتیاز سوال -به این صورت محاسبه میشود
-    total_vote = UpVotes - DownVotes
+                            total_vote = UpVotes - DownVotes
     
     "user": 8 <-- آیدی کاریری که سوال را پرسیده است
   }
@@ -634,53 +697,110 @@ result:
 
 ```
 
-# سیستم آزمون 
+## Quiz
+
+کوییز ها برای آزمون ها استفاده میشوند این بخش باعث میشود که 
+کاربران بتوانند در ساختن کوییز ها کمک کنند و در عوض آن نیز امتیاز بگیرند
+البته این امکان هم هست که کاربران کوییز هایی که میخواهند انتخاب کنند
+و یک پی دی اف برای برگه آزمون و یک پی دی اف دیگر برای برگه پاسخ آزمون به
+آنها تحویل داده شود  
+
+
+#### ساختن و لیست کردن تمام کوییزها بر اساس زمان ایجاد شدن
+```
+url: /api/course/feedback/<id>/
+```
+
+متد های قابل قبول :  [ GET, POST ]
+
+##### POST
+
+پارامتر های مورد نیاز :
+  * content :   اجباری , قابلیت ارسال مدیا
+  * answer_set :  لیستی از مجموعه جواب ها , اجباری 
+    * content :  اجباری 
+    * is_correct_answer : اجباری 
+  * exponential_answer : پاسخ تشریحی کوییز , اختیاری , قابلیت ارسال مدیا 
+  * lesson : مسیر مرتبت به کوییز , اجباری
+  * source :  منبعی که کوییز از آن طرح شده ,  اجباری
+  * level : سطح سوال , اجباری
+  * time_for_out :  زمان مورد نیاز بزای پاسخ گویی در صورت خالی بودن بر اساس لول تنظیم میشود ,اختیاری 
+
+مثال:
+```
+{
+	"content" : "how much average time take  for a girl to dress and ready for going out ? " ,
+	"answer_set" : [
+			{ "content" : "1 hour" , "is_correct_answer" : false } ,
+			{ "content" : "3 hour" , "is_correct_answer" : false } ,
+			{ "content" : "more than 1 day" , "is_correct_answer" : true } ,
+			{ "content" : "infinite " , "is_correct_answer" : false }
+	],
+	"exponential_answer" : " well of course it depend on girl but between 1 day and 1 week is good \n for whom tick first      answer I should say joke with yourself pls :| , and for tick fourth answer be careful we said average !!! ",
+	"lesson" : "girls/behavior/understanding" ,
+	"source" : "strange girls !" ,
+	"level" : "VH" <-- choices are VE:very easy , E:easy , M:medium , H:hard , VH:very hard
+	"time_for_out" : "01:00:00"
+}
+
+result:
+
+{
+    "id": 6,
+    "content": "how much average time take  for a girl to dress and ready for going out ?",
+    "answer_set": [
+        {
+            "id": 21,
+            "content": "1 hour",
+            "is_correct_answer": false
+        },
+        {
+            "id": 22,
+            "content": "3 hour",
+            "is_correct_answer": false
+        },
+        {
+            "id": 23,
+            "content": "more than 1 day",
+            "is_correct_answer": true
+        },
+        {
+            "id": 24,
+            "content": "infinite",
+            "is_correct_answer": false
+        }
+    ],
+    "exponential_answer" : " well of course it depend on girl but between 1 day and 1 week is good \n for whom tick first       answer I should say joke with yourself pls :| , and for tick fourth answer be careful we said average !!! ",
+	  "lesson" : "girls/behavior/understanding" ,
+	  "source" : "strange girls !" ,
+    "level": "VH",
+    "time_for_out": "01:00:00",
+    "user": 3, <-- user that write this question
+    "total_votes": 0 
+}
+```
+  
+##### GET
+
+مثال :
+```
+  {
+    "count": all quizzes count,
+    "next": url to get next ten quiz,
+    "previous": url to get previous ten quiz,
+    "results": [
+      < quiz 1> ,
+      < quiz 2> , 
+      .
+      .
+      .
+    ]
+```
+  
+  
+  
+
 
 
   
-
   
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
- 
-
-
-
-
-
-
- 
-    
-
-
-
-
-
-
-
-
-    
-    
-    
-
