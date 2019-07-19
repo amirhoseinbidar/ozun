@@ -1042,7 +1042,7 @@ url : /api/exam/update/
 
 result: 
 {
-    "id": 28,
+    "status_id": 28,
     "close_date": "2019-07-19T15:33:11.722991+04:30",
     "add_date": "2019-07-19T14:11:41.748627+04:30",
     "time_zone": "Asia/Tehran",
