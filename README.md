@@ -928,3 +928,117 @@ result:
 "feedback recorded"
 
 ```
+
+## EXAM 
+ در واقع سیستم آزمون از کوییز ها استفاده میکند و یک ازمون میسازد و آن را مدیریت میکند 
+ تا زمان آزمون به پابان برسد در نهایت پاسخ ها و سوال ها را آنالیز کرده و نتایح آنالیز و 
+ نمونه اکزم اصلی را ارشیو میکند
+
+
+#### شروع یک آزمون
+```
+url : /api/exam/start/
+```
+
+متد های قابل قبول :  [  POST, ]
+
+پارامتر های مورد نیاز :
+  path :  مسیری که میخواهیم از آنجا کوییز ها را برداریم و بک آزمون تشکیل دهیم , اجباری
+  number : تعداد کوییزها , پیشفرض ۷ کوییز , اختیاری
+  source :  منبعی که کوییزها باید از آنجا برداشته شوند , اختیاری
+  level : مقدار سختیه کوییزها , اختیاری
+  
+نکته : 
+   در صورت که به اندازه تعداد مورد نظری که در پارامتر فرستاده میشود کوییز در سرویس وجود نداشت
+   باشد  با تمام کوییز های موجود یک آزمون ایجاد میشود
+   
+   بعد از اتمام زمان امتحان سوال بسته و آرشیو میشود
+   
+مثال :
+```
+{
+	"path" : "girl/attention" ,
+	"number" : 10 ,
+	"source" : "strange girls !" ,
+	"level" : "VH" <-- "choices are VE:very easy , E:easy , M:medium , H:hard , VH:very hard"
+}
+
+result:
+[
+    {
+        "id": 28, 
+        "close_date": "2019-07-19T15:33:11.722991+04:30", <-- time that exam stated 
+        "add_date": "2019-07-19T14:11:41.748627+04:30", <-- time that exam will end (note: you can calculate exam time with  close_date - add_date )
+        "time_zone": "Asia/Tehran",  <-- time_zone to don't confuse add and close date for diffrent location
+        "quizstatus_set": [ <-- collection of quizzes exists in exam and thair status 
+            {
+                "id": 55,
+                "quiz": { <-- real quiz
+                    "content": "how much average time take  for a girl to dress and ready for going out ?",
+                    "answer_set": [
+                        {
+                            "id": 21,
+                            "content": "1 hour"
+                        },
+                        {
+                            "id": 22,
+                            "content": "3 hour"
+                        },
+                        {
+                            "id": 23,
+                            "content": "more than 1 day"
+                        },
+                        {
+                            "id": 24,
+                            "content": "infinite"
+                        }
+                    ],
+                    "lesson": "girl/attention",
+                    "source": "strange girls !",
+                    "level": "VH",
+                    "time_for_out": "01:00:00", <-- average time a student can answer this quiz
+                    "user": 3
+                },
+                "did_user_answer": false, <-- read_only attrebute
+                "user_answer": null <-- answer id that user selected it is null at first you should full it with update exam
+            },
+	    { <quiz_status 2>} ,
+	    { <quiz_status 3>} ,
+	    	.
+	    	.
+	    	.
+	    { <quiz_status 10>}
+	]
+    }
+]
+	 
+```
+
+#### آپدیت یک آزمون
+```
+url : /api/exam/update/<id>/
+```
+نکته :
+   بعد از پایان زمان یک امتحان قادر به پاسخ گویی نیسنید
+   
+متد های قابل قبول :  [  PUT,PATCH, ]
+
+پارامتر های مورد نیاز :
+    id : ایدی وضعیت سوال  
+    user_answer : ایدی جوابی که کاربر انتحاب کرده است
+
+مثال :
+```
+{
+    "quizstatus_set" : [
+    	{ "id": 55 , "user_answer": 24 } ,
+	{ "id": <another stauts id> , "user_answer": <a id that is in quiz answers >},
+		.
+		.
+		.
+    ]
+}
+
+result: 
+response OK
+```
