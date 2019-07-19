@@ -972,7 +972,7 @@ result:
         "time_zone": "Asia/Tehran",  <-- time_zone to don't confuse add and close date for diffrent location
         "quizstatus_set": [ <-- collection of quizzes exists in exam and thair status 
             {
-                "id": 55,
+                "status_id": 55,
                 "quiz": { <-- real quiz
                     "content": "how much average time take  for a girl to dress and ready for going out ?",
                     "answer_set": [
@@ -1016,10 +1016,11 @@ result:
 
 #### آپدیت یک آزمون
 ```
-url : /api/exam/update/<id>/
+url : /api/exam/update/
 ```
 نکته :
    بعد از پایان زمان یک امتحان قادر به پاسخ گویی نیسنید
+   ازمون اکتیو اپدیت خواهد شد
    
 متد های قابل قبول :  [  PUT,PATCH, ]
 
@@ -1031,8 +1032,8 @@ url : /api/exam/update/<id>/
 ```
 {
     "quizstatus_set" : [
-    	{ "id": 55 , "user_answer": 24 } ,
-	{ "id": <another stauts id> , "user_answer": <a id that is in quiz answers >},
+    	{ "status_id": 55 , "user_answer": 24 } ,
+	{ "status_id": <another stauts id> , "user_answer": <a id that is in quiz answers >},
 		.
 		.
 		.
@@ -1040,5 +1041,122 @@ url : /api/exam/update/<id>/
 }
 
 result: 
-response OK
+{
+    "id": 28,
+    "close_date": "2019-07-19T15:33:11.722991+04:30",
+    "add_date": "2019-07-19T14:11:41.748627+04:30",
+    "time_zone": "Asia/Tehran",
+    "quizstatus_set": [
+        {
+            "status_id": 55,
+            "did_user_answer": true,
+            "quiz": 6,
+            "user_answer": 24
+        },
+        {
+            "status_id": 56,
+            "did_user_answer": false,
+            "quiz": 5,
+            "user_answer": null
+        }
+	.
+	.
+	.
+    ]
+}
+
 ```
+
+#### بستن یک آزمون
+```
+url : /api/exam/finish/
+```
+   
+متد های قابل قبول :  [ GET, ]
+
+
+مثال :
+```
+get --> url
+
+result :
+
+{
+  'notification' : 'exam finished successfully',
+  'exam_pk' : 28,
+  'add_date' : "2019-07-19T14:11:41.748627+04:30",
+  'close_date' : "2019-07-19T15:33:11.722991+04:30", 
+}
+```
+
+#### نمایش اطلاعات ازمون 
+
+```
+url : /api/exam/info/<id>/
+```
+
+در صورتی که به جای ایدی کلمه  
+active  
+را بنویسید ازمون فعال برای شما ارسال میشود
+
+جواب سوال ها فقط بعد از اتمام ازمون قابل دسترسی است
+
+
+متد های قابل قبول :  [ GET, ]
+
+
+مثال :
+```
+get --> /api/exam/info/28/
+
+{
+    "id": 28,
+    "close_date": "2019-07-19T15:33:11+04:30",
+    "add_date": "2019-07-19T14:11:41.748627+04:30",
+    "time_zone": "Asia/Tehran",
+    "quizstatus_set": [
+        {
+            "status_id": 55,
+            "quiz": {
+                "id": 6,
+                "content": "how much average time take  for a girl to dress and ready for going out ?",
+                "answer_set": [
+                    {
+                        "id": 21,
+                        "content": "1 hour",
+                        "is_correct_answer": false <--- after closing exam this will appear
+                    },
+                    {
+                        "id": 22,
+                        "content": "3 hour",
+                        "is_correct_answer": false
+                    },
+                    {
+                        "id": 23,
+                        "content": "more than 1 day",
+                        "is_correct_answer": true
+                    },
+                    {
+                        "id": 24,
+                        "content": "infinite",
+                        "is_correct_answer": true
+                    }
+                ],
+                "exponential_answer": "",
+                "lesson": "دهم/ریاضی",
+                "source": "نشر الگو",
+                "level": "VH",
+                "time_for_out": "01:00:00",
+                "user": 3,
+                "total_votes": 1
+            },
+            "did_user_answer": true,
+            "user_answer": 24
+        },
+	.
+	.
+	.
+     ]
+}
+```
+
