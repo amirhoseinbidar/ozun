@@ -2,9 +2,17 @@
 from __future__ import unicode_literals
 
 from django.contrib import admin
-from .models import Course , Magazine
+from . import models 
 
-# Register your models here.
+class CourseSubPostInline(admin.StackedInline):
+    model = models.CourseSubPost
+    raw_id_fields = ('lesson' ,)
 
-admin.site.register(Course)
-admin.site.register(Magazine)
+class CourseAdmin(admin.ModelAdmin):
+    inlines = (CourseSubPostInline , )
+    raw_id_fields = ('lesson' ,)
+    text_fields_search = ('content' , 'title' , 'sub_posts__content')
+    readonly_fields = ('slug','total_votes')
+
+admin.site.register(models.Course , CourseAdmin)
+admin.site.register(models.Magazine)

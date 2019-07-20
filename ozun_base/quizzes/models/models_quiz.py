@@ -30,10 +30,6 @@ class Answer(models.Model):
     
     def __unicode__(self):
         return u'answer id: {0}'.format(self.pk)
-    
-    def clean(self):
-        if self.is_correct_answer:
-            checkDuplicate(Answer,self, is_correct_answer=True , quiz = self.quiz)
 
 class Quiz(models.Model):
     VERY_HARD = 'VH'

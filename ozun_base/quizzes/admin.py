@@ -21,12 +21,10 @@ class QuizzesAdminSite(admin.AdminSite):
     index_title = 'Welome to Quizzes Administration'
 
 
-quizzesAdminSite = QuizzesAdminSite(name='quizzes_admin')
-
 # Register your models here.
-quizzesAdminSite.register(models.Quiz , QuizAdmin )
-quizzesAdminSite.register(models.Source)
-quizzesAdminSite.register(models.Answer)
-quizzesAdminSite.register(models.QuizStatus)
-quizzesAdminSite.register(models.Exam)
-quizzesAdminSite.register(models.ExamStatistic)
+admin.site.register(models.Quiz , QuizAdmin )
+admin.site.register(models.Source)
+admin.site.register(models.Answer)
+admin.site.register(models.QuizStatus)
+admin.site.register(models.Exam)
+admin.site.register(models.ExamStatistic)

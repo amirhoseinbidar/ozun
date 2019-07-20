@@ -18,11 +18,13 @@ import datetime
 
 
 
-class QuizStatus(models.Model):#RULE: user_answer  must be one of the quiz answers or None
+class QuizStatus(models.Model):
+    quiz = models.ForeignKey(Quiz , models.PROTECT)
+
+    #RULE : user_answer  must be one of the quiz answers or None
+    #       if user_answer be null mean user have not been replying  quiz
+    user_answer = models.ForeignKey(Answer,blank = True,null = True , on_delete=models.SET_NULL)
     
-    quiz = models.ForeignKey(Quiz , models.CASCADE)
-    #NOTE : if user_answer be null mean user have not been replying  quiz
-    user_answer = models.ForeignKey(Answer,blank = True,null = True , on_delete=models.CASCADE)
     exam = models.ForeignKey('Exam' ,on_delete=models.CASCADE) 
     did_user_answer = models.BooleanField(default= False)
     
@@ -35,7 +37,6 @@ class QuizStatus(models.Model):#RULE: user_answer  must be one of the quiz answe
             flag = self.quiz.answer_set.filter(pk = self.user_answer.pk).exists()            
         
         if flag:
-            super().save(*args,**kwargs) # for ensure there is no problem
             self.did_user_answer = True
             return super().save(*args,**kwargs)
     
@@ -73,30 +74,25 @@ class Exam(models.Model):
         if len(exams) != 0:
             flag = True
             for exam in exams:
-                if exam.isOutOfDate():
+                if exam.is_out_of_date():
                     exam.close_action()
                     flag = False
             return flag
         return False
         
-    def isOutOfDate(self):
+    def is_out_of_date(self):
         if timezone.now() >= self.close_date:
             return True   
         return False 
 
     def disable(self):
         self.is_active = False
-        self.close_date = timezone.now()
         ExamStatistic.create(exam = self) 
         return self
     
     def close_action(self):
         self.disable().save()
     
-    def check_out_of_date(self):
-        if self.is_active:
-            return super().check_out_of_date()
-        
     @staticmethod
     def get_total_time(quizzes):
         forward_time = timedelta(0) 
@@ -112,11 +108,15 @@ class Exam(models.Model):
         forward_time = Exam.get_total_time(quizzes) 
         total_time = turn_second_to_time(forward_time.total_seconds())
 
-        exam = Exam().create_record(user = user , total_time = total_time  
-            , forward_time=forward_time.total_seconds())
+        exam = Exam().create_record(
+            user = user , total_time = total_time  , 
+            forward_time=forward_time.total_seconds()
+        )
          
-        statuses_data = [ QuizStatus(quiz = quiz , 
-            user_answer = None,exam = exam) for quiz in quizzes ]
+        statuses_data = [ 
+            QuizStatus(quiz = quiz , user_answer = None,exam = exam) 
+            for quiz in quizzes 
+        ]
         
         QuizStatus.objects.bulk_create(statuses_data)
 
@@ -131,6 +131,7 @@ class Exam(models.Model):
         quizzes = choice_without_repead(quizzes,number,False)
         
         exam = Exam.create_exam(quizzes,user)
+
         return Exam.objects.filter(pk = exam.pk)
     
     @staticmethod
@@ -161,7 +162,7 @@ class ExamStatistic(models.Model):
     positive_score = models.PositiveIntegerField()
     total_score = models.IntegerField()
     #advise = models.IntegerField()
-
+    
     @staticmethod
     def create(exam):
         pos_score , neg_score = calculate_score(exam.quizstatus_set.all())

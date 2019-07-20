@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-from random import randint
+from random import choice
 from copy import deepcopy
 from json import dumps, loads
 from datetime import datetime, time
@@ -16,41 +16,44 @@ def choice_without_repead(Queries, step=1, check_step_oveflow=True):
     if not Queries or Queries.count() == 0:
         raise ValidationError('QuerySet is empty', code='empty_query')
 
-    if check_step_oveflow:
-        if Queries.count() < step:
+    length = Queries.count()
+
+    if Queries.count() < step:
+        if check_step_oveflow:
             raise ValidationError(
                 'the number of QuerySet members must not less then step', code='step_overflow')
-    else:
-        if Queries.count() < step:
-            step = Queries.count()
+        else:
+            step = length
 
-    data = []
-    List = list(Queries)
+    data = list(range(length))
+    pks = []
     for _ in range(step):
-        buf = randint(0, len(List)-1)
-        data.append(List[buf])
-        List.pop(buf)
+        ch = choice( data )
+        i = data.index(ch)
+        data.pop(i)
+        pks.append(Queries[ch].pk)
 
-    return Queries.filter(pk__in=[item.pk for item in data])
+    return Queries.filter(pk__in = pks )
 
 
 def Score(quiz_status):
-    if (not quiz_status.user_answer or
-            quiz_status.quiz.answer_set.get(is_correct_answer=True).pk
-            != quiz_status.user_answer.pk):
+
+    answer_pk = quiz_status.quiz.answer_set.get(is_correct_answer=True).pk
+    level = quiz_status.quiz.level 
+    if (not quiz_status.user_answer or quiz_status.user_answer.pk != answer_pk ):
         return -5
-    if quiz_status.quiz.level == 'VE':
+    if level == 'VE':
         return 1
-    elif quiz_status.quiz.level == 'E':
+    elif level == 'E':
         return 3
-    elif quiz_status.quiz.level == 'M':
+    elif level == 'M':
         return 5
-    elif quiz_status.quiz.level == 'H':
+    elif level == 'H':
         return 10
-    elif quiz_status.quiz.level == 'VH':
+    elif level == 'VH':
         return 20
 
-    raise Exception()  # if level is no one of them so somthing is wrong
+    raise Exception("UNCORRECT LEVEL")  # if level is no one of them so somthing is wrong
 
 
 def getTimeByLevel(level):

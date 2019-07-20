@@ -1,16 +1,23 @@
 from rest_framework import serializers
 from quizzes.models import Answer ,Quiz , QuizStatus , Exam
 from ozun.settings import TIME_ZONE
-from . import QuizForExamSerializer
+from . import QuizWithoutAnswerSerializer , QuizManagerSerializer
+from rest_framework.exceptions import ParseError
 
 class QuizStatusSerializer(serializers.ModelSerializer):
+    status_id = serializers.IntegerField(source = 'id')
     class Meta:
         model = QuizStatus
-        exclude = ('exam',)
+        exclude = ('exam','id')
+        extra_kwargs = { 
+            'quiz' : {'read_only' : True}  , 
+        }
 
-class QuizStatusListSerializer(QuizStatusSerializer):
-    quiz = QuizForExamSerializer()
-      
+class QuizStatusWithoutAnswerSerializer(QuizStatusSerializer):
+    quiz = QuizWithoutAnswerSerializer()
+
+class QuizStatusWithAnswerSerializer(QuizStatusSerializer):
+    quiz = QuizManagerSerializer()
 
 class ExamStartSerializer(serializers.Serializer):
     level = serializers.ChoiceField(choices = Quiz.LEVEL_TYPE ,default=None, required = False)
@@ -35,12 +42,18 @@ class ExamSerializer(serializers.ModelSerializer):
         
     def update(self,instance,validated_data):
         for status in  validated_data.pop('quizstatus_set'):
-            quizStatus = instance.quizstatus_set.get(id = status['status_id']) 
+            print(status)
+            quizStatus = instance.quizstatus_set.filter(id = status['id']) 
+            if len(quizStatus) == 0:
+                raise ParseError("status with id {} does not exist".format(status['id']))
+            quizStatus = quizStatus[0]
             quizStatus.user_answer = status['user_answer']
             quizStatus.save()
 
         return instance
 
-class ExamListSerializer(ExamSerializer):
-    quizstatus_set = QuizStatusListSerializer(many =True)
+class ExamWithoutAnswerSerializer(ExamSerializer):
+    quizstatus_set = QuizStatusWithoutAnswerSerializer(many =True )
 
+class ExamWithAnswerSerializer(ExamSerializer):
+    quizstatus_set = QuizStatusWithAnswerSerializer(many = True)

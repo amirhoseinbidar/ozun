@@ -4,7 +4,8 @@ from __future__ import unicode_literals
 from rest_framework import generics 
 from restAPI.serializers import  (
     ExamSerializer,
-    ExamListSerializer , 
+    ExamWithAnswerSerializer ,
+    ExamWithoutAnswerSerializer , 
     ExamStartSerializer  
 )  
 from quizzes.models import Exam , Source ,Quiz
@@ -22,7 +23,7 @@ from django.core.exceptions import ValidationError
 
 
 class StartExam(mixins.ListModelMixin , generics.GenericAPIView):
-    serializer_class = ExamListSerializer
+    serializer_class = ExamWithoutAnswerSerializer
     
     def post(self,*args,**kwargs):
         serializer = ExamStartSerializer(data =self.request.data)
@@ -47,14 +48,22 @@ class StartExam(mixins.ListModelMixin , generics.GenericAPIView):
 
         
 
-class CheckHaveOpenExamMixin():
-    def check_exam(self):        
-        q = self.get_queryset()
-        if not q.exists():
+class CheckExamMixin():
+    def check_exam(self):  
+        if not self.queryset :     
+            self.queryset = self.get_queryset()
+        
+        if not self.queryset.exists():
             raise NotFound('you have not any open Exam')
-        return q
+        
+        for q in self.queryset:
+            if q.is_out_of_date : 
+                q.close_action()
+                raise NotFound('you have not any open Exam')
+                
+        return self.queryset
     
-class UpdateExam(  CheckHaveOpenExamMixin,
+class UpdateExam(  CheckExamMixin,
                    generics.mixins.UpdateModelMixin,
                    generics.GenericAPIView ):
     
@@ -74,7 +83,7 @@ class UpdateExam(  CheckHaveOpenExamMixin,
         return super().patch(request,*args,**kwargs)
     
     
-class FinishExam(CheckHaveOpenExamMixin ,generics.views.APIView ):
+class FinishExam(CheckExamMixin ,generics.views.APIView ):
     def get_queryset(self):
         return Exam.objects.filter(user = self.request.user , is_active = True)
 
@@ -90,8 +99,8 @@ class FinishExam(CheckHaveOpenExamMixin ,generics.views.APIView ):
         return Response(data , status.HTTP_200_OK )
 
 class ExamInfo(generics.RetrieveAPIView):#TODO: ExamStatistics
-    serializer_class = ExamListSerializer
-    
+    serializer_class = ExamWithoutAnswerSerializer 
+
     def get_object(self):
         pk = self.kwargs.get('exam_id')
         if pk == 'active':
@@ -99,9 +108,11 @@ class ExamInfo(generics.RetrieveAPIView):#TODO: ExamStatistics
         
         if pk.isdigit():
             exam = Exam.objects.get(pk =pk)
-            if exam.exists():
-                if exam[0].user.pk == self.request.user.pk:
-                    return exam
-                raise NotAuthenticated('you cant access to this exam , this is not for you ')
-    
+            if exam.user.pk == self.request.user.pk:
+                ### if exam is inactive show quiz answers and its correctness to
+                if not exam.is_active:
+                    self.serializer_class = ExamWithAnswerSerializer
+                return exam
+            raise NotAuthenticated('you cant access to this exam , this is not for you ')
+
         raise ParseError('uncorrect arguments')

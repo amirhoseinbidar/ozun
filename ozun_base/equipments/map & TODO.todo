@@ -87,7 +87,7 @@ quizzes add controller :
         to database this is in admin part   
 
 REST API part:
-    ✔ exchange data with android clients @done (12/11/2018, 8:24:32 AM)
+    ✔ exchange data with clients @done (12/11/2018, 8:24:32 AM)
 
 
 
@@ -95,29 +95,39 @@ REST API part:
 ✔ update exam status when user answer a quiz and upvote and downvote to quiz @done (14/02/2019, 11:45)
 
 enable to make quiz and answer from restAPI:
-    this have problem editor-loader load at first then ediors embed to page so edirtos dont work 
-    i have to reload it or somewhave load my script at first
-
+    ✘ there is probelm in opennig visual math studio editor part (should turn to html) @cancelled (7/19/2019, 4:40:13 AM)
+    ✘ this have problem editor-loader load at first then ediors embed to page so edirtos dont work @cancelled (7/19/2019, 4:36:08 AM)
+        i have to reload it or somewhave load my script at first
+        REASON :
+            editor changed to ckeditor it have better futhers and easy for embed and use
 
 
 make light-weight website:
-    use of cdn instead local statics
+    ✘ use of cdn instead local statics @cancelled (7/19/2019, 4:37:48 AM)
+        REASON :
+            we give up website and just imply API
 
-there is probelm in opennig visual math studio editor part (should turn to html) 
-☐ enable to make magazine
+✔ enable to make magazine @done (7/19/2019, 4:40:04 AM)
 ✔ enable to make magazine @done (17/02/2019, 13:52:55)
 ✔ make a better quiz admin @done (21/02/2019, 10:25:24)
 
+☐ repaire unitetest
 ☐ make some test magazine and course
 
-☐ adding answer to a quiz is very slow
+☐ adding answer to a quiz is very slow 
 ☐ make image compresore
 ☐ login and register with social account
 ☐ answer statistic view
-☐ chart views
+
+✘ chart views @cancelled (7/19/2019, 4:40:46 AM)
+    REASON:
+        chart views and exams info analysing assign to client
+
 ☐ localize website
 
-سوال هنگام ساختن باید اپن باشد
+✔ مشکل با آنسور ها دو آنسور میتوانند هم زمان درست باشند @done (7/20/2019, 3:03:52 AM)  @NOT-TESTED
+تغییر فرم ادمین ها برای نپذیرفتن لیسن خالی
+✔ بستن ازمون موقع منقضی شدن زمان آزمون @done (7/20/2019, 3:05:36 AM) @NOT-TESTED
 
-☐ make API that user can send image with text as Quiz, now he just can send text
+✔ make API that user can send image with text as Quiz, now he just can send text @done (7/19/2019, 4:34:47 AM)
 ✔ improve profile edit form and start exam form @done (21/02/2019, 14:09:49)

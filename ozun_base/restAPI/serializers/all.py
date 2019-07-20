@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from quizzes.models import Answer ,Quiz , QuizStatus , Exam , Source 
 from core.models import FeedBack , LessonTree ,TreeContent
-from core.models import LessonTree ,allowed_types , GRADE , LESSON 
+from core.models import LessonTree , TreeContent ,allowed_types , GRADE , LESSON 
 from rest_framework.exceptions import NotFound , NotAcceptable , ParseError
 from django.core.exceptions import ObjectDoesNotExist , ValidationError
 from rest_auth.serializers import UserDetailsSerializer 
@@ -54,9 +54,13 @@ class UserSerializer(UserDetailsSerializer):
             raise ParseError(form.errors)
         return instance    
 
+class TreeContentSerializer(serializers.ModelSerializer):
+    class Meta:
+        exclude = ("id",)
+        model = TreeContent
 
 class LessonSeializer(serializers.ModelSerializer):
-    content = serializers.CharField(source = 'content.slug')
+    content = TreeContentSerializer()
     class Meta:
         exclude = ("path",)
         model = LessonTree

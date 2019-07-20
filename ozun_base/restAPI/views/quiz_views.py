@@ -32,7 +32,7 @@ class QuizMostVote(generics.ListAPIView):
 class QuizSearchContent(GenericSearchView):
     model = Quiz
     serializer_class = QuizManagerSerializer
-    text_fields_search = ['exponential_answer' , 'content']
+    text_fields_search = ['exponential_answer' , 'content' , 'title']
 
         
 class QuizFeedBack(GenericFeedbackView):
@@ -48,7 +48,7 @@ class LessonPathView(generics.GenericAPIView):
         else:
             raise ParseError('path is required')
         
-        if path == '/':
+        if path == '/' or path == 'root':
             objs = LessonTree.get_root_nodes() 
         else:
             try :

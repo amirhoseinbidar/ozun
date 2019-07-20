@@ -22,7 +22,6 @@ from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 
 from django.views.generic import TemplateView
 from ozun import settings
-from quizzes.admin import quizzesAdminSite
 from restAPI.views import userProfileList
 
 app_name = 'ozun'
@@ -56,8 +55,7 @@ urlpatterns = [
 ]
 
 urlpatterns += i18n_patterns(
-    url(r'^admin/users/', admin.site.urls),
-    url(r'^admin/quizzes/',quizzesAdminSite.urls),
+    url(r'^admin/', admin.site.urls),
 )
 urlpatterns += staticfiles_urlpatterns()
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

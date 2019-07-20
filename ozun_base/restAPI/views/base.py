@@ -119,4 +119,4 @@ class GenericFeedbackView(GenericAPIView):
         if count:
             count()
      
-        return Response(data = 'feedback recoreded' , status = status.HTTP_200_OK)
+        return Response(data = 'feedback recorded' , status = status.HTTP_200_OK)

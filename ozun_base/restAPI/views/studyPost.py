@@ -10,16 +10,16 @@ from .base import GenericSearchView ,GenericFeedbackView
 
 class userProfileList(generics.RetrieveAPIView):
     serializer_class = UserSerializer
-    def get_queryset(self):
+    def get_object(self):
         pk = self.kwargs['pk']
         if pk.isdigit():
-            return User.objects.filter(pk = pk)
+            return User.objects.get(pk = pk)
         else:
-            return User.objects.filter(username = pk)
+            return User.objects.get(username = pk)
 
 class MagazineViewSet( IsOwnerMixin,
                        viewsets.ModelViewSet ):
-    
+
     serializer_class =  MagazineSerializer
     queryset = Magazine.objects.all()
     pagination_class = LimitOffsetPaginationWrapper(20)
@@ -31,7 +31,6 @@ class MagazineSearch(GenericSearchView):
 
 class MagzineFeedback(GenericFeedbackView):
     model = Magazine
-
 
 
 class CourseViewSet( IsOwnerMixin,

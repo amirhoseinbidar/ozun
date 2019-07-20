@@ -4,13 +4,13 @@ from .quiz import (
     QuizManagerSerializer ,
     SourceSerializer ,
     AnswerSerializer ,
-    QuizForExamSerializer ,
+    QuizWithoutAnswerSerializer ,
 )
 from .all import *
 from .exam import (
     ExamStartSerializer ,
     ExamSerializer ,
-    ExamListSerializer ,
+    ExamWithAnswerSerializer ,
+    ExamWithoutAnswerSerializer ,
     QuizStatusSerializer ,
-    QuizStatusListSerializer ,
 )

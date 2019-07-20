@@ -55,8 +55,6 @@ urlpatterns = [
     
     url(r"course/search/" ,views.CourseSearch.as_view() ),
     url(r"course/feedback/(?P<pk>\d+)/" ,views.CourseFeedback.as_view() ),
-    
-
 ]
 
 urlpatterns += router.urls
