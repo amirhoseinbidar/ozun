@@ -51,8 +51,9 @@ class LssonTreeForm(MoveNodeForm):
             do_clear = False 
         else:
             ref_node = ref_node[0]
-            
-        clean_lesson_tree( ref_node , content , pos )
+        
+        if do_clear:
+            clean_lesson_tree( ref_node , content , pos )
 
         return self.cleaned_data
         
