@@ -38,9 +38,15 @@ class LssonTreeForm(MoveNodeForm):
             pos = 'child'
         if self.cleaned_data['_position'] == 'sorted-sibling':
             pos = 'sibling'
-        ref_node = LessonTree.objects.get(id = ref_node_id)
         
-        clean_lesson_tree(ref_node , content , pos)
+        if ref_node_id == 0: # if it is root
+            ref_node = LessonTree().get_root_nodes()[0]
+            pos = 'sibling'
+        else:
+            ref_node = LessonTree.objects.get(id = ref_node_id)
+        
+
+        clean_lesson_tree( ref_node , content , pos )
 
         return self.cleaned_data
         
